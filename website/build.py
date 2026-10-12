@@ -27,7 +27,7 @@ CONFIG = {
     # Where the "Open Scorezy" / "Open Streemzy" buttons send people.
     "SCOREZY_URL": "https://score.sportzy.live",
     "STREEMZY_URL": "https://streemzy.io",
-    "CONTACT_EMAIL": "rabbyisrafil@gmail.com",
+    "CONTACT_EMAIL": "info@sportzy.live",
     "FOUNDER": "Israfil Islam",
     "FOUNDER_LINKEDIN": "https://www.linkedin.com/in/israfil-islam",
     # Optional: Google Analytics 4 measurement ID (e.g. "G-XXXXXXX"). Empty = no analytics.
