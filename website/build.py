@@ -41,13 +41,13 @@ SITE_PAGES = [
     {
         "src": "index.html", "path": "/", "nav": "home", "priority": "1.0",
         "title": "Sportzy — Free Live Sports Streaming & Scoring App",
-        "description": "Turn your phone into a sports broadcast studio. Live scoreboards with Scorezy, streaming to Facebook, YouTube & Instagram at once with Streemzy. Free beta.",
+        "description": "Sportzy is a free live sports streaming and scoring app. Add live scoreboards with Scorezy and stream to Facebook, YouTube & Instagram at once with Streemzy.",
         "schema": ["software_suite", "faq"],
     },
     {
         "src": "scorezy.html", "path": "/scorezy/", "nav": "scorezy", "priority": "0.9",
         "title": "Scorezy — Free Live Scoring & Scoreboard Overlay App",
-        "description": "Add live scoreboards, cricket scorecards, team lineups, lower thirds and sponsor graphics to your live stream in real time. Scorezy is free during beta.",
+        "description": "Scorezy is a free live scoring app with a scoreboard overlay for live streams: cricket scorecards, team lineups, lower thirds and sponsor graphics in real time.",
         "crumb": "Scorezy", "schema": ["app_scorezy", "faq"],
     },
     {
@@ -65,20 +65,56 @@ SITE_PAGES = [
     {
         "src": "app.html", "path": "/app/", "nav": "app", "priority": "0.7",
         "title": "Sportzy App — Multi-Camera Sports Streaming From Phones",
-        "description": "Link several phones into synchronized multi-angle cameras and run Scorezy, Streemzy and Visionzy from one Android & iOS app. Coming soon.",
+        "description": "The Sportzy app brings multi-camera sports streaming to phones: link several phones as synchronized camera angles and run everything from one app. Coming soon.",
         "crumb": "Sportzy App", "schema": [],
     },
     {
         "src": "cricket.html", "path": "/cricket-live-streaming/", "nav": "", "priority": "0.8",
         "title": "Cricket Live Streaming App With Live Scoreboard — Free | Sportzy",
-        "description": "Live stream local cricket matches from your phone with a professional scorecard overlay. Stream to Facebook, YouTube and Instagram at once — free during beta.",
+        "description": "Sportzy is a free cricket live streaming app with a live scoreboard. Stream local matches from your phone to Facebook, YouTube and Instagram at once.",
         "crumb": "Cricket live streaming", "schema": ["faq"],
     },
     {
         "src": "football.html", "path": "/football-live-streaming/", "nav": "", "priority": "0.8",
         "title": "Football Live Streaming App for Local Matches — Free | Sportzy",
-        "description": "Broadcast grassroots football from a smartphone with live score graphics, team lineups and multi-platform streaming to Facebook, YouTube and Instagram. Free beta.",
+        "description": "Free football live streaming app for local matches: live score graphics, team lineups and multistreaming to Facebook, YouTube and Instagram from one phone.",
         "crumb": "Football live streaming", "schema": ["faq"],
+    },
+    {
+        "src": "tournament.html", "path": "/tournament-live-streaming/", "nav": "", "priority": "0.8",
+        "title": "Tournament Live Streaming With Live Scores — Free | Sportzy",
+        "description": "Tournament live streaming for leagues and cups: branded live scores, sponsor overlays and streaming to Facebook, YouTube & Instagram at once. Free beta.",
+        "crumb": "Tournament live streaming", "schema": ["faq"],
+    },
+    {
+        "src": "guides.html", "path": "/guides/", "nav": "guides", "priority": "0.7",
+        "title": "Sports Live Streaming Guides & How-Tos | Sportzy",
+        "description": "Sports live streaming guides: how to live stream cricket and football from a phone, add a scoreboard to Facebook Live and multistream to YouTube for free.",
+        "crumb": "Guides", "schema": [],
+    },
+    {
+        "src": "guide-cricket-youtube.html", "path": "/guides/how-to-live-stream-cricket-on-youtube/", "nav": "guides", "priority": "0.7",
+        "h1": "How to live stream a cricket match on YouTube (with a live scoreboard)",
+        "title": "How to Live Stream Cricket on YouTube With a Scoreboard",
+        "description": "How to live stream cricket on YouTube from your phone: setup, camera angle, live scorecard overlay and simulcasting to Facebook. Free step-by-step guide.",
+        "crumb": "Live stream cricket on YouTube", "parent": ("Guides", "/guides/"),
+        "published": "2026-10-12", "schema": ["article", "faq"],
+    },
+    {
+        "src": "guide-facebook-scoreboard.html", "path": "/guides/how-to-add-scoreboard-to-facebook-live/", "nav": "guides", "priority": "0.7",
+        "h1": "How to add a live scoreboard to Facebook Live",
+        "title": "How to Add a Live Scoreboard to Facebook Live (Free)",
+        "description": "How to add a scoreboard to Facebook Live: show real-time scores, cricket scorecards, lineups and sponsor logos on your sports stream without OBS or a PC.",
+        "crumb": "Scoreboard on Facebook Live", "parent": ("Guides", "/guides/"),
+        "published": "2026-10-12", "schema": ["article", "faq"],
+    },
+    {
+        "src": "guide-multistream.html", "path": "/guides/stream-to-facebook-youtube-instagram-at-once/", "nav": "guides", "priority": "0.7",
+        "h1": "How to stream to Facebook, YouTube and Instagram at the same time",
+        "title": "Stream to Facebook, YouTube & Instagram at the Same Time",
+        "description": "How multistreaming works and how to go live on Facebook, YouTube and Instagram simultaneously from one phone or camera — free with Streemzy.",
+        "crumb": "Multistream to Facebook, YouTube & Instagram", "parent": ("Guides", "/guides/"),
+        "published": "2026-10-12", "schema": ["article", "faq"],
     },
     {
         "src": "about.html", "path": "/about/", "nav": "about", "priority": "0.6",
@@ -99,6 +135,7 @@ NAV = [
     ("streemzy", "/streemzy/", "Streemzy"),
     ("visionzy", "/visionzy/", "Visionzy"),
     ("app", "/app/", "Sportzy App"),
+    ("guides", "/guides/", "Guides"),
     ("about", "/about/", "About"),
 ]
 
@@ -200,16 +237,30 @@ def build_schema(page, body):
         "isPartOf": {"@id": abs_url("/#website")}, "inLanguage": "en",
     }]
     if page.get("crumb"):
+        trail = [("Home", "/")] + ([page["parent"]] if page.get("parent") else []) + [(page["crumb"], page["path"])]
         graph.append({
             "@type": "BreadcrumbList",
             "itemListElement": [
-                {"@type": "ListItem", "position": 1, "name": "Home", "item": abs_url("/")},
-                {"@type": "ListItem", "position": 2, "name": page["crumb"], "item": abs_url(page["path"])},
+                {"@type": "ListItem", "position": i, "name": n, "item": abs_url(u)}
+                for i, (n, u) in enumerate(trail, 1)
             ],
         })
     for kind in page["schema"]:
         if kind == "faq":
             graph.append(faq_schema(body))
+        elif kind == "article":
+            graph.append({
+                "@type": "Article",
+                "headline": page["h1"],
+                "description": page["description"],
+                "image": abs_url("/assets/og-image.png"),
+                "datePublished": page["published"],
+                "dateModified": page.get("modified", page["published"]),
+                "author": {"@type": "Organization", "name": "Sportzy", "url": abs_url("/")},
+                "publisher": {"@id": abs_url("/#org")},
+                "mainEntityOfPage": {"@id": abs_url(page["path"])},
+                "inLanguage": "en",
+            })
         elif kind == "app_scorezy":
             graph.append(SCOREZY_APP())
         elif kind == "app_streemzy":
@@ -298,7 +349,8 @@ def header(page):
 def crumbs(page):
     if not page.get("crumb"):
         return ""
-    return f"""<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li aria-current="page">{page["crumb"]}</li></ol></nav>"""
+    parent = f'<li><a href="{page["parent"][1]}">{page["parent"][0]}</a></li>' if page.get("parent") else ""
+    return f"""<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li>{parent}<li aria-current="page">{page["crumb"]}</li></ol></nav>"""
 
 
 def footer():
@@ -324,8 +376,8 @@ def footer():
         <ul>
           <li><a href="/cricket-live-streaming/">Cricket live streaming</a></li>
           <li><a href="/football-live-streaming/">Football live streaming</a></li>
-          <li><a href="/#who">Leagues &amp; tournaments</a></li>
-          <li><a href="/#who">Schools &amp; academies</a></li>
+          <li><a href="/tournament-live-streaming/">Tournament live streaming</a></li>
+          <li><a href="/guides/">Streaming guides</a></li>
         </ul>
       </div>
       <div>

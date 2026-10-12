@@ -6,6 +6,7 @@ Static, SEO-ready marketing site for Sportzy: Scorezy and Streemzy (live, free b
 - `assets/` — styles, logos, favicons, Open Graph image
 - `build.py` — wraps pages in the shared layout and writes the deployable site to `public/`
 - `public/` — **upload/deploy this folder** (already built)
+- `KEYWORDS.md` — which search keywords each page targets, and how to grow it
 
 ## Before going live
 
