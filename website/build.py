@@ -23,9 +23,9 @@ OUT = ROOT / "public"
 CONFIG = {
     # Final public domain of this website, no trailing slash. Used for
     # canonical URLs, sitemap.xml, Open Graph and structured data.
-    "SITE_URL": "https://sportzy.io",
+    "SITE_URL": "https://sportzy.live",
     # Where the "Open Scorezy" / "Open Streemzy" buttons send people.
-    "SCOREZY_URL": "https://scorezy.io",
+    "SCOREZY_URL": "https://score.sportzy.live",
     "STREEMZY_URL": "https://streemzy.io",
     "CONTACT_EMAIL": "rabbyisrafil@gmail.com",
     "FOUNDER": "Israfil Islam",
