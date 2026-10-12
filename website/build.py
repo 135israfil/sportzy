@@ -284,6 +284,10 @@ def head(page, body):
         extra += (f'<script async src="https://www.googletagmanager.com/gtag/js?id={gid}"></script>\n'
                   f"<script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments)}}"
                   f"gtag('js',new Date());gtag('config','{gid}');</script>\n")
+    og_type = "article" if page.get("published") else "website"
+    if page.get("published"):
+        extra += (f'<meta property="article:published_time" content="{page["published"]}">\n'
+                  f'<meta property="article:modified_time" content="{page.get("modified", page["published"])}">\n')
     canonical_tag = "" if page.get("noindex") else f'<link rel="canonical" href="{canonical}">\n'
     return f"""<!doctype html>
 <html lang="en">
@@ -295,7 +299,7 @@ def head(page, body):
 <meta name="robots" content="{robots}">
 {canonical_tag}<meta name="theme-color" content="#0A0E0C">
 <meta name="color-scheme" content="dark">
-<meta property="og:type" content="website">
+<meta property="og:type" content="{og_type}">
 <meta property="og:site_name" content="Sportzy">
 <meta property="og:title" content="{page["title"]}">
 <meta property="og:description" content="{page["description"]}">
