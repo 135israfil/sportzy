@@ -16,6 +16,17 @@ Roughly four million organized amateur matches are played every year, and almost
 
 The central Sportzy app connects and manages all three from one Android/iOS app, and its most distinctive engineering piece is turning several phones on the sideline into synchronized multi-angle camera feeds over a local network — no dedicated broadcast hardware, run by one organizer or a small volunteer team.
 
+## Organizer app prototype
+
+[`docs/organizer-app-prototype.html`](docs/organizer-app-prototype.html) is a clickable, stack-neutral UI prototype of the Sportzy Organizer app for iOS and Android (Jira epic SPOR-111). It's a single self-contained page that runs on mock data and covers:
+
+- Sportzy ID sign-in, an org switcher, and role-based permissions
+- Tournaments: create, publish, registrations, fixtures and standings
+- Matches: crew assignment and live score entry
+- Multi-phone camera pairing
+- An angle mixer with the score overlay
+- Streaming the program feed to Streemzy, including camera drops, weak uplink, and session-check failures
+
 ## Engineering work behind the product
 
 - **Brand and product design** — full logo and visual identity across all three products, taken through many rounds of feedback to a professional standard

@@ -1,0 +1,1317 @@
+<title>Sportzy Organizer Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a phone-sized organizer app on turf-tinted dark neutrals, next to a notes column that maps screens to SPOR-111 */
+:root{
+  --bg:#0A0E0C; --app:#0F1411; --raised:#161D19; --raised-2:#1D2621; --line:#29332D;
+  --fg:#E6EEE9; --muted:#8D9A94; --accent:#3DDC84; --accent-ink:#03160B; --accent-soft:rgba(61,220,132,.13);
+  --live:#FF5252; --live-soft:rgba(255,82,82,.14); --warn:#F2B43C; --warn-soft:rgba(242,180,60,.13);
+  --bezel:#030504; --shadow:0 30px 80px rgba(0,0,0,.55);
+  /* video + broadcast graphics: theme-independent, like real footage */
+  --turf-a:#1E5A35; --turf-b:#256A3F; --pitch:#CDB98F; --feed-bg:#0B1710; --feed-fg:#FFFFFF;
+  --gfx-bg:rgba(5,11,8,.9); --gfx-accent:#3DDC84; --gfx-ink:#03160B;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#E3E9E5; --app:#F5F8F6; --raised:#FFFFFF; --raised-2:#ECF1EE; --line:#D2DBD6;
+    --fg:#0F1612; --muted:#56635D; --accent:#168A4B; --accent-ink:#FFFFFF; --accent-soft:rgba(22,138,75,.11);
+    --live:#D12B2B; --live-soft:rgba(209,43,43,.09); --warn:#9C620A; --warn-soft:rgba(156,98,10,.11);
+    --bezel:#18201B; --shadow:0 30px 70px rgba(20,45,30,.20);
+    color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#E3E9E5; --app:#F5F8F6; --raised:#FFFFFF; --raised-2:#ECF1EE; --line:#D2DBD6;
+  --fg:#0F1612; --muted:#56635D; --accent:#168A4B; --accent-ink:#FFFFFF; --accent-soft:rgba(22,138,75,.11);
+  --live:#D12B2B; --live-soft:rgba(209,43,43,.09); --warn:#9C620A; --warn-soft:rgba(156,98,10,.11);
+  --bezel:#18201B; --shadow:0 30px 70px rgba(20,45,30,.20);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ic{flex:none;display:block}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- stage ---------- */
+.stage{display:grid;grid-template-columns:390px minmax(0,380px);gap:48px;justify-content:center;align-items:start}
+@media (max-width:880px){.stage{grid-template-columns:minmax(0,1fr);gap:28px}.notes{max-width:390px;margin-inline:auto;width:100%}}
+.phone{position:relative;width:390px;max-width:100%;height:min(844px,calc(100svh - 48px));min-height:620px;margin-inline:auto;
+  background:var(--app);border:10px solid var(--bezel);border-radius:50px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+@media (max-width:500px){
+  body{padding-block:16px}
+  .phone{border-width:1px;border-color:var(--line);border-radius:22px;height:calc(100svh - 32px);min-height:560px;box-shadow:none}
+  .statusbar{display:none!important}
+}
+#screen{flex:1;min-height:0;display:flex;flex-direction:column}
+.statusbar{height:38px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 26px 0 30px;font-weight:600;font-size:14px}
+.statusbar .sb-r{display:flex;gap:6px;align-items:center}
+.sb-batt{width:24px;height:11px;border:1.5px solid currentColor;border-radius:3px;padding:1px;opacity:.85}
+.sb-batt i{display:block;height:100%;width:72%;background:currentColor;border-radius:1px}
+
+/* ---------- header ---------- */
+.hdr{flex:none;display:flex;align-items:center;gap:10px;padding:8px 16px 10px;border-bottom:1px solid var(--line);background:var(--app)}
+.hdr-t{flex:1;min-width:0}
+.hdr-t h2{margin:0;font-family:var(--f-display);font-weight:700;font-size:22px;letter-spacing:.2px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr-org{display:block;font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
+.iconbtn{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:var(--fg);flex:none}
+.iconbtn:hover{background:var(--raised-2)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-family:var(--f-display);font-weight:700;font-size:14px;letter-spacing:.5px;flex:none}
+.livepill{display:flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:999px;background:var(--live);color:#fff;font-family:var(--f-display);font-weight:700;font-size:14px;letter-spacing:.6px}
+.livepill i,.dot-live{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+
+/* ---------- content ---------- */
+.content{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:16px 16px 28px;display:flex;flex-direction:column;gap:18px}
+.content.bare{padding:0}
+.h1{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1.05;margin:0;text-wrap:balance}
+.eyebrow{margin:0;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted)}
+.sec{display:flex;flex-direction:column;gap:8px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.sec-h h3{margin:0;font-size:12px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted)}
+.sec-h .link{font-size:13px;font-weight:600;color:var(--accent)}
+p{margin:0}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+
+.card{background:var(--raised);border:1px solid var(--line);border-radius:14px;padding:14px}
+.list{background:var(--raised);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:12px 14px;width:100%;text-align:left;min-height:56px}
+.row + .row{border-top:1px solid var(--line)}
+button.row:hover,a.row:hover{background:var(--raised-2)}
+.row .grow{flex:1;min-width:0}
+.row .t{font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .s{display:block;font-size:13px;color:var(--muted)}
+.row .chev{color:var(--muted)}
+.time{font-family:var(--f-display);font-weight:600;font-size:18px;width:48px;flex:none}
+
+.pill{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;white-space:nowrap;flex:none}
+.pill.ok{background:var(--accent-soft);color:var(--accent)}
+.pill.live{background:var(--live-soft);color:var(--live)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.idle{background:var(--raised-2);color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--raised);font-size:13px;font-weight:600}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;padding:0 18px;border-radius:12px;font-weight:700;font-size:15px;background:var(--raised-2);border:1px solid var(--line);color:var(--fg)}
+.btn:hover{border-color:var(--muted)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{background:var(--live);border-color:var(--live);color:#fff}
+.btn.ghost{background:none}
+.btn.sm{height:34px;padding:0 12px;font-size:13px;border-radius:10px}
+.btn.block{width:100%}
+.btn.locked{opacity:.55;border-style:dashed;background:none}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn-row .btn{flex:1}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{background:var(--raised);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px;text-align:left;min-height:84px}
+button.tile:hover{border-color:var(--muted)}
+.tile .ic{color:var(--accent)}
+.tile.locked .ic{color:var(--muted)}
+.tile b{font-size:14px}
+.tile span{font-size:12px;color:var(--muted)}
+
+.banner{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.35;border:1px solid transparent}
+.banner .ic{margin-top:1px}
+.banner.warn{background:var(--warn-soft);color:var(--fg);border-color:var(--warn)}
+.banner.warn .ic{color:var(--warn)}
+.banner.live{background:var(--live-soft);border-color:var(--live)}
+.banner.live .ic{color:var(--live)}
+.banner.info{background:var(--raised-2);border-color:var(--line)}
+.banner b{display:block}
+
+.err{color:var(--live);font-size:13px;font-weight:600}
+.seg{display:flex;gap:4px;padding:4px;background:var(--raised-2);border-radius:12px;overflow-x:auto}
+.seg button{flex:1;height:34px;padding:0 10px;border-radius:9px;font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap}
+.seg button.on{background:var(--raised);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.15)}
+
+label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:var(--muted)}
+.f input,.f select{height:44px;border-radius:10px;border:1px solid var(--line);background:var(--raised);padding:0 12px;font-size:15px;color:var(--fg);font-weight:500;width:100%}
+.f input:focus,.f select:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
+form{display:flex;flex-direction:column;gap:12px}
+
+.kv{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:14px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;text-align:right;font-weight:600}
+
+table.tbl{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.tbl th{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:700;text-align:right;padding:10px 8px}
+.tbl td{padding:10px 8px;text-align:right;border-top:1px solid var(--line)}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl td:last-child{font-weight:700}
+
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:32px 16px;color:var(--muted)}
+.empty .ic{color:var(--muted)}
+.empty b{color:var(--fg);font-size:16px}
+
+/* ---------- tab bar ---------- */
+.tabbar{flex:none;display:flex;border-top:1px solid var(--line);background:var(--app);padding:6px 6px 10px}
+.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;color:var(--muted);padding:6px 0;border-radius:10px}
+.tabbar button.on{color:var(--accent)}
+
+/* ---------- sheet + toast ---------- */
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;z-index:20;animation:fade .15s ease-out}
+.sheet{width:100%;max-height:82%;overflow-y:auto;background:var(--app);border-radius:20px 20px 0 0;padding:10px 16px 22px;display:flex;flex-direction:column;gap:14px;animation:up .2s ease-out}
+.sheet .grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto}
+.sheet h3{margin:0;font-family:var(--f-display);font-size:22px;font-weight:700}
+@keyframes fade{from{opacity:0}}
+@keyframes up{from{transform:translateY(30px);opacity:.4}}
+#toast{position:absolute;left:16px;right:16px;bottom:84px;z-index:30;display:flex;justify-content:center;pointer-events:none}
+#toast div{background:var(--fg);color:var(--app);padding:10px 14px;border-radius:12px;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.3);animation:up .2s ease-out;max-width:100%}
+
+/* ---------- sign in ---------- */
+.signin{flex:1;display:flex;flex-direction:column;justify-content:center;gap:28px;padding:24px 24px 40px}
+.brand{display:flex;flex-direction:column;gap:6px}
+.wordmark{font-family:var(--f-display);font-weight:700;font-size:48px;letter-spacing:-.5px;line-height:1;display:flex;align-items:center;gap:10px}
+.wordmark i{width:14px;height:14px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 6px var(--accent-soft)}
+.brand span{font-family:var(--f-display);font-size:20px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--accent)}
+.role-g{display:flex;flex-direction:column;gap:6px}
+
+/* ---------- score ---------- */
+.scorecard{background:var(--raised);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.sc-top{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+.sc-big{font-family:var(--f-display);font-weight:700;font-size:52px;line-height:.9;font-variant-numeric:tabular-nums}
+.sc-big small{font-size:22px;color:var(--muted);font-weight:600;margin-left:6px}
+.sc-meta{text-align:right;font-size:13px;color:var(--muted)}
+.sc-meta b{display:block;font-family:var(--f-display);font-size:20px;color:var(--fg)}
+.bat{display:flex;justify-content:space-between;font-size:14px;padding:6px 0;border-top:1px solid var(--line)}
+.bat b{font-weight:600}
+.bat .num{font-weight:600}
+.overline{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.ballc{min-width:30px;height:30px;padding:0 6px;border-radius:15px;display:grid;place-items:center;font-size:12px;font-weight:700;background:var(--raised-2);border:1px solid var(--line)}
+.ballc.b4,.ballc.b6{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.ballc.bw{background:var(--live);color:#fff;border-color:var(--live)}
+.ballc.bx{color:var(--warn);border-color:var(--warn)}
+.ballc.empty{border-style:dashed;background:none}
+.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.key{height:56px;display:flex;align-items:center;justify-content:center;gap:6px;border-radius:12px;background:var(--raised);border:1px solid var(--line);font-family:var(--f-display);font-size:24px;font-weight:700}
+.key:hover{border-color:var(--muted)}
+.key.k4,.key.k6{color:var(--accent)}
+.key.kw{background:var(--live);border-color:var(--live);color:#fff}
+.key.kx{font-size:17px;color:var(--warn)}
+.key.kx.on{background:var(--warn);color:var(--app);border-color:var(--warn)}
+.key.ks{font-family:var(--f-body);font-size:13px;font-weight:700}
+.key:disabled{opacity:.35;cursor:not-allowed}
+.sync{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.sync i{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+
+/* ---------- camera feeds (simulated video) ---------- */
+.feed{position:relative;aspect-ratio:16/9;max-width:100%;width:100%;overflow:hidden;background:var(--feed-bg);border-radius:10px;color:var(--feed-fg);isolation:isolate;container-type:inline-size}
+.feed .scene{position:absolute;inset:0;transform-origin:50% 50%;z-index:0}
+.feed .turf{position:absolute;inset:-80%;background:repeating-linear-gradient(0deg,var(--turf-a) 0 7%,var(--turf-b) 7% 14%)}
+.feed .rope{position:absolute;left:50%;top:50%;width:150%;aspect-ratio:1;border:3px solid rgba(255,255,255,.75);border-radius:50%;transform:translate(-50%,-50%)}
+.feed .pitch{position:absolute;left:50%;top:50%;width:7%;height:44%;transform:translate(-50%,-50%);background:var(--pitch);box-shadow:inset 0 9px 0 -7px #fff,inset 0 -9px 0 -7px #fff}
+.feed .stump{position:absolute;left:50%;width:30%;height:3%;background:#f4efe2;transform:translateX(-50%)}
+.feed .s1{top:4%}.feed .s2{bottom:4%}
+.feed .pl{position:absolute;width:2.2%;aspect-ratio:1;border-radius:50%;background:#F4F7F5;box-shadow:0 0 0 1px rgba(0,0,0,.3)}
+.feed .p1{left:46%;top:23%}.feed .p2{left:53%;top:73%}.feed .p3{left:30%;top:40%}.feed .p4{left:68%;top:56%}.feed .p5{left:22%;top:66%}
+.feed .ball{position:absolute;left:50%;top:30%;width:1.2%;aspect-ratio:1;border-radius:50%;background:#FF4E4E;animation:bowl 2.6s cubic-bezier(.5,0,.6,1) infinite}
+@keyframes bowl{0%{top:28%;left:50%}55%{top:68%;left:50.5%}100%{top:20%;left:30%}}
+.a-wide .scene{transform:perspective(420px) rotateX(58deg) scale(1.05)}
+.a-bowler .scene{transform:perspective(380px) rotateX(46deg) scale(2.1) translateY(4%)}
+.a-square .scene{transform:perspective(420px) rotateX(60deg) rotateZ(90deg) scale(1.7)}
+.a-boundary .scene{transform:perspective(420px) rotateX(66deg) scale(.62) translateY(-18%)}
+.a-keeper .scene{transform:perspective(300px) rotateX(70deg) scale(2.6) translateY(16%)}
+.feed::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,transparent 50%,rgba(0,0,0,.5));pointer-events:none;z-index:1}
+.feed-label{position:absolute;left:3cqw;top:3cqw;z-index:3;font-size:max(10px,3.2cqw);font-weight:700;letter-spacing:.4px;background:rgba(0,0,0,.55);padding:.3em .6em;border-radius:.4em}
+.feed.frozen::before{content:"";position:absolute;inset:0;z-index:2;background:rgba(8,12,10,.55);backdrop-filter:grayscale(.9)}
+.feed.frozen .ball{animation:none}
+.feed-frozen{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:4;display:flex;align-items:center;gap:6px;font-size:max(10px,3.6cqw);font-weight:700;background:rgba(0,0,0,.7);padding:.5em .8em;border-radius:.5em;white-space:nowrap}
+.feed.none{display:grid;place-items:center;color:var(--muted);background:var(--raised-2);font-size:13px}
+.feed.none::after{display:none}
+/* broadcast graphics */
+.gfx{position:absolute;inset:0;z-index:5;pointer-events:none;font-family:var(--f-display);color:#fff}
+.g-bug{position:absolute;left:3cqw;bottom:3.5cqw;display:flex;align-items:stretch;background:var(--gfx-bg);border-radius:.6cqw;overflow:hidden;font-size:4.2cqw;line-height:1}
+.g-bug > *{display:flex;align-items:center;padding:.45em .55em}
+.g-team{background:var(--gfx-accent);color:var(--gfx-ink);font-weight:700;letter-spacing:.04em}
+.g-score{font-weight:700;font-variant-numeric:tabular-nums}
+.g-ov{color:#C9D6CF;font-weight:600;font-size:.8em}
+.g-ctx{color:#C9D6CF;font-weight:600;font-size:.72em;border-left:1px solid rgba(255,255,255,.18)}
+.g-lower{position:absolute;left:3cqw;bottom:13.5cqw;background:var(--gfx-bg);border-left:.9cqw solid var(--gfx-accent);padding:.5em .8em;font-size:3.6cqw;line-height:1.15;border-radius:.3cqw}
+.g-lower b{display:block;font-size:1.25em;font-weight:700}
+.g-lower span{color:#C9D6CF;font-weight:600}
+.g-lineup{position:absolute;right:3cqw;top:3cqw;bottom:3cqw;width:30cqw;background:var(--gfx-bg);border-top:.9cqw solid var(--gfx-accent);padding:.6em .8em;font-size:2.9cqw;line-height:1.3;border-radius:.3cqw;overflow:hidden}
+.g-lineup b{display:block;font-size:1.25em;margin-bottom:.3em}
+.g-lineup ol{margin:0;padding-left:1.3em;color:#DDE6E1;font-family:var(--f-body);font-weight:600}
+.g-sponsor{position:absolute;right:3cqw;bottom:3.5cqw;font-size:2.6cqw;font-weight:600;letter-spacing:.08em;text-transform:uppercase;background:rgba(0,0,0,.55);padding:.4em .7em;border-radius:.4em;color:#E6EEE9}
+.g-lineup ~ .g-sponsor{display:none}
+.tag{position:absolute;right:3cqw;top:3cqw;z-index:6;font-size:max(10px,3cqw);font-weight:800;letter-spacing:1px;padding:.25em .55em;border-radius:.35em;font-family:var(--f-body)}
+.tag.pgm{background:var(--live);color:#fff}
+.tag.pvw{background:var(--accent);color:var(--accent-ink)}
+.g-lineup ~ .tag,.has-lineup .tag{display:none}
+.fading{animation:xfade .6s ease-in-out}
+@keyframes xfade{50%{opacity:.15}}
+
+/* ---------- mixer ---------- */
+.mix-pvw{display:grid;grid-template-columns:minmax(0,1fr) 118px;gap:10px;align-items:stretch}
+.mix-btns{display:flex;flex-direction:column;gap:8px}
+.mix-btns .btn{flex:1;height:auto;font-family:var(--f-display);font-size:22px;letter-spacing:1px}
+.cut{background:var(--live)!important;border-color:var(--live)!important;color:#fff!important}
+.cams{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.camtile{display:flex;flex-direction:column;gap:5px;text-align:left;border-radius:12px;padding:3px;border:2px solid transparent}
+.camtile.pgm{border-color:var(--live)}
+.camtile.pvw{border-color:var(--accent)}
+.camtile .cap{display:flex;justify-content:space-between;gap:6px;font-size:12px;padding:0 4px 3px;color:var(--muted)}
+.camtile .cap b{color:var(--fg);font-weight:700}
+.toggles{display:flex;gap:8px;flex-wrap:wrap}
+.tog{height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--raised);font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.tog[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+
+/* ---------- cameras ---------- */
+.pair{display:grid;grid-template-columns:116px minmax(0,1fr);gap:14px;align-items:center}
+canvas.qr{width:116px;height:116px;border-radius:10px;background:var(--raised);image-rendering:pixelated;border:1px solid var(--line)}
+.code{font-family:var(--f-display);font-weight:700;font-size:36px;letter-spacing:3px;line-height:1;font-variant-numeric:tabular-nums}
+.stepper{display:flex;align-items:center;gap:4px}
+.stepper button{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--raised-2);font-size:18px;font-weight:700}
+.stepper b{min-width:28px;text-align:center;font-family:var(--f-display);font-size:22px}
+.devrow{display:grid;grid-template-columns:92px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px}
+.devrow + .devrow{border-top:1px solid var(--line)}
+.devrow .feed{border-radius:7px}
+.devrow .feed-label{display:none}
+.stats{display:flex;gap:10px;font-size:12px;color:var(--muted);align-items:center;flex-wrap:wrap;margin-top:3px}
+.sig{display:inline-flex;align-items:flex-end;gap:2px;height:12px}
+.sig i{width:3px;background:var(--line);border-radius:1px}
+.sig i:nth-child(1){height:4px}.sig i:nth-child(2){height:7px}.sig i:nth-child(3){height:10px}.sig i:nth-child(4){height:12px}
+.sig i.on{background:var(--fg)}
+.batt{display:inline-flex;align-items:center;gap:4px}
+.batt .shell{width:18px;height:9px;border:1.5px solid currentColor;border-radius:2px;padding:1px}
+.batt .shell i{display:block;height:100%;background:currentColor;border-radius:1px}
+.batt.low{color:var(--warn)}
+.log{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.log div{display:flex;gap:10px;align-items:center;justify-content:space-between}
+.log time{color:var(--muted);font-variant-numeric:tabular-nums;font-size:12px;flex:none}
+.spinner{width:16px;height:16px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- go live ---------- */
+.dest .logo{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:800;font-size:13px;color:#fff;flex:none}
+.l-fb{background:#1877F2}.l-yt{background:#E62117}.l-ig{background:linear-gradient(45deg,#F58529,#DD2A7B,#8134AF)}
+.switch{width:46px;height:28px;border-radius:14px;background:var(--line);position:relative;flex:none;transition:background .15s}
+.switch::after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.switch[aria-checked="true"]{background:var(--accent)}
+.switch[aria-checked="true"]::after{transform:translateX(18px)}
+.check{display:flex;align-items:center;gap:12px;padding:10px 14px}
+.check + .check{border-top:1px solid var(--line)}
+.check .mark{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--raised-2);color:var(--muted)}
+.check .mark.ok{background:var(--accent);color:var(--accent-ink)}
+.check .mark.warn{background:var(--warn);color:var(--app)}
+.check.pending{opacity:.45}
+.countdown{flex:1;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:140px;color:var(--live);line-height:1}
+.countdown small{display:block;font-size:16px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);text-align:center}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.metric{background:var(--raised);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.metric > span{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.metric b{font-family:var(--f-display);font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.metric b small{font-size:14px;color:var(--muted);margin-left:3px}
+.metric.wide{grid-column:span 2}
+.spark{width:100%;height:34px;display:block}
+.spark .a{fill:var(--accent-soft)}
+.spark .l{fill:none;stroke:var(--accent);stroke-width:1.6;vector-effect:non-scaling-stroke}
+.liveclock{font-family:var(--f-display);font-weight:700;font-size:44px;line-height:1;font-variant-numeric:tabular-nums}
+.confirm{border:1px solid var(--live);background:var(--live-soft);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+
+/* ---------- camera phone ---------- */
+.tally{display:flex;align-items:center;justify-content:center;gap:8px;height:52px;border-radius:12px;font-family:var(--f-display);font-weight:700;font-size:24px;letter-spacing:2px}
+.tally.on{background:var(--live);color:#fff}
+.tally.pv{background:var(--accent);color:var(--accent-ink)}
+.tally.sb{background:var(--raised-2);color:var(--muted)}
+.codein{font-family:var(--f-display)!important;font-size:30px!important;letter-spacing:8px;text-align:center;height:60px!important}
+
+/* ---------- notes ---------- */
+.notes{display:flex;flex-direction:column;gap:22px;padding-top:8px}
+.notes h1{font-family:var(--f-display);font-weight:700;font-size:40px;line-height:1;margin:0;text-wrap:balance}
+.notes h1 span{color:var(--accent)}
+.notes h2{margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted)}
+.notes p{max-width:60ch;color:var(--muted)}
+.notes p b{color:var(--fg)}
+.jump{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.jump div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:9px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.jump div > span{font-size:14px}
+.jump .links{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.jump a{color:var(--accent);font-weight:600;font-size:13px;text-decoration:none;white-space:nowrap}
+.jump a:hover{text-decoration:underline}
+.notes select{height:40px;border-radius:10px;border:1px solid var(--line);background:var(--raised);padding:0 10px;width:100%;color:var(--fg)}
+.decisions{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;color:var(--muted);font-size:14px}
+.decisions b{color:var(--fg)}
+.kbd{font-family:ui-monospace,Menlo,monospace;font-size:12px;border:1px solid var(--line);border-radius:5px;padding:1px 5px;background:var(--raised)}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+
+<div class="stage">
+  <div class="phone" id="phone" aria-label="Sportzy Organizer app prototype">
+    <div id="screen"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <aside class="notes" aria-label="Prototype notes">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <p class="eyebrow">SPOR-111 · Clickable prototype</p>
+      <h1>Sportzy <span>Organizer</span></h1>
+      <p>One app for tournament and match organisation, multi-phone camera production and streaming to Streemzy. <b>Mock data only.</b> No real cameras, video or network. It is stack-neutral, so it can settle flows and screens while the media-architecture decision is still open.</p>
+    </div>
+
+    <div>
+      <h2>Demo role</h2>
+      <select id="roleSel" aria-label="Demo role"></select>
+      <p class="small" style="margin-top:6px">Roles change what you can see and do. Locked actions say who can do them.</p>
+    </div>
+
+    <div>
+      <h2>Epic scope → screens</h2>
+      <div class="jump">
+        <div><span>Sign in with Sportzy ID, org switcher</span><span class="links"><a href="#signin">Sign in</a><a href="#home">Home</a></span></div>
+        <div><span>Tournaments: create, publish, registrations, fixtures, standings</span><span class="links"><a href="#tournaments">List</a><a href="#t-t1">Night Cup</a><a href="#t-t2">Draft</a></span></div>
+        <div><span>Matches: roster, teams, crew assignment</span><span class="links"><a href="#m-m1">Match</a></span></div>
+        <div><span>Live score entry (Scorezy)</span><span class="links"><a href="#score">Score</a></span></div>
+        <div><span>Multi-phone camera connect (QR or code)</span><span class="links"><a href="#cameras">Director</a><a href="#camphone">Crew phone</a></span></div>
+        <div><span>Angle mixing and score overlay</span><span class="links"><a href="#mixer">Mixer</a></span></div>
+        <div><span>Stream program feed to Streemzy</span><span class="links"><a href="#golive">Go live</a></span></div>
+      </div>
+    </div>
+
+    <div>
+      <h2>Simulate during a broadcast</h2>
+      <div class="btn-row">
+        <button class="btn sm" data-act="simDrop">Camera drops</button>
+        <button class="btn sm" data-act="simWeak">Weak uplink</button>
+        <button class="btn sm" data-act="simSession">Session check fails</button>
+      </div>
+      <p class="small" style="margin-top:6px">Each one shows how the app keeps the broadcast running. Nothing locks mid-match.</p>
+    </div>
+
+    <div>
+      <h2>Open decisions reflected here</h2>
+      <ol class="decisions">
+        <li><b>Stack.</b> UI layer undecided. The broadcast engine (mixing, overlay compositing, encoding) is expected to be native media code.</li>
+        <li><b>Repo.</b> New repo still to be created.</li>
+        <li><b>Limits.</b> The prototype assumes 4 cameras per match (adjustable on the Cameras screen) and 720p30 by default.</li>
+      </ol>
+    </div>
+
+    <div>
+      <h2>Shortcuts</h2>
+      <p class="small">In the mixer: <span class="kbd">1</span>–<span class="kbd">5</span> preview a camera, <span class="kbd">Space</span> cut, <span class="kbd">A</span> auto transition.</p>
+      <p style="margin-top:12px"><button class="btn sm" data-act="reset">Reset demo</button></p>
+    </div>
+  </aside>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ============ helpers ============ */
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const I={
+ home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
+ trophy:'<path d="M7 4h10v4a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M9 17h6"/>',
+ calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+ broadcast:'<circle cx="12" cy="12" r="2"/><path d="M16.2 7.8a6 6 0 0 1 0 8.4M7.8 16.2a6 6 0 0 1 0-8.4M19 5a10 10 0 0 1 0 14M5 19A10 10 0 0 1 5 5"/>',
+ more:'<circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/>',
+ lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+ camera:'<path d="M3 8a2 2 0 0 1 2-2h2l2-2h6l2 2h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="4"/>',
+ check:'<path d="M5 12l5 5 9-10"/>',
+ chev:'<path d="M9 6l6 6-6 6"/>',
+ down:'<path d="M6 9l6 6 6-6"/>',
+ back:'<path d="M15 6l-6 6 6 6"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/>',
+ score:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16M7 9v6M15.5 9H18v3h-2.5v3H18"/>',
+ mixer:'<rect x="3" y="4" width="8" height="7" rx="1"/><rect x="13" y="4" width="8" height="7" rx="1"/><rect x="3" y="13" width="8" height="7" rx="1"/><rect x="13" y="13" width="8" height="7" rx="1"/>',
+ warn:'<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/>',
+ info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/>',
+ x:'<path d="M6 6l12 12M18 6L6 18"/>',
+ swap:'<path d="M7 7h11l-3-3M17 17H6l3 3"/>',
+ copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+ undo:'<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',
+ qr:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM18 18h3v3h-3z"/>',
+ out:'<path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 17l5-5-5-5M15 12H3"/>',
+ phone:'<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/>',
+ stream:'<path d="M4 12h3l2-6 4 12 2-6h5"/>'
+};
+const ic=(n,s=20)=>`<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n]||''}</svg>`;
+const pad2=n=>String(n).padStart(2,'0');
+const hms=s=>`${pad2(Math.floor(s/3600))}:${pad2(Math.floor(s/60)%60)}:${pad2(s%60)}`;
+const mmss=s=>`${pad2(Math.floor(s/60))}:${pad2(s%60)}`;
+const taka=n=>'৳'+Number(n).toLocaleString('en-IN');
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const ri=(a,b)=>Math.floor(rnd(a,b+1));
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+
+/* ============ roles + permissions ============ */
+const ROLES={
+ owner:{label:'Org Owner',group:'Organisation',desc:'Full control of the organisation, its tournaments and broadcasts.'},
+ admin:{label:'Org Admin',group:'Organisation',desc:'Manages tournaments, matches, crew and broadcasts.'},
+ operator:{label:'Org Operator',group:'Organisation',desc:'Runs match days: fixtures, crew, scoring and broadcast. Cannot create or publish tournaments.'},
+ torg:{label:'Tournament organiser',group:'Organiser',desc:'Approved organiser. Creates and publishes tournaments and runs their matches.'},
+ torgp:{label:'Organiser (pending)',group:'Organiser',desc:'Organiser application under review. Can look around but cannot create tournaments yet.'},
+ gorg:{label:'Game organizer',group:'Organiser',desc:'Owns a turf booking and runs that match, including its broadcast.'},
+ camera:{label:'Camera crew',group:'Crew',desc:'Joins a match as a camera angle from their own phone.'},
+ scorer:{label:'Scorer',group:'Crew',desc:'Enters ball-by-ball score for an assigned match.'},
+ streamer:{label:'Streamer',group:'Crew',desc:'Mixes camera angles and runs the stream to Streemzy.'}
+};
+const ALL=['tournament.view','tournament.create','tournament.publish','tournament.edit','registrations','match.view','match.edit','crew.assign','score','cameras','mixer','stream','camphone'];
+const PERMS={
+ owner:ALL, admin:ALL,
+ operator:['tournament.view','tournament.edit','match.view','match.edit','crew.assign','score','cameras','mixer','stream','camphone'],
+ torg:['tournament.view','tournament.create','tournament.publish','tournament.edit','registrations','match.view','match.edit','crew.assign','score','cameras','mixer','stream'],
+ torgp:['tournament.view','match.view'],
+ gorg:['match.view','match.edit','crew.assign','score','cameras','mixer','stream'],
+ camera:['match.view','camphone'],
+ scorer:['match.view','score'],
+ streamer:['match.view','cameras','mixer','stream']
+};
+const PERM_NAME={'tournament.view':'view tournaments','tournament.create':'create tournaments','tournament.publish':'publish tournaments','tournament.edit':'edit fixtures','registrations':'review registrations','match.view':'view matches','match.edit':'edit matches','crew.assign':'assign crew','score':'enter scores','cameras':'connect cameras','mixer':'use the mixer','stream':'go live','camphone':'join as a camera'};
+const can=p=>!!S.role&&PERMS[S.role].includes(p);
+function whyLocked(p){
+  if(S.role==='torgp'&&(p==='tournament.create'||p==='tournament.publish')) return 'Your organiser application is still under review. You can create and publish tournaments once it is approved.';
+  const who=Object.keys(PERMS).filter(r=>PERMS[r].includes(p)&&r!=='torgp').map(r=>ROLES[r].label);
+  return `As ${ROLES[S.role].label} you can't ${PERM_NAME[p]}. Allowed for: ${who.join(', ')}.`;
+}
+
+/* ============ seed data ============ */
+const ORGS=[
+ {id:'o1',name:'Dhaka Turf League',short:'DTL',city:'Dhaka',venue:'Kick Off Arena, Mirpur'},
+ {id:'o2',name:'Chattogram Cricket Academy',short:'CCA',city:'Chattogram',venue:'CCA Ground, Halishahar'},
+ {id:'o3',name:'Sylhet Futsal Club',short:'SFC',city:'Sylhet',venue:'Shahjalal Indoor Arena'}
+];
+const FIRST=['Rafiq','Arif','Nayeem','Sabbir','Tanvir','Imran','Fahim','Jubayer','Rakib','Shuvo','Mahin','Asif','Nafis','Rony','Sajid','Emon','Habib','Kamrul','Shohel','Masud','Zahid','Raihan','Shakil','Monir','Tarek','Polash','Sumon','Rasel'];
+const LAST=['Hasan','Chowdhury','Uddin','Ahmed','Islam','Kabir','Rahman','Alam','Hossain','Das','Karim','Mahmud','Talukder','Sarker','Miah','Sheikh','Bhuiyan','Roy'];
+const TEAMS={
+ ban:{name:'Banani Blasters',abbr:'BAN',players:['Rafiq Hasan','Arif Chowdhury','Nayeem Uddin','Sabbir Ahmed','Tanvir Islam','Imran Kabir','Fahim Rahman','Jubayer Alam']},
+ gul:{name:'Gulshan Gladiators',abbr:'GUL',players:['Rakib Hossain','Shuvo Das','Mahin Karim','Asif Mahmud','Nafis Ahmed','Rony Talukder','Sajid Hasan','Emon Sarker']},
+ utt:{name:'Uttara Kings',abbr:'UTT'},mir:{name:'Mirpur Mavericks',abbr:'MIR'},dhn:{name:'Dhanmondi Dynamos',abbr:'DHN'},
+ bsh:{name:'Bashundhara Bulls',abbr:'BSH'},mhk:{name:'Mohakhali Riders',abbr:'MHK'},bad:{name:'Badda Strikers',abbr:'BAD'},
+ tej:{name:'Tejgaon Titans',abbr:'TEJ'},ram:{name:'Rampura Rhinos',abbr:'RAM'},
+ lio:{name:'CCA Lions',abbr:'LIO'},tig:{name:'CCA Tigers',abbr:'TIG'},pcc:{name:'Port City Colts',abbr:'PCC'},agr:{name:'Agrabad Aces',abbr:'AGR'},
+ red:{name:'Team Red',abbr:'RED'},blu:{name:'Team Blue',abbr:'BLU'}
+};
+function players(t){
+  const tm=TEAMS[t]; if(tm.players) return tm.players;
+  let h=0; for(const c of t) h=(h*31+c.charCodeAt(0))>>>0;
+  const out=[]; for(let i=0;i<8;i++){ out.push(FIRST[(h+i*7)%FIRST.length]+' '+LAST[(h+i*5+3)%LAST.length]); }
+  return tm.players=out;
+}
+const tname=t=>TEAMS[t].name, abbr=t=>TEAMS[t].abbr;
+const CREW=[
+ {id:'u1',name:'Nusrat Jahan',skill:'Camera'},{id:'u2',name:'Arman Hossain',skill:'Camera'},{id:'u3',name:'Tanjim Ahmed',skill:'Camera'},
+ {id:'u6',name:'Sadia Rahman',skill:'Camera'},{id:'u4',name:'Farhan Kabir',skill:'Scorer'},{id:'u5',name:'Mitu Akter',skill:'Streamer'}
+];
+const crewName=id=>id==='me'?'You':(CREW.find(c=>c.id===id)||{}).name;
+const ANGLES={wide:'Wide',bowler:"Bowler's end",square:'Square leg',boundary:'Boundary',keeper:'Behind the keeper'};
+const JOINERS=[
+ {at:3,id:'c2',who:'Nusrat Jahan',device:'Galaxy A54',angle:'bowler',bat:71,sig:4},
+ {at:6,id:'c3',who:'Arman Hossain',device:'iPhone 13',angle:'square',bat:58,sig:3},
+ {at:10,id:'c4',who:'Tanjim Ahmed',device:'Redmi Note 13',angle:'boundary',bat:31,sig:3},
+ {at:14,id:'c5',who:'Sadia Rahman',device:'Pixel 7a',angle:'keeper',bat:88,sig:4}
+];
+const DAYS=['Today','Tomorrow','Sat 7 Nov','Sun 8 Nov'];
+const GROUNDS=['Turf 1','Turf 2','Turf 3'];
+
+function seed(){
+  return {
+    tours:{
+      t1:{id:'t1',org:'o1',name:'DTL Night Cup 2026',sport:'Cricket',format:'T10 · 8-a-side',status:'published',published:'28 Oct',dates:'1 – 22 Nov',venue:'Kick Off Arena, Mirpur',fee:6000,limit:10,
+          teams:['ban','gul','utt','mir','dhn','bsh','mhk','bad'],
+          regs:[{team:'tej',at:'2 Nov',paid:true},{team:'ram',at:'2 Nov',paid:false}],
+          stand:[['ban',1,1,0,2,'+1.40'],['mir',1,1,0,2,'+0.62'],['gul',1,0,1,0,'−0.62'],['utt',1,0,1,0,'−1.40']]},
+      t2:{id:'t2',org:'o1',name:'Winter Futsal Series',sport:'Football',format:'5-a-side league',status:'draft',dates:'5 – 20 Dec',venue:'Kick Off Arena, Mirpur',fee:4000,limit:8,teams:['utt','mir'],regs:[],stand:[]},
+      t3:{id:'t3',org:'o2',name:'CCA U-16 T20 Championship',sport:'Cricket',format:'T20',status:'published',published:'20 Oct',dates:'7 – 30 Nov',venue:'CCA Ground, Halishahar',fee:0,limit:6,teams:['lio','tig','pcc','agr'],regs:[],stand:[]}
+    },
+    matches:{
+      m1:{id:'m1',t:'t1',org:'o1',a:'ban',b:'gul',date:'Today',time:'19:30',ground:'Turf 2',stage:'Group A',overs:10,status:'scheduled',crew:{cam2:'u1',cam3:'u2',cam4:'u3',scorer:'u4',streamer:'u5'}},
+      m2:{id:'m2',t:'t1',org:'o1',a:'utt',b:'mir',date:'Today',time:'20:45',ground:'Turf 2',stage:'Group A',overs:10,status:'scheduled',crew:{}},
+      m3:{id:'m3',t:'t1',org:'o1',a:'dhn',b:'bsh',date:'Tomorrow',time:'19:30',ground:'Turf 1',stage:'Group B',overs:10,status:'scheduled',crew:{}},
+      m4:{id:'m4',t:'t1',org:'o1',a:'mhk',b:'bad',date:'Tomorrow',time:'20:45',ground:'Turf 1',stage:'Group B',overs:10,status:'scheduled',crew:{}},
+      m5:{id:'m5',t:'t1',org:'o1',a:'ban',b:'utt',date:'Sun 1 Nov',time:'19:30',ground:'Turf 2',stage:'Group A',overs:10,status:'completed',result:'BAN won by 14 runs',crew:{}},
+      m6:{id:'m6',t:'t1',org:'o1',a:'gul',b:'mir',date:'Sun 1 Nov',time:'20:45',ground:'Turf 2',stage:'Group A',overs:10,status:'completed',result:'MIR won by 3 wickets',crew:{}},
+      m7:{id:'m7',t:'t3',org:'o2',a:'lio',b:'tig',date:'Sat 7 Nov',time:'15:00',ground:'Main ground',stage:'League',overs:20,status:'scheduled',crew:{}},
+      m9:{id:'m9',t:null,org:'o1',booking:true,title:'Friday turf booking',a:'red',b:'blu',date:'Fri 6 Nov',time:'21:00',ground:'Turf 3',stage:'Box cricket · 6 overs',overs:6,status:'scheduled',crew:{}}
+    },
+    scores:{m1:{inn:1,bat:'ban',bowlT:'gul',target:null,runs:47,wk:2,balls:33,
+      bs:{'ban:0':{r:12,b:9,out:'c Mahin b Sajid'},'ban:1':{r:6,b:6,out:'b Rony'},'ban:2':{r:18,b:11},'ban:3':{r:9,b:7}},
+      bw:{'gul:7':{b:12,r:15,w:0},'gul:6':{b:12,r:18,w:1},'gul:5':{b:9,r:14,w:1}},
+      striker:'ban:2',non:'ban:3',next:4,bowler:'gul:5',prevBowler:'gul:6',over:['1','4','2'],done:false,result:null}},
+    undo:{},
+    cams:[{id:'c1',who:'You',device:'This phone',angle:'wide',bat:82,sig:4,lat:0,st:'ok',local:true}],
+    cap:4,pgm:'c1',pvw:null,
+    pair:{started:false,t:0,code:'482913',exp:600,joined:[]},
+    log:[],
+    ovl:{score:true,lower:false,lineup:false,sponsor:true},
+    stream:{st:'setup',proto:'srt',q:'720',dest:{fb:true,yt:true,ig:false},el:0,br:0,fps:30,drop:0,v:{fb:0,yt:0,ig:0},peak:0,hist:[],weak:0,confirmEnd:false,err:null,step:0,cd:3},
+    session:null, sessionT:0,
+    cp:{step:'code',err:null},
+    tTab:'overview', addSlot:false, formErr:null, pending:null, sheet:null, removing:null, tick:0
+  };
+}
+let S;
+function init(){
+  S=seed();
+  const saved=store.get('sportzy-proto');
+  S.role=saved&&ROLES[saved.role]?saved.role:null;
+  S.org=saved&&ORGS.some(o=>o.id===saved.org)?saved.org:'o1';
+  S.active=defaultActive();
+}
+const save=()=>store.set('sportzy-proto',{role:S.role,org:S.org});
+
+/* ============ selectors ============ */
+const org=()=>ORGS.find(o=>o.id===S.org);
+const isCrew=()=>['camera','scorer','streamer'].includes(S.role);
+function visibleMatches(){
+  let ms=Object.values(S.matches).filter(m=>m.org===S.org);
+  if(S.role==='gorg') ms=ms.filter(m=>m.booking);
+  else if(isCrew()) ms=ms.filter(m=>m.id==='m1');
+  return ms;
+}
+function defaultActive(){
+  if(!S.role) return 'm1';
+  const ms=visibleMatches().filter(m=>m.status!=='completed');
+  return (ms.find(m=>m.id==='m1')||ms[0]||{}).id||null;
+}
+const active=()=>S.active?S.matches[S.active]:null;
+const cam=id=>S.cams.find(c=>c.id===id);
+const camNo=id=>S.cams.findIndex(c=>c.id===id)+1;
+const live=()=>S.stream.st==='live';
+const fixtures=t=>Object.values(S.matches).filter(m=>m.t===t.id);
+const matchTitle=m=>`${tname(m.a)} vs ${tname(m.b)}`;
+
+/* ============ cricket scoring ============ */
+const ov=b=>`${Math.floor(b/6)}.${b%6}`;
+const pname=id=>{const[t,i]=id.split(':');return players(t)[+i]};
+function score(mid){
+  if(!S.scores[mid]){
+    const m=S.matches[mid];
+    S.scores[mid]={inn:1,bat:m.a,bowlT:m.b,target:null,runs:0,wk:0,balls:0,bs:{[m.a+':0']:{r:0,b:0},[m.a+':1']:{r:0,b:0}},bw:{},striker:m.a+':0',non:m.a+':1',next:2,bowler:m.b+':7',prevBowler:null,over:[],done:false,result:null};
+  }
+  return S.scores[mid];
+}
+const crr=sc=>sc.balls?(sc.runs/(sc.balls/6)).toFixed(2):'0.00';
+function scoreCtx(sc,m){
+  if(sc.result) return sc.result;
+  if(sc.inn===2){const need=sc.target-sc.runs, left=m.overs*6-sc.balls; return `Need ${need} off ${left}`;}
+  return `CRR ${crr(sc)}`;
+}
+function bowlerPool(sc){const n=players(sc.bowlT).length;return [7,6,5,4,3].filter(i=>i<n).map(i=>sc.bowlT+':'+i);}
+function pickBowler(sc,m){
+  const maxB=Math.ceil(m.overs/5)*6;
+  const el=bowlerPool(sc).filter(id=>id!==sc.prevBowler&&((sc.bw[id]||{}).b||0)<maxB);
+  el.sort((a,b)=>((sc.bw[a]||{}).b||0)-((sc.bw[b]||{}).b||0));
+  return el[0]||bowlerPool(sc).find(id=>id!==sc.prevBowler);
+}
+function pushUndo(mid){(S.undo[mid]=S.undo[mid]||[]).push(JSON.stringify(S.scores[mid]));if(S.undo[mid].length>60)S.undo[mid].shift();}
+function ball(kind,n,how){
+  const m=active(), sc=score(m.id); if(sc.done) return;
+  pushUndo(m.id);
+  let legal=true,bat=0,extra=0,label,rot=0;
+  if(kind==='run'){bat=n;label=String(n);rot=n;}
+  else if(kind==='wd'){extra=1+n;legal=false;label=n?`Wd+${n}`:'Wd';rot=n;}
+  else if(kind==='nb'){extra=1;bat=n;legal=false;label=n?`Nb+${n}`:'Nb';rot=n;}
+  else if(kind==='b'||kind==='lb'){extra=n;label=n+kind.toUpperCase();rot=n;}
+  else if(kind==='w'){label='W';}
+  sc.runs+=bat+extra;
+  const s=sc.bs[sc.striker]=sc.bs[sc.striker]||{r:0,b:0};
+  s.r+=bat; if(kind!=='wd') s.b+=1;
+  const bw=sc.bw[sc.bowler]=sc.bw[sc.bowler]||{b:0,r:0,w:0};
+  if(legal) bw.b+=1;
+  bw.r+=bat+(kind==='wd'||kind==='nb'?extra:0);
+  sc.over.push(label);
+  const maxW=players(sc.bat).length-1;
+  if(kind==='w'){
+    sc.wk++; if(how!=='Run out') bw.w++;
+    s.out=how==='Bowled'?`b ${pname(sc.bowler).split(' ')[0]}`:how==='Run out'?'run out':`${how.toLowerCase()} b ${pname(sc.bowler).split(' ')[0]}`;
+    if(sc.wk<maxW&&sc.next<players(sc.bat).length){sc.striker=sc.bat+':'+sc.next;sc.bs[sc.striker]={r:0,b:0};sc.next++;}
+    else sc.striker=null;
+  }
+  if(rot%2===1){[sc.striker,sc.non]=[sc.non,sc.striker];}
+  let msg=null;
+  if(legal){
+    sc.balls++;
+    if(sc.balls%6===0&&sc.balls<m.overs*6){
+      [sc.striker,sc.non]=[sc.non,sc.striker];
+      sc.prevBowler=sc.bowler; sc.over=[];
+      sc.bowler=pickBowler(sc,m);
+      msg=`End of over ${sc.balls/6}. ${pname(sc.bowler)} to bowl next.`;
+    }
+  }
+  if(sc.wk>=maxW||sc.balls>=m.overs*6||(sc.inn===2&&sc.runs>=sc.target)){
+    sc.done=true;
+    if(sc.inn===2){
+      if(sc.runs>=sc.target) sc.result=`${abbr(sc.bat)} won by ${maxW-sc.wk} wicket${maxW-sc.wk===1?'':'s'}`;
+      else if(sc.runs===sc.target-1) sc.result='Match tied';
+      else sc.result=`${abbr(sc.bowlT)} won by ${sc.target-1-sc.runs} runs`;
+      msg=sc.result;
+    } else msg=`Innings complete. ${abbr(sc.bowlT)} need ${sc.runs+1} to win.`;
+  }
+  S.pending=null;
+  if(msg) toast(msg);
+  render();
+}
+function secondInnings(){
+  const m=active(), sc=score(m.id); pushUndo(m.id);
+  const target=sc.runs+1, bat=sc.bowlT, bowlT=sc.bat;
+  S.scores[m.id]={inn:2,bat,bowlT,target,first:`${abbr(sc.bat)} ${sc.runs}/${sc.wk} (${ov(sc.balls)})`,runs:0,wk:0,balls:0,bs:{[bat+':0']:{r:0,b:0},[bat+':1']:{r:0,b:0}},bw:{},striker:bat+':0',non:bat+':1',next:2,bowler:bowlT+':7',prevBowler:null,over:[],done:false,result:null};
+  toast(`${tname(bat)} need ${target} to win.`); render();
+}
+
+/* ============ cameras ============ */
+function startPairing(){ if(!S.pair.started){S.pair.started=true;S.pair.t=0;addLog('Pairing open. Code 482 913 is valid for 10 minutes.');} }
+function addLog(text,extra){S.log.unshift({at:hmsClock(),text,...(extra||{})});S.log=S.log.slice(0,12);}
+let clock=19*3600+12*60+5;
+const hmsClock=()=>`${pad2(Math.floor(clock/3600))}:${pad2(Math.floor(clock/60)%60)}`;
+function tryJoin(j){
+  if(S.cams.some(c=>c.id===j.id)) return true;
+  if(S.cams.length>=S.cap){addLog(`${j.who} (${j.device}) tried to join. Limit reached (${S.cap} of ${S.cap}).`,{rejected:j.id});return false;}
+  S.cams.push({id:j.id,who:j.who,device:j.device,angle:j.angle,bat:j.bat,sig:j.sig,lat:ri(40,90),st:'ok'});
+  if(!S.pvw) S.pvw=j.id;
+  addLog(`${j.who} joined as CAM ${S.cams.length} · ${ANGLES[j.angle]}.`);
+  return true;
+}
+
+/* ============ go live ============ */
+const QUAL={'540':{label:'540p30',br:2.0,need:2.5},'720':{label:'720p30',br:3.5,need:4.5},'1080':{label:'1080p30',br:6.0,need:7.5}};
+const DEST={fb:{name:'Facebook',acct:'Dhaka Turf League · Page',cls:'l-fb',mark:'f'},yt:{name:'YouTube',acct:'DTL Live · Channel',cls:'l-yt',mark:'▶'},ig:{name:'Instagram',acct:'@dhakaturfleague',cls:'l-ig',mark:'IG'}};
+function checks(){
+  const q=QUAL[S.stream.q], n=S.cams.length;
+  return [
+    ['Streemzy account','Signed in · DTL Live workspace','ok'],
+    ['Ingest server',`${S.stream.proto.toUpperCase()} · Singapore · 38 ms`,'ok'],
+    ['Upload speed',`8.6 Mbps up · ${q.label} needs ${q.need}`,8.6>=q.need+1.5?'ok':'warn'],
+    ['Cameras',`${n} of ${S.cap} connected`,n>=2?'ok':'warn'],
+    ['Scorezy score feed','Live · last update 1 s ago','ok'],
+    ['This phone','Battery 64% · plug in for long matches','warn']
+  ];
+}
+let chainTok=0;
+function startChecks(){
+  const s=S.stream;
+  if(!Object.values(s.dest).some(Boolean)){s.err='Turn on at least one destination to go live.';render();return;}
+  s.err=null;s.st='checking';s.step=0;render();
+  const tok=++chainTok;
+  const next=()=>{ if(tok!==chainTok||S.stream.st!=='checking') return; s.step++; if(s.step>=checks().length) s.st='ready'; render(); if(s.st==='checking') setTimeout(next,600); };
+  setTimeout(next,600);
+}
+function startCountdown(){
+  const s=S.stream; s.st='countdown'; s.cd=3; render();
+  const tok=++chainTok;
+  const step=()=>{ if(tok!==chainTok) return; s.cd--; if(s.cd<=0){ s.st='live'; s.el=0; s.hist=[]; S.matches[S.active].status='live'; toast('You are live on Streemzy.'); } render(); if(s.st==='countdown') setTimeout(step,1000); };
+  setTimeout(step,1000);
+}
+
+/* ============ toast ============ */
+let toastT;
+function toast(msg){const t=$('#toast');t.innerHTML=`<div>${esc(msg)}</div>`;clearTimeout(toastT);toastT=setTimeout(()=>{t.innerHTML='';},2800);}
+
+/* ============ UI atoms ============ */
+function lockBtn(label,perm,act,arg,cls='btn',icon){
+  const iconH=icon?ic(icon,18):'';
+  if(can(perm)) return `<button class="${cls}" data-act="${act}"${arg!=null?` data-arg="${esc(arg)}"`:''}>${iconH}${label}</button>`;
+  return `<button class="${cls} locked" data-act="locked" data-arg="${perm}" aria-disabled="true">${ic('lock',16)}${label}</button>`;
+}
+function lockTile(title,sub,icon,perm,route){
+  if(can(perm)) return `<button class="tile" data-go="${route}">${ic(icon,22)}<b>${title}</b><span>${sub}</span></button>`;
+  return `<button class="tile locked" data-act="locked" data-arg="${perm}">${ic('lock',22)}<b>${title}</b><span>Locked for your role</span></button>`;
+}
+const pill=(cls,t)=>`<span class="pill ${cls}">${t}</span>`;
+function statusPill(m){
+  if(m.status==='live'&&live()&&S.active===m.id) return pill('live','<i class="dot-live"></i>Live');
+  if(m.status==='completed') return pill('idle','Final');
+  if(m.date==='Today') return pill('ok','Today');
+  return pill('idle',esc(m.date));
+}
+function matchRow(m){
+  return `<button class="row" data-go="m-${m.id}"><span class="time num">${m.time}</span><span class="grow"><span class="t">${esc(abbr(m.a))} vs ${esc(abbr(m.b))}${m.booking?' · Booking':''}</span><span class="s">${esc(m.ground)} · ${esc(m.result||m.stage)}</span></span>${statusPill(m)}</button>`;
+}
+function sig(n){return `<span class="sig" aria-label="Signal ${n} of 4">${[1,2,3,4].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</span>`;}
+function batt(c){const b=Math.round(c.bat);return `<span class="batt${b<25?' low':''}"><span class="shell"><i style="width:${b}%"></i></span><span data-bind="bat:${c.id}">${b}%</span></span>`;}
+function feed(cid,opt={}){
+  const c=cam(cid);
+  if(!c) return `<div class="feed none">No camera</div>`;
+  const frozen=c.st==='reconnecting';
+  return `<div class="feed a-${c.angle}${frozen?' frozen':''}${opt.cls?' '+opt.cls:''}">
+    <div class="scene"><div class="turf"></div><div class="rope"></div><div class="pitch"><i class="stump s1"></i><i class="stump s2"></i></div><i class="pl p1"></i><i class="pl p2"></i><i class="pl p3"></i><i class="pl p4"></i><i class="pl p5"></i><i class="ball"></i></div>
+    ${opt.label!==false?`<span class="feed-label">CAM ${camNo(cid)} · ${esc(ANGLES[c.angle])}</span>`:''}
+    ${frozen?`<span class="feed-frozen">${ic('warn',14)}Signal lost · last frame</span>`:''}
+    ${opt.gfx?gfx():''}
+    ${opt.tag?`<span class="tag ${opt.tag}">${opt.tag.toUpperCase()}</span>`:''}
+  </div>`;
+}
+function gfx(){
+  const m=active(); if(!m) return '';
+  const sc=score(m.id); let h='<div class="gfx">';
+  if(S.ovl.lineup){const t=sc.bat;h+=`<div class="g-lineup"><b>${esc(tname(t))}</b><ol>${players(t).map(p=>`<li>${esc(p)}</li>`).join('')}</ol></div>`;}
+  if(S.ovl.lower&&sc.striker){const b=sc.bs[sc.striker]||{r:0,b:0};h+=`<div class="g-lower"><b>${esc(pname(sc.striker))}</b><span>${b.r} (${b.b}) · ${esc(tname(sc.bat))}</span></div>`;}
+  if(S.ovl.score) h+=`<div class="g-bug"><b class="g-team">${abbr(sc.bat)}</b><span class="g-score">${sc.runs}-${sc.wk}</span><span class="g-ov">${ov(sc.balls)}</span><span class="g-ctx">${esc(scoreCtx(sc,m))}</span></div>`;
+  if(S.ovl.sponsor) h+=`<div class="g-sponsor">${m.booking?'Kick Off Arena':'DTL Night Cup · Kick Off Arena'}</div>`;
+  return h+'</div>';
+}
+function alerts(){
+  let h='';
+  const down=S.cams.filter(c=>c.st==='reconnecting');
+  down.forEach(c=>{h+=`<div class="banner warn">${ic('warn',18)}<div><b>CAM ${camNo(c.id)} lost signal</b>${S.pgm===c.id?'It is on program and holding its last frame. Cut to another angle.':'Reconnecting automatically. Program is not affected.'}</div></div>`;});
+  if(S.stream.weak>0&&live()) h+=`<div class="banner warn">${ic('warn',18)}<div><b>Weak uplink</b>Streemzy dropped to 540p to keep you live. Quality returns when the connection recovers.</div></div>`;
+  if(S.session==='retrying') h+=`<div class="banner info">${ic('info',18)}<div><b>Couldn't confirm your match session</b>Nothing is locked. Scoring, mixing and the stream keep running while we retry.</div></div>`;
+  return h;
+}
+const sec=(title,body,link)=>`<section class="sec"><div class="sec-h"><h3>${title}</h3>${link||''}</div>${body}</section>`;
+
+/* ============ views ============ */
+const V={};
+V.signin=()=>({bare:true,body:`<div class="signin">
+  <div class="brand"><div class="wordmark"><i></i>Sportzy</div><span>Organizer</span></div>
+  <p class="muted">Run tournaments, score matches and broadcast from the phones your crew already has.</p>
+  <form data-form="signin">
+    <label class="f">Sportzy ID (phone or email)<input id="sid" name="sid" autocomplete="username" placeholder="01XXX-XXXXXX or you@club.com"></label>
+    <label class="f">Password<input id="spw" name="spw" type="password" autocomplete="current-password" value="demo-password"></label>
+    <button class="btn pri block" type="submit">Sign in</button>
+  </form>
+  <p class="small muted">Demo: any details work. You'll pick a role next.</p>
+</div>`});
+V.roles=()=>{
+  const groups={};Object.entries(ROLES).forEach(([k,r])=>{(groups[r.group]=groups[r.group]||[]).push([k,r]);});
+  return {title:'Choose a demo role',back:'signin',body:`<p class="muted">Permissions come from your organisation and organiser access. Pick one to see the app as that person.</p>
+  ${Object.entries(groups).map(([g,rs])=>sec(g,`<div class="list">${rs.map(([k,r])=>`<button class="row" data-act="setRole" data-arg="${k}"><span class="grow"><span class="t">${r.label}</span><span class="s">${r.desc}</span></span>${ic('chev',18)}</button>`).join('')}</div>`)).join('')}`};
+};
+V.home=()=>{
+  const o=org(), ms=visibleMatches(), today=ms.filter(m=>m.date==='Today'), m=active();
+  let h=`<section class="sec" style="gap:6px"><p class="eyebrow">Mon 2 Nov · ${esc(o.city)}</p><h1 class="h1">${esc(o.name)}</h1>
+    <div><button class="chip" data-act="sheet" data-arg="org">${esc(ROLES[S.role].label)} ${ic('down',14)}</button></div></section>`;
+  if(live()&&m) h+=`<button class="banner live" data-go="golive" style="text-align:left">${ic('broadcast',18)}<div><b>Live · ${esc(abbr(m.a))} vs ${esc(abbr(m.b))} · <span class="num" data-bind="elapsed">${hms(S.stream.el)}</span></b>Streaming to ${Object.keys(S.stream.dest).filter(k=>S.stream.dest[k]).map(k=>DEST[k].name).join(', ')} through Streemzy.</div></button>`;
+  h+=alerts();
+  if(isCrew()){
+    const mm=S.matches.m1;
+    if(S.org!=='o1'||!mm) h+=`<div class="card empty">${ic('users',28)}<b>No assignments here</b><span>You aren't assigned to any matches in ${esc(o.name)}.</span></div>`;
+    else{
+      const what={camera:['Camera','Join the match from this phone and pick an angle.','camphone','Join as camera'],scorer:['Scorer','Enter the score ball by ball. It drives the on-screen graphics.','score','Open score console'],streamer:['Streamer','Mix camera angles and run the stream to Streemzy.','broadcast','Open broadcast']}[S.role];
+      h+=sec('Your assignment',`<div class="card" style="display:flex;flex-direction:column;gap:10px"><div><p class="eyebrow">${what[0]} · Today ${mm.time} · ${esc(mm.ground)}</p><p style="font-weight:700;font-size:17px;margin-top:2px">${esc(matchTitle(mm))}</p><p class="small muted">${what[1]}</p></div><button class="btn pri" data-go="${what[2]}">${what[3]}</button></div>`);
+    }
+  }
+  if(S.role==='gorg'){
+    const b=S.matches.m9;
+    h+=sec('Your booking',`<div class="list">${matchRow(b)}</div><p class="small muted">As the booking owner you can set up teams, crew, scoring and the broadcast for this match.</p>`);
+  }
+  if(!isCrew()){
+    h+=sec('Quick actions',`<div class="grid2">
+      ${lockTile('New tournament','Draft, then publish','trophy','tournament.create','new-tournament')}
+      ${lockTile('Live score','Scorezy console','score','score','score')}
+      ${lockTile('Connect cameras','Pair crew phones','camera','cameras','cameras')}
+      ${lockTile('Go live','Stream to Streemzy','broadcast','stream','golive')}</div>`);
+  }
+  if(S.role!=='gorg'&&!isCrew()) h+=sec(`Today at ${esc(o.venue.split(',')[0])}`,today.length?`<div class="list">${today.map(matchRow).join('')}</div>`:`<div class="card empty"><b>No matches today</b><span>Fixtures you schedule show up here.</span></div>`,`<button class="link" data-go="matches">All matches</button>`);
+  if(!isCrew()) h+=sec('Connected services',`<div class="list">
+     <div class="row"><span class="grow"><span class="t">Scorezy</span><span class="s">Score data and on-screen graphics</span></span>${pill('ok','Connected')}</div>
+     <div class="row"><span class="grow"><span class="t">Streemzy</span><span class="s">Ingest and multistream · Singapore</span></span>${pill('ok','Connected')}</div></div>`);
+  return {title:'Home',tab:'home',body:h};
+};
+V.tournaments=()=>{
+  const ts=Object.values(S.tours).filter(t=>t.org===S.org);
+  const list=ts.length?`<div class="list">${ts.map(t=>`<button class="row" data-go="t-${t.id}"><span class="grow"><span class="t">${esc(t.name)}</span><span class="s">${esc(t.sport)} · ${esc(t.format)} · ${esc(t.dates)}</span><span class="s">${t.teams.length} of ${t.limit} teams${t.regs.length?` · <b style="color:var(--warn)">${t.regs.length} to review</b>`:''}</span></span>${t.status==='published'?pill('ok','Published'):pill('idle','Draft')}</button>`).join('')}</div>`
+    :`<div class="card empty">${ic('trophy',28)}<b>No tournaments yet</b><span>Create one to open registrations and schedule fixtures.</span></div>`;
+  return {title:'Tournaments',tab:'tournaments',body:`${lockBtn('New tournament','tournament.create','go','new-tournament','btn pri block','plus')}${list}`};
+};
+V['new-tournament']=()=>({title:'New tournament',back:'tournaments',tab:'tournaments',body:`<form data-form="newTour">
+  <label class="f">Name<input id="tn" name="name" placeholder="e.g. DTL Winter Cup 2026" maxlength="60"></label>
+  <div class="grid2"><label class="f">Sport<select id="ts" name="sport"><option>Cricket</option><option>Football</option></select></label>
+  <label class="f">Format<select id="tf" name="format"><option>T10 · 8-a-side</option><option>T20</option><option>5-a-side league</option><option>Knockout</option></select></label></div>
+  <label class="f">Venue<input id="tv" name="venue" value="${esc(org().venue)}"></label>
+  <div class="grid2"><label class="f">Team limit<input id="tl" name="limit" type="number" min="2" max="32" value="8"></label>
+  <label class="f">Entry fee (৳)<input id="tfee" name="fee" type="number" min="0" step="500" value="5000"></label></div>
+  ${S.formErr?`<p class="err">${esc(S.formErr)}</p>`:''}
+  <button class="btn pri block" type="submit">Save draft</button>
+  <p class="small muted">Drafts are only visible to your organisation. Publish when teams and fixtures are ready.</p></form>`});
+V.t=id=>{
+  const t=S.tours[id]; if(!t||t.org!==S.org) return {title:'Tournament',back:'tournaments',tab:'tournaments',body:`<div class="empty"><b>Tournament not found</b><span>It may belong to another organisation. Switch organisation and try again.</span></div>`};
+  const fx=fixtures(t), tabs=[['overview','Overview'],['regs',`Registrations${t.regs.length?` (${t.regs.length})`:''}`],['fixtures','Fixtures'],['standings','Standings']];
+  let body=`<section class="sec" style="gap:6px"><div style="display:flex;gap:8px;align-items:center">${t.status==='published'?pill('ok','Published'):pill('idle','Draft')}<span class="small muted">${esc(t.sport)} · ${esc(t.format)}</span></div><h1 class="h1">${esc(t.name)}</h1></section>
+  <div class="seg" role="tablist">${tabs.map(([k,l])=>`<button role="tab" aria-selected="${S.tTab===k}" class="${S.tTab===k?'on':''}" data-act="tTab" data-arg="${k}">${l}</button>`).join('')}</div>`;
+  if(S.tTab==='overview'){
+    body+=`<dl class="card kv"><dt>Dates</dt><dd>${esc(t.dates)}</dd><dt>Venue</dt><dd>${esc(t.venue)}</dd><dt>Teams</dt><dd class="num">${t.teams.length} of ${t.limit}</dd><dt>Entry fee</dt><dd class="num">${t.fee?taka(t.fee)+' per team':'Free'}</dd><dt>Fixtures</dt><dd class="num">${fx.length} scheduled · ${fx.filter(m=>m.status==='completed').length} played</dd>${t.published?`<dt>Published</dt><dd>${esc(t.published)}</dd>`:''}</dl>`;
+    if(S.formErr) body+=`<div class="banner warn">${ic('warn',18)}<div>${esc(S.formErr)}</div></div>`;
+    body+=t.status==='draft'?lockBtn('Publish tournament','tournament.publish','publish',t.id,'btn pri block')+`<p class="small muted">Publishing lists it in the Sportzy app and opens registrations.</p>`
+      :lockBtn('Unpublish','tournament.publish','unpublish',t.id,'btn block');
+  } else if(S.tTab==='regs'){
+    body+=t.regs.length?sec('Waiting for review',`<div class="list">${t.regs.map(r=>`<div class="row"><span class="grow"><span class="t">${esc(tname(r.team))}</span><span class="s">Applied ${esc(r.at)} · ${r.paid?'Fee paid':'<span style="color:var(--warn)">Fee unpaid</span>'}</span></span><span class="btn-row" style="flex:none">${lockBtn('Reject','registrations','reject',t.id+'|'+r.team,'btn sm ghost')}${lockBtn('Approve','registrations','approve',t.id+'|'+r.team,'btn sm pri')}</span></div>`).join('')}</div>`)
+      :`<div class="card empty"><b>Nothing to review</b><span>New team registrations appear here.</span></div>`;
+    if(S.formErr) body+=`<p class="err">${esc(S.formErr)}</p>`;
+    body+=sec(`Approved teams · ${t.teams.length} of ${t.limit}`,`<div class="list">${t.teams.map(tm=>`<div class="row"><span class="grow"><span class="t">${esc(tname(tm))}</span><span class="s">${players(tm).length} players</span></span><span class="pill idle">${abbr(tm)}</span></div>`).join('')}</div>`);
+  } else if(S.tTab==='fixtures'){
+    body+=S.addSlot?`<form class="card" data-form="slot"><b>New match slot</b>
+      <div class="grid2"><label class="f">Home<select id="sa" name="a">${t.teams.map(x=>`<option value="${x}">${esc(tname(x))}</option>`).join('')}</select></label>
+      <label class="f">Away<select id="sb" name="b">${t.teams.map((x,i)=>`<option value="${x}"${i===1?' selected':''}>${esc(tname(x))}</option>`).join('')}</select></label></div>
+      <div class="grid2"><label class="f">Day<select id="sd" name="date">${DAYS.map(d=>`<option>${d}</option>`).join('')}</select></label><label class="f">Time<input id="st" name="time" type="time" value="20:45"></label></div>
+      <label class="f">Ground<select id="sg" name="ground">${GROUNDS.map(g=>`<option${g==='Turf 2'?' selected':''}>${g}</option>`).join('')}</select></label>
+      ${S.formErr?`<p class="err">${esc(S.formErr)}</p>`:''}
+      <div class="btn-row"><button type="button" class="btn" data-act="addSlot" data-arg="0">Cancel</button><button class="btn pri" type="submit">Add slot</button></div></form>`
+      :lockBtn('Add match slot','tournament.edit','addSlot','1','btn block','plus');
+    const groups={};fx.forEach(m=>{(groups[m.date]=groups[m.date]||[]).push(m);});
+    body+=fx.length?Object.entries(groups).map(([d,ms])=>sec(esc(d),`<div class="list">${ms.sort((a,b)=>a.time.localeCompare(b.time)).map(matchRow).join('')}</div>`)).join('')
+      :`<div class="card empty">${ic('calendar',28)}<b>No fixtures yet</b><span>Add match slots to build the schedule.</span></div>`;
+  } else {
+    const rows=t.teams.map(x=>t.stand.find(r=>r[0]===x)||[x,0,0,0,0,'0.00']).sort((a,b)=>b[4]-a[4]||parseFloat(b[5].replace('−','-'))-parseFloat(a[5].replace('−','-')));
+    body+=`<div class="list" style="overflow-x:auto"><table class="tbl"><thead><tr><th>Team</th><th>P</th><th>W</th><th>L</th><th>NRR</th><th>Pts</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(tname(r[0]))}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[5]}</td><td>${r[4]}</td></tr>`).join('')}</tbody></table></div><p class="small muted">Updates automatically when a scored match ends.</p>`;
+  }
+  return {title:t.name,back:'tournaments',tab:'tournaments',body};
+};
+V.matches=()=>{
+  const ms=visibleMatches();
+  if(!ms.length) return {title:'Matches',tab:'matches',body:`<div class="card empty">${ic('calendar',28)}<b>No matches</b><span>${S.role==='gorg'?'You have no bookings in this organisation.':'Nothing scheduled in this organisation yet.'}</span></div>`};
+  const up=ms.filter(m=>m.status!=='completed'), done=ms.filter(m=>m.status==='completed');
+  const order=d=>{const i=DAYS.indexOf(d);return i<0?9:i;};
+  up.sort((a,b)=>order(a.date)-order(b.date)||a.time.localeCompare(b.time));
+  const groups={};up.forEach(m=>{(groups[m.date]=groups[m.date]||[]).push(m);});
+  return {title:'Matches',tab:'matches',body:Object.entries(groups).map(([d,l])=>sec(esc(d),`<div class="list">${l.map(matchRow).join('')}</div>`)).join('')+(done.length?sec('Completed',`<div class="list">${done.map(matchRow).join('')}</div>`):'')};
+};
+V.m=id=>{
+  const m=S.matches[id];
+  if(!m||!visibleMatches().includes(m)) return {title:'Match',back:'matches',tab:'matches',body:`<div class="empty">${ic('lock',28)}<b>You can't open this match</b><span>It isn't in your organisation or you aren't assigned to it.</span></div>`};
+  const t=m.t?S.tours[m.t]:null, sc=S.scores[id], isAct=S.active===id;
+  let h=`<section class="card" style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="small muted">${esc(t?t.name:m.title)} · ${esc(m.stage)}</span>${statusPill(m)}</div>
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;text-align:center">
+      <div><div class="h1">${abbr(m.a)}</div><div class="small muted">${esc(tname(m.a))}</div></div>
+      <div class="small muted">vs</div>
+      <div><div class="h1">${abbr(m.b)}</div><div class="small muted">${esc(tname(m.b))}</div></div></div>
+    ${sc?`<div style="text-align:center;font-weight:600">${abbr(sc.bat)} ${sc.runs}/${sc.wk} (${ov(sc.balls)} ov) · ${esc(scoreCtx(sc,m))}</div>`:''}
+    ${m.result?`<div style="text-align:center;font-weight:600">${esc(m.result)}</div>`:''}
+    <div class="small muted" style="text-align:center">${esc(m.date)} · ${m.time} · ${esc(m.ground)}</div></section>`;
+  if(m.status!=='completed'){
+    if(isAct){
+      h+=sec('Broadcast',`<div class="grid2">${lockTile('Live score','Scorezy','score','score','score')}${lockTile('Cameras',`${S.cams.length} connected`,'camera','cameras','cameras')}${lockTile('Mixer','Switch angles','mixer','mixer','mixer')}${lockTile(live()?'Live now':'Go live','Streemzy','broadcast','stream','golive')}</div>`);
+    } else {
+      h+=sec('Broadcast',`<div class="card" style="display:flex;flex-direction:column;gap:10px"><p class="small muted">This phone is set up for ${active()?esc(abbr(active().a)+' vs '+abbr(active().b)):'no match'}. Make this the broadcast match to score and stream it.</p>${lockBtn('Use for broadcast','match.edit','setActive',id,'btn block')}</div>`);
+    }
+  }
+  const slots=[['director','Director · CAM 1'],['cam2','Camera 2'],['cam3','Camera 3'],['cam4','Camera 4'],['scorer','Scorer'],['streamer','Streamer']];
+  h+=sec('Crew',`<div class="list">${slots.map(([k,l])=>{const who=k==='director'?'me':m.crew[k];return `<div class="row"><span class="grow"><span class="t">${l}</span><span class="s">${who?esc(crewName(who)):'Not assigned'}</span></span>${k==='director'?pill('ok','This phone'):lockBtn(who?'Change':'Assign','crew.assign','sheet','crew|'+id+'|'+k,'btn sm')}</div>`;}).join('')}</div><p class="small muted">Assigned crew get a notification and see this match in their app.</p>`);
+  h+=sec('Teams',`<div class="grid2">${[m.a,m.b].map(tm=>`<div class="card" style="padding:12px"><b>${esc(tname(tm))}</b><ol class="small" style="margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:3px">${players(tm).map((p,i)=>`<li>${esc(p)}${i===0?' <span class="muted">(c)</span>':''}${i===4?' <span class="muted">(wk)</span>':''}</li>`).join('')}</ol></div>`).join('')}</div>`);
+  return {title:`${abbr(m.a)} vs ${abbr(m.b)}`,back:'matches',tab:'matches',body:h};
+};
+V.broadcast=()=>{
+  const m=active();
+  if(!m) return {title:'Broadcast',tab:'broadcast',body:`<div class="card empty">${ic('broadcast',28)}<b>No broadcast match</b><span>Open a match and choose “Use for broadcast”.</span><button class="btn" data-go="matches">Go to matches</button></div>`};
+  startPairing();
+  const sc=score(m.id);
+  let h=`<section class="sec" style="gap:4px"><p class="eyebrow">${esc(m.date)} · ${m.time} · ${esc(m.ground)}</p><h1 class="h1">${esc(abbr(m.a))} vs ${esc(abbr(m.b))}</h1></section>`;
+  h+=alerts();
+  h+=`<div class="feed-wrap">${feed(S.pgm,{gfx:true,tag:'pgm'})}</div>`;
+  h+=`<div class="list">
+    <button class="row" ${can('cameras')?'data-go="cameras"':'data-act="locked" data-arg="cameras"'}>${ic('camera')}<span class="grow"><span class="t">Cameras</span><span class="s">${S.cams.length} of ${S.cap} connected${S.cams.some(c=>c.st!=='ok')?' · 1 reconnecting':''}</span></span>${can('cameras')?ic('chev',18):ic('lock',16)}</button>
+    <button class="row" ${can('mixer')?'data-go="mixer"':'data-act="locked" data-arg="mixer"'}>${ic('mixer')}<span class="grow"><span class="t">Mixer</span><span class="s">Program: CAM ${camNo(S.pgm)} · ${esc(ANGLES[cam(S.pgm).angle])}</span></span>${can('mixer')?ic('chev',18):ic('lock',16)}</button>
+    <button class="row" ${can('score')?'data-go="score"':'data-act="locked" data-arg="score"'}>${ic('score')}<span class="grow"><span class="t">Score</span><span class="s">${abbr(sc.bat)} ${sc.runs}/${sc.wk} · ${ov(sc.balls)} ov · synced to Scorezy</span></span>${can('score')?ic('chev',18):ic('lock',16)}</button>
+    <button class="row" ${can('stream')?'data-go="golive"':'data-act="locked" data-arg="stream"'}>${ic('stream')}<span class="grow"><span class="t">Stream to Streemzy</span><span class="s">${live()?`Live · <span data-bind="elapsed">${hms(S.stream.el)}</span>`:S.stream.st==='ended'?'Ended':'Not live'}</span></span>${live()?pill('live','Live'):''}${can('stream')?ic('chev',18):ic('lock',16)}</button></div>`;
+  return {title:'Broadcast',tab:'broadcast',body:h};
+};
+V.score=()=>{
+  const m=active();
+  if(!m) return {title:'Live score',tab:'matches',back:'home',body:`<div class="card empty"><b>No match selected</b><span>Choose a match for broadcast first.</span></div>`};
+  const sc=score(m.id), st=sc.striker?sc.bs[sc.striker]:null, nn=sc.bs[sc.non], bw=sc.bw[sc.bowler]||{b:0,r:0,w:0};
+  const legalInOver=sc.over.filter(x=>!/^(Wd|Nb)/.test(x)).length;
+  const chips=sc.over.map(x=>`<span class="ballc ${x==='W'?'bw':x==='4'?'b4':x==='6'?'b6':/^(Wd|Nb|\dB|\dLB)/.test(x)?'bx':''}">${x}</span>`).join('')+Array.from({length:Math.max(0,6-legalInOver)},()=>'<span class="ballc empty"></span>').join('');
+  const P=S.pending, dis=sc.done?'disabled':'';
+  let h=`<div class="scorecard">
+    <div class="sc-top"><div><p class="eyebrow">${esc(tname(sc.bat))}${sc.inn===2?' · Chasing '+sc.target:''}</p><div class="sc-big">${sc.runs}/${sc.wk}<small>${ov(sc.balls)}</small></div></div>
+    <div class="sc-meta"><b>${esc(scoreCtx(sc,m))}</b>${m.overs} overs · ${sc.inn===2?esc(sc.first):'1st innings'}</div></div>
+    ${sc.striker?`<div class="bat"><b>${esc(pname(sc.striker))} *</b><span class="num">${st.r} (${st.b})</span></div>`:''}
+    <div class="bat"><b>${esc(pname(sc.non))}</b><span class="num">${nn.r} (${nn.b})</span></div>
+    <div class="bat"><span class="muted">${esc(pname(sc.bowler))}</span><span class="num muted">${ov(bw.b)}-0-${bw.r}-${bw.w}</span></div>
+    <div class="overline"><span class="small muted" style="margin-right:2px">This over</span>${chips}</div>
+  </div>`;
+  if(sc.done){
+    h+=`<div class="banner ${sc.result?'live':'info'}">${ic('info',18)}<div><b>${sc.result?esc(sc.result):'Innings complete'}</b>${sc.result?'The result is sent to Scorezy and standings update.':`${esc(tname(sc.bowlT))} need ${sc.runs+1} to win.`}</div></div>`;
+    if(!sc.result) h+=`<button class="btn pri block" data-act="inn2">Start 2nd innings</button>`;
+  }
+  const hint=P?{nb:'No ball: tap runs scored off the bat',wd:'Wide: tap extra runs they ran',b:'Byes: tap runs',lb:'Leg byes: tap runs'}[P]:null;
+  if(hint) h+=`<div class="banner warn">${ic('info',18)}<div><b>${hint}</b><button class="link" data-act="pend" data-arg="" style="color:var(--accent);font-weight:700;margin-top:2px">Cancel</button></div></div>`;
+  const nums=[0,1,2,3,4,6].map(n=>`<button class="key k${n}" data-act="run" data-arg="${n}" ${dis}>${n}</button>`);
+  h+=`<div class="pad">${nums.slice(0,4).join('')}${nums[4]}${nums[5]}
+    <button class="key kw" data-act="wicketSheet" ${dis||(P?'disabled':'')}>W</button>
+    <button class="key ks" data-act="undo" ${(S.undo[m.id]||[]).length?'':'disabled'} aria-label="Undo last ball">${ic('undo',18)}</button>
+    ${['wd','nb','b','lb'].map(x=>`<button class="key kx${P===x?' on':''}" data-act="pend" data-arg="${x}" ${dis}>${x.toUpperCase()}</button>`).join('')}
+    <button class="key ks" data-act="swap" ${dis} style="grid-column:span 2">${ic('swap',16)} Swap strike</button>
+    <button class="key ks" data-act="sheet" data-arg="bowler" ${dis} style="grid-column:span 2">Change bowler</button></div>
+    <div class="sync"><i></i>Synced to Scorezy · graphics update on air instantly</div>`;
+  return {title:'Live score',back:S.role==='scorer'?'home':'broadcast',tab:S.role==='scorer'?'score':'broadcast',body:h};
+};
+V.cameras=()=>{
+  startPairing();
+  const full=S.cams.length>=S.cap;
+  let h=alerts();
+  h+=`<section class="card pair"><canvas class="qr" width="29" height="29" aria-label="Pairing QR code"></canvas>
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><p class="eyebrow">Pairing code</p><div class="code">482 913</div>
+    <p class="small muted">Crew open Sportzy Organizer → Join as camera, then scan or type this code. Expires in <span class="num" data-bind="exp">${mmss(S.pair.exp)}</span>.</p>
+    <button class="btn sm" data-act="copyCode" style="align-self:flex-start">${ic('copy',16)}Copy code</button></div></section>`;
+  h+=`<div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div><b>Camera limit</b><p class="small muted">Prototype default 4 · final limit is an open decision</p></div>
+    <div class="stepper"><button data-act="cap" data-arg="-1" aria-label="Fewer cameras">−</button><b class="num">${S.cap}</b><button data-act="cap" data-arg="1" aria-label="More cameras">+</button></div></div>`;
+  h+=sec(`Connected · ${S.cams.length} of ${S.cap}`,`<div class="list">${S.cams.map(c=>{
+    const isRemoving=S.removing===c.id;
+    return `<div class="devrow">${feed(c.id,{label:false})}
+      <div style="min-width:0"><b>CAM ${camNo(c.id)} · ${esc(ANGLES[c.angle])}</b>
+        <div class="small muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.who)} · ${esc(c.device)}</div>
+        <div class="stats">${c.st==='reconnecting'?pill('warn','Reconnecting'):sig(c.sig)}${batt(c)}${c.local?'<span>Local</span>':`<span class="num" data-bind="lat:${c.id}">${c.lat} ms</span>`}${S.pgm===c.id?pill('live','PGM'):S.pvw===c.id?pill('ok','PVW'):''}</div>
+        ${isRemoving?`<div class="btn-row" style="margin-top:8px"><button class="btn sm" data-act="rmCancel">Keep</button><button class="btn sm danger" data-act="rmDo" data-arg="${c.id}">Remove</button></div>`:''}
+      </div>
+      ${c.local?'':`<div style="display:flex;flex-direction:column;gap:6px"><button class="btn sm" data-act="sheet" data-arg="angle|${c.id}">Angle</button><button class="btn sm ghost" data-act="rmAsk" data-arg="${c.id}">Remove</button></div>`}
+    </div>`;}).join('')}
+    ${!full?`<div class="devrow" style="grid-template-columns:auto 1fr"><span class="spinner"></span><span class="small muted">Waiting for crew phones to join…</span></div>`:''}</div>`);
+  if(S.log.length) h+=sec('Activity',`<div class="card log">${S.log.map(l=>`<div><span>${esc(l.text)}</span>${l.rejected&&!S.cams.some(c=>c.id===l.rejected)?`<button class="btn sm" data-act="admit" data-arg="${l.rejected}">Let in</button>`:`<time>${l.at}</time>`}</div>`).join('')}</div>`);
+  h+=`<button class="btn pri block" data-go="mixer" ${can('mixer')?'':'disabled'}>${ic('mixer',18)}Open mixer</button>`;
+  return {title:'Cameras',back:'broadcast',tab:'broadcast',body:h};
+};
+V.mixer=()=>{
+  startPairing();
+  const ovl=[['score','Score bug'],['lower','Batter lower third'],['lineup','Lineup'],['sponsor','Sponsor']];
+  let h=alerts();
+  h+=`<div id="pgmwin">${feed(S.pgm,{gfx:true,tag:'pgm'})}</div>
+  <div class="mix-pvw">${S.pvw&&cam(S.pvw)?feed(S.pvw,{tag:'pvw'}):`<div class="feed none">Tap a camera to preview</div>`}
+    <div class="mix-btns"><button class="btn cut" data-act="cut">CUT</button><button class="btn" data-act="auto">AUTO</button></div></div>
+  ${sec('Cameras',`<div class="cams">${S.cams.map((c,i)=>`<button class="camtile ${S.pgm===c.id?'pgm':S.pvw===c.id?'pvw':''}" data-act="pvw" data-arg="${c.id}" aria-label="Preview camera ${i+1}">${feed(c.id,{label:false})}<span class="cap"><b>${i+1} · ${esc(ANGLES[c.angle])}</b><span>${esc(c.who.split(' ')[0])}</span></span></button>`).join('')}
+    ${S.cams.length<S.cap?`<button class="camtile" data-go="cameras"><div class="feed none">${ic('plus',22)}</div><span class="cap"><b>Add camera</b></span></button>`:''}</div>`)}
+  ${sec('Graphics on program',`<div class="toggles">${ovl.map(([k,l])=>`<button class="tog" aria-pressed="${S.ovl[k]}" data-act="ovl" data-arg="${k}">${S.ovl[k]?ic('check',14):''}${l}</button>`).join('')}</div><p class="small muted">Score graphics follow Scorezy automatically.</p>`)}
+  ${live()?`<button class="btn block" data-go="golive"><span class="dot-live" style="color:var(--live)"></span>Live · <span class="num" data-bind="elapsed">${hms(S.stream.el)}</span></button>`:lockBtn('Go live to Streemzy','stream','go','golive','btn pri block','broadcast')}`;
+  return {title:'Mixer',back:'broadcast',tab:'broadcast',body:h};
+};
+V.golive=()=>{
+  const s=S.stream, m=active();
+  if(!m) return {title:'Go live',back:'broadcast',tab:'broadcast',body:`<div class="card empty"><b>No broadcast match</b><span>Choose a match first.</span></div>`};
+  startPairing();
+  if(s.st==='countdown') return {title:'Going live',back:null,tab:'broadcast',body:`<div class="countdown"><div>${s.cd}<small>Going live</small></div></div>`};
+  const dests=Object.keys(DEST);
+  if(s.st==='live'){
+    const total=dests.reduce((a,k)=>a+(s.dest[k]?s.v[k]:0),0);
+    let h=alerts();
+    h+=`<div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div><p class="eyebrow" style="color:var(--live)">● Live on Streemzy</p><div class="liveclock" data-bind="elapsed">${hms(s.el)}</div></div><div style="text-align:right"><p class="eyebrow">Viewers</p><div class="liveclock" style="font-size:32px" data-bind="vtotal">${total.toLocaleString('en-IN')}</div></div></div>`;
+    h+=`<button data-go="mixer" aria-label="Open mixer" style="display:block">${feed(S.pgm,{gfx:true,tag:'pgm'})}</button>`;
+    h+=`<div class="metrics">
+      <div class="metric wide"><span>Bitrate</span><b><span data-bind="br">${s.br.toFixed(1)}</span><small>Mbps · <span data-bind="ql">${s.weak>0?'540p30':QUAL[s.q].label}</span></small></b><div data-html="spark">${spark()}</div></div>
+      <div class="metric"><span>Frame rate</span><b><span data-bind="fps">${s.fps}</span><small>fps</small></b></div>
+      <div class="metric"><span>Dropped</span><b><span data-bind="drop">${s.drop}</span><small>frames</small></b></div>
+      <div class="metric"><span>Ingest</span><b>${s.proto.toUpperCase()}<small>SGP</small></b></div>
+      <div class="metric"><span>Health</span><b data-bind="health" style="color:${s.weak>0?'var(--warn)':'var(--accent)'}">${s.weak>0?'Unstable':'Good'}</b></div></div>`;
+    h+=sec('Destinations',`<div class="list">${dests.filter(k=>s.dest[k]).map(k=>`<div class="row dest"><span class="logo ${DEST[k].cls}">${DEST[k].mark}</span><span class="grow"><span class="t">${DEST[k].name}</span><span class="s">${esc(DEST[k].acct)}</span></span><span class="num" style="font-weight:700" data-bind="v:${k}">${s.v[k].toLocaleString('en-IN')}</span></div>`).join('')}</div>`);
+    h+=s.confirmEnd?`<div class="confirm"><b>End the broadcast on all destinations?</b><p class="small muted">Viewers see the stream end. The recording is kept in Streemzy.</p><div class="btn-row"><button class="btn" data-act="endNo">Keep streaming</button><button class="btn danger" data-act="endYes">End broadcast</button></div></div>`
+      :`<button class="btn block" data-act="endAsk" style="color:var(--live);border-color:var(--live)">End broadcast</button>`;
+    return {title:'Live',back:'broadcast',tab:'broadcast',body:h};
+  }
+  if(s.st==='ended'){
+    return {title:'Broadcast ended',back:'broadcast',tab:'broadcast',body:`<div class="card" style="display:flex;flex-direction:column;gap:12px"><p class="eyebrow">Summary</p><h1 class="h1">${esc(abbr(m.a))} vs ${esc(abbr(m.b))}</h1>
+      <dl class="kv"><dt>Duration</dt><dd class="num">${hms(s.el)}</dd><dt>Peak viewers</dt><dd class="num">${s.peak.toLocaleString('en-IN')}</dd><dt>Destinations</dt><dd>${dests.filter(k=>s.dest[k]).map(k=>DEST[k].name).join(', ')}</dd><dt>Dropped frames</dt><dd class="num">${s.drop}</dd></dl>
+      <div class="banner info">${ic('check',18)}<div><b>Recording saved in Streemzy</b>The replay is ready on each platform in a few minutes.</div></div></div>
+      <div class="btn-row"><button class="btn" data-go="m-${m.id}">Back to match</button><button class="btn pri" data-act="newStream">New broadcast</button></div>`};
+  }
+  const lockedAll=!can('stream');
+  let h=`<section class="sec" style="gap:4px"><p class="eyebrow">Program feed → Streemzy → your channels</p><h1 class="h1">${esc(abbr(m.a))} vs ${esc(abbr(m.b))}</h1></section>`;
+  h+=feed(S.pgm,{gfx:true,tag:'pgm'});
+  h+=sec('Destinations',`<div class="list">${dests.map(k=>`<div class="row dest"><span class="logo ${DEST[k].cls}">${DEST[k].mark}</span><span class="grow"><span class="t">${DEST[k].name}</span><span class="s">${esc(DEST[k].acct)}</span></span><button class="switch" role="switch" aria-checked="${s.dest[k]}" aria-label="${DEST[k].name}" data-act="dest" data-arg="${k}" ${s.st!=='setup'?'disabled':''}></button></div>`).join('')}</div><p class="small muted">Streemzy sends one feed to every channel you turn on. Manage channels in Streemzy.</p>`);
+  h+=sec('Ingest',`<div class="seg">${[['srt','SRT · best on 4G'],['rtmp','RTMP']].map(([k,l])=>`<button class="${s.proto===k?'on':''}" data-act="proto" data-arg="${k}" ${s.st!=='setup'?'disabled':''}>${l}</button>`).join('')}</div>`);
+  h+=sec('Quality',`<div class="seg">${Object.entries(QUAL).map(([k,q])=>`<button class="${s.q===k?'on':''}" data-act="qual" data-arg="${k}" ${s.st!=='setup'?'disabled':''}>${q.label}${k==='720'?' ·  default':''}</button>`).join('')}</div>`);
+  if(s.err) h+=`<p class="err">${esc(s.err)}</p>`;
+  if(s.st==='setup') h+=lockBtn('Run pre-flight checks','stream','checks',null,'btn pri block');
+  else{
+    const cs=checks();
+    h+=sec('Pre-flight',`<div class="list">${cs.map((c,i)=>{const done=i<s.step||s.st==='ready';const cur=i===s.step&&s.st==='checking';return `<div class="check${!done&&!cur?' pending':''}"><span class="mark ${done?c[2]:''}">${done?ic(c[2]==='ok'?'check':'warn',14):cur?'<span class="spinner"></span>':''}</span><span class="grow"><span class="t">${c[0]}</span><span class="s">${esc(c[1])}</span></span></div>`;}).join('')}</div>`);
+    if(s.st==='ready') h+=`<div class="btn-row"><button class="btn" data-act="checksReset">Change settings</button><button class="btn danger" data-act="goLive">${ic('broadcast',18)}Go live</button></div><p class="small muted">Warnings don't block you. Nothing locks once you're live.</p>`;
+  }
+  if(lockedAll) h=`<div class="banner warn">${ic('lock',18)}<div>${esc(whyLocked('stream'))}</div></div>`+h;
+  return {title:'Go live',back:'broadcast',tab:'broadcast',body:h};
+};
+function spark(){
+  const hs=S.stream.hist; if(hs.length<2) return '<svg class="spark" viewBox="0 0 100 30" preserveAspectRatio="none"></svg>';
+  const mx=Math.max(7,...hs), pts=hs.map((v,i)=>`${(i/(hs.length-1)*100).toFixed(1)},${(28-v/mx*26).toFixed(1)}`).join(' ');
+  return `<svg class="spark" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path class="a" d="M0,30 L${pts.split(' ').join(' L')} L100,30 Z"/><polyline class="l" points="${pts}"/></svg>`;
+}
+V.camphone=()=>{
+  const cp=S.cp, mm=S.matches.m1;
+  if(cp.step==='code') return {title:'Join as camera',tab:'camphone',back:S.role==='camera'?null:'home',body:`<div class="card" style="display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center">${ic('qr',40)}<b style="font-size:17px">Scan the director's QR code</b><p class="small muted">Or type the 6-digit code from their Cameras screen.</p></div>
+    <form data-form="code"><label class="f">Pairing code<input id="pc" name="code" class="codein" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="000000"></label>
+    ${cp.err?`<p class="err">${esc(cp.err)}</p>`:''}<button class="btn pri block" type="submit">Join match</button></form><p class="small muted" style="text-align:center">Demo code: 482913</p>`};
+  if(cp.step==='angle'){
+    return {title:'Pick your angle',tab:'camphone',back:null,body:`<p class="muted">${esc(matchTitle(mm))} · Director: Israfil</p>
+      <div class="list">${Object.entries(ANGLES).map(([k,l])=>{const t=S.cams.find(c=>c.angle===k);return t?`<div class="row" style="opacity:.5"><span class="grow"><span class="t">${l}</span><span class="s">Taken by ${esc(t.who)}</span></span></div>`:`<button class="row" data-act="cpAngle" data-arg="${k}"><span class="grow"><span class="t">${l}</span></span>${ic('chev',18)}</button>`;}).join('')}</div>
+      ${cp.err?`<div class="banner warn">${ic('warn',18)}<div>${esc(cp.err)}</div></div>`:''}
+      <button class="btn ghost" data-act="cpLeave">Cancel</button>`};
+  }
+  const me=cam('me'), state=S.pgm==='me'?['on','On air']:S.pvw==='me'?['pv','Preview']:['sb','Standby'];
+  return {title:'Camera',tab:'camphone',back:null,body:`<div class="tally ${state[0]}">${state[0]==='on'?'<span class="dot-live"></span>':''}${state[1]}</div>
+    ${me?feed('me',{}):''}
+    <dl class="card kv"><dt>Match</dt><dd>${esc(abbr(mm.a))} vs ${esc(abbr(mm.b))}</dd><dt>Angle</dt><dd>CAM ${camNo('me')} · ${esc(ANGLES[me.angle])}</dd><dt>Sending</dt><dd>720p30 to director</dd><dt>Battery</dt><dd>${batt(me)}</dd></dl>
+    <div class="banner info">${ic('info',18)}<div>Keep the phone landscape and plugged in. The screen dims to save power but keeps sending.</div></div>
+    <button class="btn block" data-act="cpLeave">${ic('out',18)}Leave match</button>`};
+};
+V.more=()=>({title:'More',tab:'more',body:`
+  <div class="card" style="display:flex;gap:12px;align-items:center"><span class="avatar" style="width:46px;height:46px;display:grid;place-items:center;font-size:17px">II</span><div><b>Israfil Islam</b><p class="small muted">Sportzy ID · ${esc(ROLES[S.role].label)}</p></div></div>
+  <div class="list">
+    <button class="row" data-act="sheet" data-arg="org">${ic('users')}<span class="grow"><span class="t">Organisation</span><span class="s">${esc(org().name)}</span></span>${ic('chev',18)}</button>
+    <button class="row" data-go="roles">${ic('swap')}<span class="grow"><span class="t">Change demo role</span><span class="s">${esc(ROLES[S.role].label)}</span></span>${ic('chev',18)}</button>
+    ${can('camphone')&&S.role!=='camera'?`<button class="row" data-go="camphone">${ic('phone')}<span class="grow"><span class="t">Join as camera</span><span class="s">Use this phone as a crew camera</span></span>${ic('chev',18)}</button>`:''}
+    <button class="row" data-act="signout">${ic('out')}<span class="grow"><span class="t">Sign out</span></span></button></div>
+  <p class="small muted">Prototype for SPOR-111. Mock data, simulated cameras and stream.</p>`});
+
+/* ============ sheets ============ */
+function sheetHTML(){
+  const sh=S.sheet; if(!sh) return '';
+  let h='';
+  if(sh.type==='org'){
+    h=`<h3>Organisation</h3><div class="list">${ORGS.map(o=>`<button class="row" data-act="setOrg" data-arg="${o.id}"><span class="avatar" style="display:grid;place-items:center">${o.short}</span><span class="grow"><span class="t">${esc(o.name)}</span><span class="s">${esc(o.city)} · ${esc(ROLES[S.role].label)}</span></span>${S.org===o.id?`<span style="color:var(--accent)">${ic('check',18)}</span>`:''}</button>`).join('')}</div>${live()?`<p class="small muted">You're live. End the broadcast before switching organisation.</p>`:''}`;
+  } else if(sh.type==='crew'){
+    const m=S.matches[sh.mid], cur=m.crew[sh.slot], want=sh.slot.startsWith('cam')?'Camera':sh.slot==='scorer'?'Scorer':'Streamer';
+    const taken=Object.entries(m.crew).filter(([k,v])=>k!==sh.slot&&v).map(([,v])=>v);
+    const list=[...CREW].sort((a,b)=>(b.skill===want)-(a.skill===want));
+    h=`<h3>Assign ${sh.slot.startsWith('cam')?'Camera '+sh.slot.slice(3):want}</h3><div class="list">${list.map(c=>{const busy=taken.includes(c.id);return `<button class="row" ${busy?'disabled style="opacity:.5"':''} data-act="assign" data-arg="${c.id}"><span class="grow"><span class="t">${esc(c.name)}</span><span class="s">${c.skill}${busy?' · already on this match':''}</span></span>${cur===c.id?`<span style="color:var(--accent)">${ic('check',18)}</span>`:''}</button>`;}).join('')}</div>${cur?`<button class="btn block" data-act="assign" data-arg="">Remove ${esc(crewName(cur))}</button>`:''}`;
+  } else if(sh.type==='wicket'){
+    const sc=score(S.active);
+    h=`<h3>Wicket · ${esc(pname(sc.striker))}</h3><div class="grid2">${['Bowled','Caught','LBW','Run out','Stumped','Hit wicket'].map(k=>`<button class="btn" data-act="wicket" data-arg="${k}">${k}</button>`).join('')}</div>
+      <p class="small muted">${sc.next<players(sc.bat).length?`Next in: ${esc(pname(sc.bat+':'+sc.next))}`:'Last wicket. This ends the innings.'}</p>`;
+  } else if(sh.type==='bowler'){
+    const sc=score(S.active), m=active(), maxB=Math.ceil(m.overs/5)*6;
+    h=`<h3>Change bowler</h3><div class="list">${bowlerPool(sc).map(id=>{const b=sc.bw[id]||{b:0,r:0,w:0};const blocked=id===sc.prevBowler?'Bowled the last over':b.b>=maxB?'Overs used up':null;return `<button class="row" ${blocked?'disabled style="opacity:.5"':''} data-act="setBowler" data-arg="${id}"><span class="grow"><span class="t">${esc(pname(id))}</span><span class="s">${blocked||`${ov(b.b)}-0-${b.r}-${b.w}`}</span></span>${sc.bowler===id?`<span style="color:var(--accent)">${ic('check',18)}</span>`:''}</button>`;}).join('')}</div>`;
+  } else if(sh.type==='angle'){
+    const c=cam(sh.cid);
+    h=`<h3>Angle for CAM ${camNo(sh.cid)}</h3><div class="list">${Object.entries(ANGLES).map(([k,l])=>`<button class="row" data-act="setAngle" data-arg="${k}"><span class="grow"><span class="t">${l}</span></span>${c.angle===k?`<span style="color:var(--accent)">${ic('check',18)}</span>`:''}</button>`).join('')}</div>`;
+  }
+  return `<div class="scrim" data-act="closeSheet"><div class="sheet" data-act="noop" role="dialog" aria-modal="true"><div class="grab"></div>${h}</div></div>`;
+}
+
+/* ============ routing + render ============ */
+const GATE={tournaments:'tournament.view','new-tournament':'tournament.create',t:'tournament.view',matches:'match.view',m:'match.view',score:'score',cameras:'cameras',mixer:'mixer',golive:'stream',camphone:'camphone',broadcast:['cameras','mixer','stream']};
+function parse(r){const i=r.indexOf('-');if(r==='new-tournament'||i<0)return[r,null];const b=r.slice(0,i);return (b==='t'||b==='m')?[b,r.slice(i+1)]:[r,null];}
+function view(){
+  const [b,id]=parse(S.route);
+  const fn=V[b]; if(!fn) return V.home();
+  const g=GATE[b];
+  if(g){const ok=Array.isArray(g)?g.some(can):can(g);
+    if(!ok){const p=Array.isArray(g)?g[0]:g;return {title:'No access',back:'home',body:`<div class="empty">${ic('lock',32)}<b>You don't have access to this screen</b><span>${esc(whyLocked(p))}</span><button class="btn" data-go="home">Back to Home</button></div>`};}}
+  return fn(id);
+}
+function tabsHTML(cur){
+  const t=[['home','Home','home']];
+  if(can('tournament.view')) t.push(['tournaments','Tournaments','trophy']);
+  if(can('match.view')&&!['camera','streamer'].includes(S.role)) t.push(['matches','Matches','calendar']);
+  if(S.role==='scorer') t.push(['score','Score','score']);
+  else if(can('cameras')||can('mixer')||can('stream')) t.push(['broadcast','Broadcast','broadcast']);
+  if(S.role==='camera') t.push(['camphone','Camera','camera']);
+  t.push(['more','More','more']);
+  return `<nav class="tabbar" aria-label="Main">${t.map(([r,l,i])=>`<button data-go="${r}" class="${cur===r?'on':''}"${cur===r?' aria-current="page"':''}>${ic(i,22)}<span>${l}</span></button>`).join('')}</nav>`;
+}
+function render(){
+  const old=$('.content'), st=old?old.scrollTop:0, same=S.lastRoute===S.route;
+  const v=view();
+  const status=`<div class="statusbar"><span class="num">19:12</span><span class="sb-r">${sig(4)}<span class="sb-batt"><i></i></span></span></div>`;
+  let h=status;
+  if(v.bare) h+=`<div class="content bare">${v.body}</div>`;
+  else{
+    h+=`<header class="hdr">${v.back?`<button class="iconbtn" data-go="${v.back}" aria-label="Back">${ic('back')}</button>`:''}<div class="hdr-t">${S.role?`<span class="hdr-org">${esc(org().short)} · ${esc(ROLES[S.role].label)}</span>`:''}<h2>${esc(v.title)}</h2></div>
+      ${live()&&S.route!=='golive'?`<button class="livepill" data-go="golive"><i></i><span data-bind="elapsed">${hms(S.stream.el)}</span></button>`:''}
+      ${S.role?`<button class="avatar" data-act="sheet" data-arg="org" aria-label="Switch organisation">${esc(org().short)}</button>`:''}</header>
+      <main class="content">${v.body}</main>${S.role?tabsHTML(v.tab):''}`;
+  }
+  h+=sheetHTML();
+  $('#screen').innerHTML=h;
+  const c=$('.content'); if(c&&same) c.scrollTop=st;
+  S.lastRoute=S.route; S.dirty=false;
+  drawQR();
+  const rs=$('#roleSel'); if(rs) rs.value=S.role||'';
+}
+function patch(){
+  document.querySelectorAll('[data-bind]').forEach(el=>{
+    const [k,a]=el.dataset.bind.split(':'); const s=S.stream; let v=null;
+    if(k==='elapsed') v=hms(s.el); else if(k==='br') v=s.br.toFixed(1); else if(k==='fps') v=s.fps; else if(k==='drop') v=s.drop;
+    else if(k==='ql') v=s.weak>0?'540p30':QUAL[s.q].label; else if(k==='health'){v=s.weak>0?'Unstable':'Good';el.style.color=s.weak>0?'var(--warn)':'var(--accent)';}
+    else if(k==='v') v=s.v[a].toLocaleString('en-IN'); else if(k==='vtotal') v=Object.keys(s.dest).reduce((t,d)=>t+(s.dest[d]?s.v[d]:0),0).toLocaleString('en-IN');
+    else if(k==='exp') v=mmss(S.pair.exp); else if(k==='lat'){const c=cam(a);v=c?c.lat+' ms':'';}
+    else if(k==='bat'){const c=cam(a);v=c?Math.round(c.bat)+'%':'';}
+    if(v!=null&&el.textContent!==String(v)) el.textContent=v;
+  });
+  const sp=$('[data-html="spark"]'); if(sp) sp.innerHTML=spark();
+}
+function drawQR(){
+  const cv=$('canvas.qr'); if(!cv) return;
+  const x=cv.getContext('2d'), N=29, cs=getComputedStyle(document.documentElement);
+  x.fillStyle=cs.getPropertyValue('--raised').trim()||'#fff'; x.fillRect(0,0,N,N);
+  x.fillStyle=cs.getPropertyValue('--fg').trim()||'#000';
+  let seed=482913; const r=()=>(seed=(seed*1103515245+12345)%2147483648)/2147483648;
+  const finder=(a,b)=>{x.fillRect(a,b,7,7);x.clearRect(a+1,b+1,5,5);x.fillStyle=cs.getPropertyValue('--raised').trim();x.fillRect(a+1,b+1,5,5);x.fillStyle=cs.getPropertyValue('--fg').trim();x.fillRect(a+2,b+2,3,3);};
+  for(let i=1;i<N-1;i++)for(let j=1;j<N-1;j++){const inF=(i<9&&j<9)||(i<9&&j>N-10)||(i>N-10&&j<9);if(!inF&&r()>.52)x.fillRect(i,j,1,1);}
+  finder(1,1);finder(N-8,1);finder(1,N-8);
+}
+function go(r){ if(location.hash.slice(1)===r){onHash();} else location.hash=r; }
+function onHash(){
+  let r=location.hash.slice(1)||'';
+  if(!S.role&&r&&r!=='signin'&&r!=='roles'){S.role='owner';S.active=defaultActive();save();}
+  if(!r) r=S.role?'home':'signin';
+  if(S.route!==r){S.formErr=null;S.addSlot=false;S.removing=null;S.sheet=null;if(r.startsWith('t-'))S.tTab='overview';}
+  S.route=r;
+  if(!S.role&&r!=='signin'&&r!=='roles') S.route='signin';
+  render();
+}
+
+/* ============ actions ============ */
+const ACT={
+  noop(){},
+  go(a){go(a);},
+  locked(p){toast(whyLocked(p));},
+  setRole(r){S.role=r;S.org='o1';S.active=defaultActive();S.cp={step:'code',err:null};S.cams=S.cams.filter(c=>c.id!=='me');save();go('home');},
+  signout(){S.role=null;save();go('signin');},
+  sheet(a){const [t,x,y]=a.split('|');
+    if(t==='crew') S.sheet={type:'crew',mid:x,slot:y};
+    else if(t==='angle') S.sheet={type:'angle',cid:x};
+    else S.sheet={type:t}; render();},
+  closeSheet(){S.sheet=null;render();},
+  setOrg(id){
+    if(live()&&id!==S.org){toast('End the broadcast before switching organisation.');return;}
+    S.org=id;S.active=defaultActive();S.sheet=null;save();toast(`Switched to ${org().name}.`);
+    const [b]=parse(S.route); if(b==='t'||b==='m') go(b==='t'?'tournaments':'matches'); else render();},
+  tTab(k){S.tTab=k;S.formErr=null;render();},
+  publish(id){const t=S.tours[id];
+    if(t.teams.length<2){S.formErr='Add at least 2 teams before publishing.';render();return;}
+    if(!fixtures(t).length){S.formErr='Add at least one match slot before publishing. Teams need to see the schedule.';render();return;}
+    t.status='published';t.published='2 Nov';S.formErr=null;toast('Published. Registrations are open.');render();},
+  unpublish(id){const t=S.tours[id]; if(live()&&active()&&active().t===id){S.formErr="You can't unpublish while one of its matches is live.";render();return;}
+    t.status='draft';t.published=null;S.formErr=null;toast('Unpublished. It is hidden from the Sportzy app.');render();},
+  approve(a){const[id,tm]=a.split('|'),t=S.tours[id];
+    if(t.teams.length>=t.limit){S.formErr=`Team limit reached (${t.limit}). Raise the limit to approve more teams.`;render();return;}
+    t.regs=t.regs.filter(r=>r.team!==tm);t.teams.push(tm);S.formErr=null;toast(`${tname(tm)} approved.`);render();},
+  reject(a){const[id,tm]=a.split('|'),t=S.tours[id],r=t.regs.find(x=>x.team===tm);
+    t.regs=t.regs.filter(x=>x.team!==tm);S.formErr=null;toast(r&&r.paid?`${tname(tm)} rejected. Their fee will be refunded.`:`${tname(tm)} rejected.`);render();},
+  addSlot(v){S.addSlot=v==='1';S.formErr=null;render();},
+  setActive(id){ if(live()){toast('End the current broadcast before switching matches.');return;} S.active=id;toast('This phone is now set up for this match.');render();},
+  assign(uid){const sh=S.sheet,m=S.matches[sh.mid];
+    if(uid){m.crew[sh.slot]=uid;toast(`${crewName(uid)} assigned. They'll get a notification.`);} else {toast(`${crewName(m.crew[sh.slot])} removed from the crew.`);delete m.crew[sh.slot];}
+    S.sheet=null;render();},
+  run(n){const P=S.pending;n=+n;
+    if(P==='nb') ball('nb',n); else if(P==='wd') ball('wd',n); else if(P==='b'||P==='lb'){ if(n===0){toast('Byes need at least 1 run.');return;} ball(P,n);} else ball('run',n);},
+  pend(x){S.pending=x||null;if(x==='wd'){} render();},
+  wicketSheet(){const sc=score(S.active); if(!sc.striker){return;} S.sheet={type:'wicket'};render();},
+  wicket(k){S.sheet=null;ball('w',0,k);},
+  undo(){const st=S.undo[S.active]; if(!st||!st.length) return; S.scores[S.active]=JSON.parse(st.pop()); S.pending=null; toast('Last ball undone.'); render();},
+  swap(){const sc=score(S.active); pushUndo(S.active); [sc.striker,sc.non]=[sc.non,sc.striker]; render();},
+  setBowler(id){const sc=score(S.active); pushUndo(S.active); sc.bowler=id; S.sheet=null; toast(`${pname(id)} is bowling.`); render();},
+  inn2(){secondInnings();},
+  copyCode(){ try{ navigator.clipboard.writeText('482913').then(()=>toast('Code copied.'),()=>toast('Copy is not available here. The code is 482 913.')); }catch(e){toast('Copy is not available here. The code is 482 913.');} },
+  cap(d){const n=S.cap+(+d);
+    if(n<S.cams.length){toast(`${S.cams.length} cameras are connected. Remove one before lowering the limit.`);return;}
+    if(n<1||n>6){toast(n>6?'6 cameras is the most this prototype allows.':'You need at least one camera.');return;}
+    S.cap=n;render();},
+  admit(id){const j=JOINERS.find(x=>x.id===id); if(S.cams.length>=S.cap){toast(`Raise the camera limit above ${S.cap} first.`);return;} tryJoin(j);render();},
+  rmAsk(id){ if(S.pgm===id&&live()){toast(`CAM ${camNo(id)} is on program. Cut to another angle before removing it.`);return;} S.removing=id;render();},
+  rmCancel(){S.removing=null;render();},
+  rmDo(id){const c=cam(id); S.cams=S.cams.filter(x=>x.id!==id); if(S.pgm===id) S.pgm='c1'; if(S.pvw===id) S.pvw=(S.cams.find(x=>x.id!==S.pgm)||{}).id||null; S.removing=null; addLog(`${c.who} removed. Their phone stops sending.`); toast('Camera removed.'); render();},
+  setAngle(k){const c=cam(S.sheet.cid), other=S.cams.find(x=>x.angle===k&&x.id!==c.id); if(other){other.angle=c.angle;} c.angle=k; S.sheet=null; render();},
+  pvw(id){S.pvw=id;render();},
+  cut(){doCut(false);}, auto(){doCut(true);},
+  ovl(k){S.ovl[k]=!S.ovl[k];render();},
+  dest(k){S.stream.dest[k]=!S.stream.dest[k];S.stream.err=null;render();},
+  proto(k){S.stream.proto=k;render();}, qual(k){S.stream.q=k;render();},
+  checks(){startChecks();}, checksReset(){chainTok++;S.stream.st='setup';render();},
+  goLive(){startCountdown();},
+  endAsk(){S.stream.confirmEnd=true;render();}, endNo(){S.stream.confirmEnd=false;render();},
+  endYes(){const s=S.stream;s.st='ended';s.confirmEnd=false;s.weak=0;S.session=null;const m=active();if(m) m.status='scheduled';toast('Broadcast ended.');render();},
+  newStream(){const s=S.stream;Object.assign(s,{st:'setup',el:0,br:0,drop:0,v:{fb:0,yt:0,ig:0},peak:0,hist:[]});render();},
+  cpAngle(k){
+    if(S.cams.length>=S.cap){S.cp.err=`This match already has ${S.cap} of ${S.cap} cameras. Ask the director to raise the limit.`;render();return;}
+    startPairing(); S.cams.push({id:'me',who:'You',device:'This phone',angle:k,bat:76,sig:4,lat:52,st:'ok'}); if(!S.pvw) S.pvw='me';
+    addLog(`You joined as CAM ${S.cams.length} · ${ANGLES[k]}.`); S.cp={step:'live',err:null,t:0}; render();},
+  cpLeave(){S.cams=S.cams.filter(c=>c.id!=='me'); if(S.pgm==='me') S.pgm='c1'; if(S.pvw==='me') S.pvw=null; S.cp={step:'code',err:null}; render();},
+  simDrop(){
+    if(!S.role){S.role='owner';save();}
+    const remote=S.cams.filter(c=>!c.local&&c.id!=='me');
+    if(!remote.length){toast('Connect a crew camera first. Open Cameras and wait a few seconds.');if(S.route!=='cameras')go('cameras');return;}
+    const c=remote.find(x=>x.id===S.pgm)||remote.find(x=>x.id==='c3')||remote[0]; c.st='reconnecting'; c.downT=9; addLog(`CAM ${camNo(c.id)} lost signal. Reconnecting.`); render();},
+  simWeak(){ if(!live()){toast('Go live first, then try this.');return;} S.stream.weak=10; render();},
+  simSession(){ S.session='retrying'; S.sessionT=12; render(); },
+  reset(){chainTok++;store.del('sportzy-proto');init();location.hash='signin';S.route=null;onHash();toast('Demo reset.');}
+};
+function doCut(fade){
+  if(!S.pvw||!cam(S.pvw)){toast('Tap a camera to put it in preview first.');return;}
+  if(cam(S.pvw).st==='reconnecting'){toast(`CAM ${camNo(S.pvw)} is reconnecting. Pick another angle.`);return;}
+  const sw=()=>{[S.pgm,S.pvw]=[S.pvw,S.pgm];render();};
+  if(fade){const w=$('#pgmwin'); if(w){w.classList.add('fading');setTimeout(sw,300);return;}}
+  sw();
+}
+const FORM={
+  signin(fd){const v=(fd.get('sid')||'').trim(); go('roles'); if(!v) toast('Signed in with the demo account.');},
+  newTour(fd){const name=(fd.get('name')||'').trim(); if(!name){S.formErr='Give the tournament a name.';render();setTimeout(()=>{const i=$('#tn');i&&i.focus();});return;}
+    const limit=Math.max(2,+fd.get('limit')||8);
+    const id='t'+(Object.keys(S.tours).length+1+Math.floor(Math.random()*900));
+    S.tours[id]={id,org:S.org,name,sport:fd.get('sport'),format:fd.get('format'),status:'draft',dates:'From 20 Nov',venue:fd.get('venue')||org().venue,fee:+fd.get('fee')||0,limit,teams:[],regs:[],stand:[]};
+    S.formErr=null;S.tTab='overview';toast('Draft saved.');go('t-'+id);},
+  slot(fd){const t=S.tours[parse(S.route)[1]],a=fd.get('a'),b=fd.get('b'),date=fd.get('date'),time=fd.get('time'),ground=fd.get('ground');
+    if(!a||!b){S.formErr='This tournament needs at least 2 teams first.';render();return;}
+    if(a===b){S.formErr='Pick two different teams.';render();return;}
+    if(!time){S.formErr='Set a start time.';render();return;}
+    const clash=Object.values(S.matches).find(m=>m.org===t.org&&m.date===date&&m.time===time&&m.ground===ground);
+    if(clash){S.formErr=`${ground} is already booked at ${time} on ${date} (${abbr(clash.a)} vs ${abbr(clash.b)}).`;render();return;}
+    const id='m'+(100+Object.keys(S.matches).length);
+    S.matches[id]={id,t:t.id,org:t.org,a,b,date,time,ground,stage:'League',overs:t.format.startsWith('T20')?20:10,status:'scheduled',crew:{}};
+    S.addSlot=false;S.formErr=null;toast(`Added ${abbr(a)} vs ${abbr(b)} · ${date} ${time}.`);render();},
+  code(fd){const v=String(fd.get('code')||'').replace(/\D/g,'');
+    if(v.length!==6){S.cp.err='Enter all 6 digits.';render();return;}
+    if(v!==S.pair.code){S.cp.err="That code doesn't match an active match. Check the director's Cameras screen and try again.";render();return;}
+    if(S.cams.some(c=>c.id==='me')){S.cp.step='live';render();return;}
+    S.cp={step:'angle',err:null};render();}
+};
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]'); if(g&&!g.disabled){e.preventDefault();go(g.dataset.go);return;}
+  const a=e.target.closest('[data-act]'); if(a&&!a.disabled){ if(a.dataset.act==='closeSheet'&&e.target!==a) return; e.preventDefault(); const f=ACT[a.dataset.act]; if(f) f(a.dataset.arg); }
+});
+document.addEventListener('submit',e=>{const f=e.target.closest('form[data-form]'); if(!f) return; e.preventDefault(); FORM[f.dataset.form](new FormData(f),f);});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&S.sheet){S.sheet=null;render();return;}
+  if(S.route!=='mixer'||/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)||!can('mixer')) return;
+  if(/^[1-9]$/.test(e.key)){const c=S.cams[+e.key-1]; if(c){S.pvw=c.id;render();}}
+  else if(e.key===' '||e.key==='Enter'){e.preventDefault();doCut(false);}
+  else if(e.key==='a'||e.key==='A'){doCut(true);}
+});
+$('#roleSel').addEventListener('change',e=>{ACT.setRole(e.target.value);});
+$('#roleSel').innerHTML=['Organisation','Organiser','Crew'].map(g=>`<optgroup label="${g}">${Object.entries(ROLES).filter(([,r])=>r.group===g).map(([k,r])=>`<option value="${k}">${r.label}</option>`).join('')}</optgroup>`).join('');
+window.addEventListener('hashchange',onHash);
+
+/* ============ simulation clock ============ */
+setInterval(()=>{
+  if(!S) return;
+  clock++;
+  let dirty=false;
+  if(S.pair.started){
+    S.pair.t++; if(S.pair.exp>0) S.pair.exp--;
+    JOINERS.forEach(j=>{ if(S.pair.t===j.at&&!S.pair.joined.includes(j.id)){S.pair.joined.push(j.id);tryJoin(j);dirty=true;} });
+  }
+  S.cams.forEach(c=>{
+    if(c.local) return;
+    c.lat=Math.max(28,Math.min(140,Math.round(c.lat+rnd(-12,12))));
+    c.bat=Math.max(5,c.bat-0.04);
+    if(c.downT){c.downT--; if(c.downT<=0){c.st='ok';c.downT=0;addLog(`CAM ${camNo(c.id)} reconnected.`);toast(`CAM ${camNo(c.id)} is back.`);dirty=true;}}
+  });
+  const s=S.stream;
+  if(s.st==='live'){
+    s.el++;
+    const wasWeak=s.weak>0;
+    if(s.weak>0){s.weak--; s.br=rnd(1.1,1.6); s.fps=ri(22,26); s.drop+=ri(3,9);} else { s.br=QUAL[s.q].br*rnd(.9,1.03); s.fps=Math.random()<.9?30:29; if(Math.random()<.08) s.drop++; }
+    if(wasWeak&&s.weak===0){toast('Uplink recovered. Back to full quality.');dirty=true;}
+    s.hist.push(s.br); if(s.hist.length>40) s.hist.shift();
+    if(s.dest.fb) s.v.fb+=ri(0,5); if(s.dest.yt) s.v.yt+=ri(0,3); if(s.dest.ig) s.v.ig+=ri(0,2);
+    s.peak=Math.max(s.peak,s.v.fb+s.v.yt+s.v.ig);
+  }
+  if(S.session==='retrying'){S.sessionT--; if(S.sessionT<=0){S.session=null;toast('Match session confirmed. Nothing was interrupted.');dirty=true;}}
+  if(S.role==='camera'&&S.cp.step==='live'){
+    S.cp.t=(S.cp.t||0)+1;
+    if(S.cp.t%6===0&&S.cams.length>1){const ids=S.cams.map(c=>c.id);const i=ids.indexOf(S.pgm);S.pvw=S.pgm;S.pgm=ids[(i+1)%ids.length];dirty=true;}
+  }
+  if(dirty) S.dirty=true;
+  const typing=/INPUT|SELECT|TEXTAREA/.test((document.activeElement||{}).tagName||'');
+  if(S.dirty&&!typing&&!S.sheet) render(); else patch();
+},1000);
+
+init();
+S.route=null;
+onHash();
+})();
+</script>
