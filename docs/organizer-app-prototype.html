@@ -176,34 +176,6 @@ table.tbl{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeri
 .brand span{font-family:var(--f-display);font-size:20px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--accent)}
 .role-g{display:flex;flex-direction:column;gap:6px}
 
-/* ---------- score ---------- */
-.scorecard{background:var(--raised);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px}
-.sc-top{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
-.sc-big{font-family:var(--f-display);font-weight:700;font-size:52px;line-height:.9;font-variant-numeric:tabular-nums}
-.sc-big small{font-size:22px;color:var(--muted);font-weight:600;margin-left:6px}
-.sc-meta{text-align:right;font-size:13px;color:var(--muted)}
-.sc-meta b{display:block;font-family:var(--f-display);font-size:20px;color:var(--fg)}
-.bat{display:flex;justify-content:space-between;font-size:14px;padding:6px 0;border-top:1px solid var(--line)}
-.bat b{font-weight:600}
-.bat .num{font-weight:600}
-.overline{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.ballc{min-width:30px;height:30px;padding:0 6px;border-radius:15px;display:grid;place-items:center;font-size:12px;font-weight:700;background:var(--raised-2);border:1px solid var(--line)}
-.ballc.b4,.ballc.b6{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.ballc.bw{background:var(--live);color:#fff;border-color:var(--live)}
-.ballc.bx{color:var(--warn);border-color:var(--warn)}
-.ballc.empty{border-style:dashed;background:none}
-.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.key{height:56px;display:flex;align-items:center;justify-content:center;gap:6px;border-radius:12px;background:var(--raised);border:1px solid var(--line);font-family:var(--f-display);font-size:24px;font-weight:700}
-.key:hover{border-color:var(--muted)}
-.key.k4,.key.k6{color:var(--accent)}
-.key.kw{background:var(--live);border-color:var(--live);color:#fff}
-.key.kx{font-size:17px;color:var(--warn)}
-.key.kx.on{background:var(--warn);color:var(--app);border-color:var(--warn)}
-.key.ks{font-family:var(--f-body);font-size:13px;font-weight:700}
-.key:disabled{opacity:.35;cursor:not-allowed}
-.sync{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
-.sync i{width:7px;height:7px;border-radius:50%;background:var(--accent)}
-
 /* ---------- camera feeds (simulated video) ---------- */
 .feed{position:relative;aspect-ratio:16/9;max-width:100%;width:100%;overflow:hidden;background:var(--feed-bg);border-radius:10px;color:var(--feed-fg);isolation:isolate;container-type:inline-size}
 .feed .scene{position:absolute;inset:0;transform-origin:50% 50%;z-index:0}
@@ -236,35 +208,20 @@ table.tbl{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeri
 .g-score{font-weight:700;font-variant-numeric:tabular-nums}
 .g-ov{color:#C9D6CF;font-weight:600;font-size:.8em}
 .g-ctx{color:#C9D6CF;font-weight:600;font-size:.72em;border-left:1px solid rgba(255,255,255,.18)}
-.g-lower{position:absolute;left:3cqw;bottom:13.5cqw;background:var(--gfx-bg);border-left:.9cqw solid var(--gfx-accent);padding:.5em .8em;font-size:3.6cqw;line-height:1.15;border-radius:.3cqw}
-.g-lower b{display:block;font-size:1.25em;font-weight:700}
-.g-lower span{color:#C9D6CF;font-weight:600}
-.g-lineup{position:absolute;right:3cqw;top:3cqw;bottom:3cqw;width:30cqw;background:var(--gfx-bg);border-top:.9cqw solid var(--gfx-accent);padding:.6em .8em;font-size:2.9cqw;line-height:1.3;border-radius:.3cqw;overflow:hidden}
-.g-lineup b{display:block;font-size:1.25em;margin-bottom:.3em}
-.g-lineup ol{margin:0;padding-left:1.3em;color:#DDE6E1;font-family:var(--f-body);font-weight:600}
 .g-sponsor{position:absolute;right:3cqw;bottom:3.5cqw;font-size:2.6cqw;font-weight:600;letter-spacing:.08em;text-transform:uppercase;background:rgba(0,0,0,.55);padding:.4em .7em;border-radius:.4em;color:#E6EEE9}
-.g-lineup ~ .g-sponsor{display:none}
 .tag{position:absolute;right:3cqw;top:3cqw;z-index:6;font-size:max(10px,3cqw);font-weight:800;letter-spacing:1px;padding:.25em .55em;border-radius:.35em;font-family:var(--f-body)}
 .tag.pgm{background:var(--live);color:#fff}
-.tag.pvw{background:var(--accent);color:var(--accent-ink)}
-.g-lineup ~ .tag,.has-lineup .tag{display:none}
-.fading{animation:xfade .6s ease-in-out}
-@keyframes xfade{50%{opacity:.15}}
 
 /* ---------- mixer ---------- */
-.mix-pvw{display:grid;grid-template-columns:minmax(0,1fr) 118px;gap:10px;align-items:stretch}
-.mix-btns{display:flex;flex-direction:column;gap:8px}
-.mix-btns .btn{flex:1;height:auto;font-family:var(--f-display);font-size:22px;letter-spacing:1px}
-.cut{background:var(--live)!important;border-color:var(--live)!important;color:#fff!important}
+.pgm-sticky{position:sticky;top:-16px;z-index:8;margin:-16px -16px 0;padding:12px 16px;background:var(--app);border-bottom:1px solid var(--line)}
+.ovlrow{display:flex;align-items:center;gap:12px}
+a.btn,a.tile,a.row{text-decoration:none;color:inherit}
+a.btn.pri{color:var(--accent-ink)}
 .cams{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .camtile{display:flex;flex-direction:column;gap:5px;text-align:left;border-radius:12px;padding:3px;border:2px solid transparent}
 .camtile.pgm{border-color:var(--live)}
-.camtile.pvw{border-color:var(--accent)}
 .camtile .cap{display:flex;justify-content:space-between;gap:6px;font-size:12px;padding:0 4px 3px;color:var(--muted)}
 .camtile .cap b{color:var(--fg);font-weight:700}
-.toggles{display:flex;gap:8px;flex-wrap:wrap}
-.tog{height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--raised);font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
-.tog[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
 
 /* ---------- cameras ---------- */
 .pair{display:grid;grid-template-columns:116px minmax(0,1fr);gap:14px;align-items:center}
@@ -373,9 +330,9 @@ canvas.qr{width:116px;height:116px;border-radius:10px;background:var(--raised);i
         <div><span>Sign in with Sportzy ID, org switcher</span><span class="links"><a href="#signin">Sign in</a><a href="#home">Home</a></span></div>
         <div><span>Tournaments: create, publish, registrations, fixtures, standings</span><span class="links"><a href="#tournaments">List</a><a href="#t-t1">Night Cup</a><a href="#t-t2">Draft</a></span></div>
         <div><span>Matches: roster, teams, crew assignment</span><span class="links"><a href="#m-m1">Match</a></span></div>
-        <div><span>Live score entry (Scorezy)</span><span class="links"><a href="#score">Score</a></span></div>
+        <div><span>Scoring in Scorezy (opens in browser)</span><span class="links"><a href="https://scorezy.example/control?match=m1" target="_blank" rel="noopener">Scorezy</a></span></div>
         <div><span>Multi-phone camera connect (QR or code)</span><span class="links"><a href="#cameras">Director</a><a href="#camphone">Crew phone</a></span></div>
-        <div><span>Angle mixing and score overlay</span><span class="links"><a href="#mixer">Mixer</a></span></div>
+        <div><span>Angle mixing and Scorezy overlay</span><span class="links"><a href="#mixer">Mixer</a></span></div>
         <div><span>Stream program feed to Streemzy</span><span class="links"><a href="#golive">Go live</a></span></div>
       </div>
     </div>
@@ -395,13 +352,14 @@ canvas.qr{width:116px;height:116px;border-radius:10px;background:var(--raised);i
       <ol class="decisions">
         <li><b>Stack.</b> UI layer undecided. The broadcast engine (mixing, overlay compositing, encoding) is expected to be native media code.</li>
         <li><b>Repo.</b> New repo still to be created.</li>
+        <li><b>Scorezy link.</b> The control-panel address is a placeholder until the real URL is set.</li>
         <li><b>Limits.</b> The prototype assumes 4 cameras per match (adjustable on the Cameras screen) and 720p30 by default.</li>
       </ol>
     </div>
 
     <div>
       <h2>Shortcuts</h2>
-      <p class="small">In the mixer: <span class="kbd">1</span>–<span class="kbd">5</span> preview a camera, <span class="kbd">Space</span> cut, <span class="kbd">A</span> auto transition.</p>
+      <p class="small">In the mixer: <span class="kbd">1</span>–<span class="kbd">5</span> put that camera on program.</p>
       <p style="margin-top:12px"><button class="btn sm" data-act="reset">Reset demo</button></p>
     </div>
   </aside>
@@ -438,7 +396,8 @@ const I={
  qr:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM18 18h3v3h-3z"/>',
  out:'<path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 17l5-5-5-5M15 12H3"/>',
  phone:'<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/>',
- stream:'<path d="M4 12h3l2-6 4 12 2-6h5"/>'
+ stream:'<path d="M4 12h3l2-6 4 12 2-6h5"/>',
+ ext:'<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>'
 };
 const ic=(n,s=20)=>`<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n]||''}</svg>`;
 const pad2=n=>String(n).padStart(2,'0');
@@ -458,7 +417,7 @@ const ROLES={
  torgp:{label:'Organiser (pending)',group:'Organiser',desc:'Organiser application under review. Can look around but cannot create tournaments yet.'},
  gorg:{label:'Game organizer',group:'Organiser',desc:'Owns a turf booking and runs that match, including its broadcast.'},
  camera:{label:'Camera crew',group:'Crew',desc:'Joins a match as a camera angle from their own phone.'},
- scorer:{label:'Scorer',group:'Crew',desc:'Enters ball-by-ball score for an assigned match.'},
+ scorer:{label:'Scorer',group:'Crew',desc:'Scores an assigned match in the Scorezy control panel.'},
  streamer:{label:'Streamer',group:'Crew',desc:'Mixes camera angles and runs the stream to Streemzy.'}
 };
 const ALL=['tournament.view','tournament.create','tournament.publish','tournament.edit','registrations','match.view','match.edit','crew.assign','score','cameras','mixer','stream','camphone'];
@@ -472,7 +431,7 @@ const PERMS={
  scorer:['match.view','score'],
  streamer:['match.view','cameras','mixer','stream']
 };
-const PERM_NAME={'tournament.view':'view tournaments','tournament.create':'create tournaments','tournament.publish':'publish tournaments','tournament.edit':'edit fixtures','registrations':'review registrations','match.view':'view matches','match.edit':'edit matches','crew.assign':'assign crew','score':'enter scores','cameras':'connect cameras','mixer':'use the mixer','stream':'go live','camphone':'join as a camera'};
+const PERM_NAME={'tournament.view':'view tournaments','tournament.create':'create tournaments','tournament.publish':'publish tournaments','tournament.edit':'edit fixtures','registrations':'review registrations','match.view':'view matches','match.edit':'edit matches','crew.assign':'assign crew','score':'open Scorezy scoring','cameras':'connect cameras','mixer':'use the mixer','stream':'go live','camphone':'join as a camera'};
 const can=p=>!!S.role&&PERMS[S.role].includes(p);
 function whyLocked(p){
   if(S.role==='torgp'&&(p==='tournament.create'||p==='tournament.publish')) return 'Your organiser application is still under review. You can create and publish tournaments once it is approved.';
@@ -543,16 +502,15 @@ function seed(){
       bs:{'ban:0':{r:12,b:9,out:'c Mahin b Sajid'},'ban:1':{r:6,b:6,out:'b Rony'},'ban:2':{r:18,b:11},'ban:3':{r:9,b:7}},
       bw:{'gul:7':{b:12,r:15,w:0},'gul:6':{b:12,r:18,w:1},'gul:5':{b:9,r:14,w:1}},
       striker:'ban:2',non:'ban:3',next:4,bowler:'gul:5',prevBowler:'gul:6',over:['1','4','2'],done:false,result:null}},
-    undo:{},
     cams:[{id:'c1',who:'You',device:'This phone',angle:'wide',bat:82,sig:4,lat:0,st:'ok',local:true}],
-    cap:4,pgm:'c1',pvw:null,
+    cap:4,pgm:'c1',
     pair:{started:false,t:0,code:'482913',exp:600,joined:[]},
     log:[],
-    ovl:{score:true,lower:false,lineup:false,sponsor:true},
+    ovl:{score:true},
     stream:{st:'setup',proto:'srt',q:'720',dest:{fb:true,yt:true,ig:false},el:0,br:0,fps:30,drop:0,v:{fb:0,yt:0,ig:0},peak:0,hist:[],weak:0,confirmEnd:false,err:null,step:0,cd:3},
     session:null, sessionT:0,
     cp:{step:'code',err:null},
-    tTab:'overview', addSlot:false, formErr:null, pending:null, sheet:null, removing:null, tick:0
+    tTab:'overview', addSlot:false, formErr:null, sheet:null, removing:null, tick:0
   };
 }
 let S;
@@ -586,82 +544,40 @@ const live=()=>S.stream.st==='live';
 const fixtures=t=>Object.values(S.matches).filter(m=>m.t===t.id);
 const matchTitle=m=>`${tname(m.a)} vs ${tname(m.b)}`;
 
-/* ============ cricket scoring ============ */
+/* ============ Scorezy (scoring lives in the Scorezy control panel) ============ */
+// PLACEHOLDER: replace with the real Scorezy control-panel URL.
+const SCOREZY_URL='https://scorezy.example/control';
+const szHref=()=>`${SCOREZY_URL}?match=${encodeURIComponent(S.active||'')}`;
 const ov=b=>`${Math.floor(b/6)}.${b%6}`;
 const pname=id=>{const[t,i]=id.split(':');return players(t)[+i]};
 function score(mid){
   if(!S.scores[mid]){
     const m=S.matches[mid];
-    S.scores[mid]={inn:1,bat:m.a,bowlT:m.b,target:null,runs:0,wk:0,balls:0,bs:{[m.a+':0']:{r:0,b:0},[m.a+':1']:{r:0,b:0}},bw:{},striker:m.a+':0',non:m.a+':1',next:2,bowler:m.b+':7',prevBowler:null,over:[],done:false,result:null};
+    S.scores[mid]={bat:m.a,bowlT:m.b,runs:0,wk:0,balls:0,bs:{[m.a+':0']:{r:0,b:0},[m.a+':1']:{r:0,b:0}},bw:{},striker:m.a+':0',non:m.a+':1',next:2,bowler:m.b+':7',done:false};
   }
   return S.scores[mid];
 }
 const crr=sc=>sc.balls?(sc.runs/(sc.balls/6)).toFixed(2):'0.00';
-function scoreCtx(sc,m){
-  if(sc.result) return sc.result;
-  if(sc.inn===2){const need=sc.target-sc.runs, left=m.overs*6-sc.balls; return `Need ${need} off ${left}`;}
-  return `CRR ${crr(sc)}`;
+const scoreCtx=sc=>sc.done?'Innings complete':`CRR ${crr(sc)}`;
+// Simulated score updates arriving from Scorezy (read-only in this app).
+function scorezyBall(){
+  const m=S.matches.m1, sc=S.scores.m1; if(!sc||sc.done) return false;
+  const maxW=players(sc.bat).length-1, r=[0,1,1,1,2,0,4,6,1,'W',0,2][ri(0,11)];
+  const s=sc.bs[sc.striker]=sc.bs[sc.striker]||{r:0,b:0}, bw=sc.bw[sc.bowler]=sc.bw[sc.bowler]||{b:0,r:0,w:0};
+  s.b++; bw.b++; sc.balls++;
+  if(r==='W'){sc.wk++;bw.w++;s.out='out';if(sc.wk<maxW){sc.striker=sc.bat+':'+sc.next;sc.bs[sc.striker]={r:0,b:0};sc.next++;}}
+  else{sc.runs+=r;s.r+=r;bw.r+=r;if(r%2)[sc.striker,sc.non]=[sc.non,sc.striker];}
+  if(sc.balls%6===0){[sc.striker,sc.non]=[sc.non,sc.striker];const pool=[7,6,5,4,3].map(i=>sc.bowlT+':'+i).filter(id=>id!==sc.bowler);sc.bowler=pool[ri(0,pool.length-1)];}
+  if(sc.wk>=maxW||sc.balls>=m.overs*6) sc.done=true;
+  return true;
 }
-function bowlerPool(sc){const n=players(sc.bowlT).length;return [7,6,5,4,3].filter(i=>i<n).map(i=>sc.bowlT+':'+i);}
-function pickBowler(sc,m){
-  const maxB=Math.ceil(m.overs/5)*6;
-  const el=bowlerPool(sc).filter(id=>id!==sc.prevBowler&&((sc.bw[id]||{}).b||0)<maxB);
-  el.sort((a,b)=>((sc.bw[a]||{}).b||0)-((sc.bw[b]||{}).b||0));
-  return el[0]||bowlerPool(sc).find(id=>id!==sc.prevBowler);
+function szLink(label,cls){
+  if(!can('score')) return `<button class="${cls} locked" data-act="locked" data-arg="score" aria-disabled="true">${ic('lock',16)}${label}</button>`;
+  return `<a class="${cls}" href="${szHref()}" target="_blank" rel="noopener">${ic('score',18)}${label}${ic('ext',16)}</a>`;
 }
-function pushUndo(mid){(S.undo[mid]=S.undo[mid]||[]).push(JSON.stringify(S.scores[mid]));if(S.undo[mid].length>60)S.undo[mid].shift();}
-function ball(kind,n,how){
-  const m=active(), sc=score(m.id); if(sc.done) return;
-  pushUndo(m.id);
-  let legal=true,bat=0,extra=0,label,rot=0;
-  if(kind==='run'){bat=n;label=String(n);rot=n;}
-  else if(kind==='wd'){extra=1+n;legal=false;label=n?`Wd+${n}`:'Wd';rot=n;}
-  else if(kind==='nb'){extra=1;bat=n;legal=false;label=n?`Nb+${n}`:'Nb';rot=n;}
-  else if(kind==='b'||kind==='lb'){extra=n;label=n+kind.toUpperCase();rot=n;}
-  else if(kind==='w'){label='W';}
-  sc.runs+=bat+extra;
-  const s=sc.bs[sc.striker]=sc.bs[sc.striker]||{r:0,b:0};
-  s.r+=bat; if(kind!=='wd') s.b+=1;
-  const bw=sc.bw[sc.bowler]=sc.bw[sc.bowler]||{b:0,r:0,w:0};
-  if(legal) bw.b+=1;
-  bw.r+=bat+(kind==='wd'||kind==='nb'?extra:0);
-  sc.over.push(label);
-  const maxW=players(sc.bat).length-1;
-  if(kind==='w'){
-    sc.wk++; if(how!=='Run out') bw.w++;
-    s.out=how==='Bowled'?`b ${pname(sc.bowler).split(' ')[0]}`:how==='Run out'?'run out':`${how.toLowerCase()} b ${pname(sc.bowler).split(' ')[0]}`;
-    if(sc.wk<maxW&&sc.next<players(sc.bat).length){sc.striker=sc.bat+':'+sc.next;sc.bs[sc.striker]={r:0,b:0};sc.next++;}
-    else sc.striker=null;
-  }
-  if(rot%2===1){[sc.striker,sc.non]=[sc.non,sc.striker];}
-  let msg=null;
-  if(legal){
-    sc.balls++;
-    if(sc.balls%6===0&&sc.balls<m.overs*6){
-      [sc.striker,sc.non]=[sc.non,sc.striker];
-      sc.prevBowler=sc.bowler; sc.over=[];
-      sc.bowler=pickBowler(sc,m);
-      msg=`End of over ${sc.balls/6}. ${pname(sc.bowler)} to bowl next.`;
-    }
-  }
-  if(sc.wk>=maxW||sc.balls>=m.overs*6||(sc.inn===2&&sc.runs>=sc.target)){
-    sc.done=true;
-    if(sc.inn===2){
-      if(sc.runs>=sc.target) sc.result=`${abbr(sc.bat)} won by ${maxW-sc.wk} wicket${maxW-sc.wk===1?'':'s'}`;
-      else if(sc.runs===sc.target-1) sc.result='Match tied';
-      else sc.result=`${abbr(sc.bowlT)} won by ${sc.target-1-sc.runs} runs`;
-      msg=sc.result;
-    } else msg=`Innings complete. ${abbr(sc.bowlT)} need ${sc.runs+1} to win.`;
-  }
-  S.pending=null;
-  if(msg) toast(msg);
-  render();
-}
-function secondInnings(){
-  const m=active(), sc=score(m.id); pushUndo(m.id);
-  const target=sc.runs+1, bat=sc.bowlT, bowlT=sc.bat;
-  S.scores[m.id]={inn:2,bat,bowlT,target,first:`${abbr(sc.bat)} ${sc.runs}/${sc.wk} (${ov(sc.balls)})`,runs:0,wk:0,balls:0,bs:{[bat+':0']:{r:0,b:0},[bat+':1']:{r:0,b:0}},bw:{},striker:bat+':0',non:bat+':1',next:2,bowler:bowlT+':7',prevBowler:null,over:[],done:false,result:null};
-  toast(`${tname(bat)} need ${target} to win.`); render();
+function szTile(sub){
+  if(!can('score')) return `<button class="tile locked" data-act="locked" data-arg="score">${ic('lock',22)}<b>Scorezy</b><span>Locked for your role</span></button>`;
+  return `<a class="tile" href="${szHref()}" target="_blank" rel="noopener">${ic('score',22)}<b style="display:flex;align-items:center;gap:4px">Open Scorezy${ic('ext',14)}</b><span>${sub}</span></a>`;
 }
 
 /* ============ cameras ============ */
@@ -673,7 +589,6 @@ function tryJoin(j){
   if(S.cams.some(c=>c.id===j.id)) return true;
   if(S.cams.length>=S.cap){addLog(`${j.who} (${j.device}) tried to join. Limit reached (${S.cap} of ${S.cap}).`,{rejected:j.id});return false;}
   S.cams.push({id:j.id,who:j.who,device:j.device,angle:j.angle,bat:j.bat,sig:j.sig,lat:ri(40,90),st:'ok'});
-  if(!S.pvw) S.pvw=j.id;
   addLog(`${j.who} joined as CAM ${S.cams.length} · ${ANGLES[j.angle]}.`);
   return true;
 }
@@ -749,18 +664,17 @@ function feed(cid,opt={}){
 function gfx(){
   const m=active(); if(!m) return '';
   const sc=score(m.id); let h='<div class="gfx">';
-  if(S.ovl.lineup){const t=sc.bat;h+=`<div class="g-lineup"><b>${esc(tname(t))}</b><ol>${players(t).map(p=>`<li>${esc(p)}</li>`).join('')}</ol></div>`;}
-  if(S.ovl.lower&&sc.striker){const b=sc.bs[sc.striker]||{r:0,b:0};h+=`<div class="g-lower"><b>${esc(pname(sc.striker))}</b><span>${b.r} (${b.b}) · ${esc(tname(sc.bat))}</span></div>`;}
-  if(S.ovl.score) h+=`<div class="g-bug"><b class="g-team">${abbr(sc.bat)}</b><span class="g-score">${sc.runs}-${sc.wk}</span><span class="g-ov">${ov(sc.balls)}</span><span class="g-ctx">${esc(scoreCtx(sc,m))}</span></div>`;
-  if(S.ovl.sponsor) h+=`<div class="g-sponsor">${m.booking?'Kick Off Arena':'DTL Night Cup · Kick Off Arena'}</div>`;
+  if(!S.ovl.score) return '';
+  h+=`<div class="g-bug"><b class="g-team">${abbr(sc.bat)}</b><span class="g-score">${sc.runs}-${sc.wk}</span><span class="g-ov">${ov(sc.balls)}</span><span class="g-ctx">${esc(scoreCtx(sc))}</span></div>`;
+  h+=`<div class="g-sponsor">${m.booking?'Kick Off Arena':'DTL Night Cup · Kick Off Arena'}</div>`;
   return h+'</div>';
 }
 function alerts(){
   let h='';
   const down=S.cams.filter(c=>c.st==='reconnecting');
-  down.forEach(c=>{h+=`<div class="banner warn">${ic('warn',18)}<div><b>CAM ${camNo(c.id)} lost signal</b>${S.pgm===c.id?'It is on program and holding its last frame. Cut to another angle.':'Reconnecting automatically. Program is not affected.'}</div></div>`;});
+  down.forEach(c=>{h+=`<div class="banner warn">${ic('warn',18)}<div><b>CAM ${camNo(c.id)} lost signal</b>${S.pgm===c.id?'It is on program and holding its last frame. Tap another camera in the mixer.':'Reconnecting automatically. Program is not affected.'}</div></div>`;});
   if(S.stream.weak>0&&live()) h+=`<div class="banner warn">${ic('warn',18)}<div><b>Weak uplink</b>Streemzy dropped to 540p to keep you live. Quality returns when the connection recovers.</div></div>`;
-  if(S.session==='retrying') h+=`<div class="banner info">${ic('info',18)}<div><b>Couldn't confirm your match session</b>Nothing is locked. Scoring, mixing and the stream keep running while we retry.</div></div>`;
+  if(S.session==='retrying') h+=`<div class="banner info">${ic('info',18)}<div><b>Couldn't confirm your match session</b>Nothing is locked. Mixing, Scorezy graphics and the stream keep running while we retry.</div></div>`;
   return h;
 }
 const sec=(title,body,link)=>`<section class="sec"><div class="sec-h"><h3>${title}</h3>${link||''}</div>${body}</section>`;
@@ -792,8 +706,8 @@ V.home=()=>{
     const mm=S.matches.m1;
     if(S.org!=='o1'||!mm) h+=`<div class="card empty">${ic('users',28)}<b>No assignments here</b><span>You aren't assigned to any matches in ${esc(o.name)}.</span></div>`;
     else{
-      const what={camera:['Camera','Join the match from this phone and pick an angle.','camphone','Join as camera'],scorer:['Scorer','Enter the score ball by ball. It drives the on-screen graphics.','score','Open score console'],streamer:['Streamer','Mix camera angles and run the stream to Streemzy.','broadcast','Open broadcast']}[S.role];
-      h+=sec('Your assignment',`<div class="card" style="display:flex;flex-direction:column;gap:10px"><div><p class="eyebrow">${what[0]} · Today ${mm.time} · ${esc(mm.ground)}</p><p style="font-weight:700;font-size:17px;margin-top:2px">${esc(matchTitle(mm))}</p><p class="small muted">${what[1]}</p></div><button class="btn pri" data-go="${what[2]}">${what[3]}</button></div>`);
+      const what={camera:['Camera','Join the match from this phone and pick an angle.','camphone','Join as camera'],scorer:['Scorer','Score the match in the Scorezy control panel. It drives the on-screen graphics.',null,'Open Scorezy'],streamer:['Streamer','Mix camera angles and run the stream to Streemzy.','broadcast','Open broadcast']}[S.role];
+      h+=sec('Your assignment',`<div class="card" style="display:flex;flex-direction:column;gap:10px"><div><p class="eyebrow">${what[0]} · Today ${mm.time} · ${esc(mm.ground)}</p><p style="font-weight:700;font-size:17px;margin-top:2px">${esc(matchTitle(mm))}</p><p class="small muted">${what[1]}</p></div>${what[2]?`<button class="btn pri" data-go="${what[2]}">${what[3]}</button>`:szLink(what[3],'btn pri')}</div>`);
     }
   }
   if(S.role==='gorg'){
@@ -803,13 +717,13 @@ V.home=()=>{
   if(!isCrew()){
     h+=sec('Quick actions',`<div class="grid2">
       ${lockTile('New tournament','Draft, then publish','trophy','tournament.create','new-tournament')}
-      ${lockTile('Live score','Scorezy console','score','score','score')}
+      ${szTile('Scoring and graphics')}
       ${lockTile('Connect cameras','Pair crew phones','camera','cameras','cameras')}
       ${lockTile('Go live','Stream to Streemzy','broadcast','stream','golive')}</div>`);
   }
   if(S.role!=='gorg'&&!isCrew()) h+=sec(`Today at ${esc(o.venue.split(',')[0])}`,today.length?`<div class="list">${today.map(matchRow).join('')}</div>`:`<div class="card empty"><b>No matches today</b><span>Fixtures you schedule show up here.</span></div>`,`<button class="link" data-go="matches">All matches</button>`);
   if(!isCrew()) h+=sec('Connected services',`<div class="list">
-     <div class="row"><span class="grow"><span class="t">Scorezy</span><span class="s">Score data and on-screen graphics</span></span>${pill('ok','Connected')}</div>
+     <div class="row"><span class="grow"><span class="t">Scorezy</span><span class="s">Scoring and graphics control panel · opens in browser</span></span>${pill('ok','Connected')}</div>
      <div class="row"><span class="grow"><span class="t">Streemzy</span><span class="s">Ingest and multistream · Singapore</span></span>${pill('ok','Connected')}</div></div>`);
   return {title:'Home',tab:'home',body:h};
 };
@@ -881,12 +795,12 @@ V.m=id=>{
       <div><div class="h1">${abbr(m.a)}</div><div class="small muted">${esc(tname(m.a))}</div></div>
       <div class="small muted">vs</div>
       <div><div class="h1">${abbr(m.b)}</div><div class="small muted">${esc(tname(m.b))}</div></div></div>
-    ${sc?`<div style="text-align:center;font-weight:600">${abbr(sc.bat)} ${sc.runs}/${sc.wk} (${ov(sc.balls)} ov) · ${esc(scoreCtx(sc,m))}</div>`:''}
+    ${sc?`<div style="text-align:center;font-weight:600">${abbr(sc.bat)} ${sc.runs}/${sc.wk} (${ov(sc.balls)} ov) · ${esc(scoreCtx(sc))}</div>`:''}
     ${m.result?`<div style="text-align:center;font-weight:600">${esc(m.result)}</div>`:''}
     <div class="small muted" style="text-align:center">${esc(m.date)} · ${m.time} · ${esc(m.ground)}</div></section>`;
   if(m.status!=='completed'){
     if(isAct){
-      h+=sec('Broadcast',`<div class="grid2">${lockTile('Live score','Scorezy','score','score','score')}${lockTile('Cameras',`${S.cams.length} connected`,'camera','cameras','cameras')}${lockTile('Mixer','Switch angles','mixer','mixer','mixer')}${lockTile(live()?'Live now':'Go live','Streemzy','broadcast','stream','golive')}</div>`);
+      h+=sec('Broadcast',`<div class="grid2">${szTile('Scoring and graphics')}${lockTile('Cameras',`${S.cams.length} connected`,'camera','cameras','cameras')}${lockTile('Mixer','Switch angles','mixer','mixer','mixer')}${lockTile(live()?'Live now':'Go live','Streemzy','broadcast','stream','golive')}</div>`);
     } else {
       h+=sec('Broadcast',`<div class="card" style="display:flex;flex-direction:column;gap:10px"><p class="small muted">This phone is set up for ${active()?esc(abbr(active().a)+' vs '+abbr(active().b)):'no match'}. Make this the broadcast match to score and stream it.</p>${lockBtn('Use for broadcast','match.edit','setActive',id,'btn block')}</div>`);
     }
@@ -907,40 +821,9 @@ V.broadcast=()=>{
   h+=`<div class="list">
     <button class="row" ${can('cameras')?'data-go="cameras"':'data-act="locked" data-arg="cameras"'}>${ic('camera')}<span class="grow"><span class="t">Cameras</span><span class="s">${S.cams.length} of ${S.cap} connected${S.cams.some(c=>c.st!=='ok')?' · 1 reconnecting':''}</span></span>${can('cameras')?ic('chev',18):ic('lock',16)}</button>
     <button class="row" ${can('mixer')?'data-go="mixer"':'data-act="locked" data-arg="mixer"'}>${ic('mixer')}<span class="grow"><span class="t">Mixer</span><span class="s">Program: CAM ${camNo(S.pgm)} · ${esc(ANGLES[cam(S.pgm).angle])}</span></span>${can('mixer')?ic('chev',18):ic('lock',16)}</button>
-    <button class="row" ${can('score')?'data-go="score"':'data-act="locked" data-arg="score"'}>${ic('score')}<span class="grow"><span class="t">Score</span><span class="s">${abbr(sc.bat)} ${sc.runs}/${sc.wk} · ${ov(sc.balls)} ov · synced to Scorezy</span></span>${can('score')?ic('chev',18):ic('lock',16)}</button>
+    ${can('score')?`<a class="row" href="${szHref()}" target="_blank" rel="noopener">`:'<button class="row" data-act="locked" data-arg="score">'}${ic('score')}<span class="grow"><span class="t">Scorezy</span><span class="s">${abbr(sc.bat)} ${sc.runs}/${sc.wk} · ${ov(sc.balls)} ov · synced · opens in browser</span></span>${can('score')?ic('ext',16)+'</a>':ic('lock',16)+'</button>'}
     <button class="row" ${can('stream')?'data-go="golive"':'data-act="locked" data-arg="stream"'}>${ic('stream')}<span class="grow"><span class="t">Stream to Streemzy</span><span class="s">${live()?`Live · <span data-bind="elapsed">${hms(S.stream.el)}</span>`:S.stream.st==='ended'?'Ended':'Not live'}</span></span>${live()?pill('live','Live'):''}${can('stream')?ic('chev',18):ic('lock',16)}</button></div>`;
   return {title:'Broadcast',tab:'broadcast',body:h};
-};
-V.score=()=>{
-  const m=active();
-  if(!m) return {title:'Live score',tab:'matches',back:'home',body:`<div class="card empty"><b>No match selected</b><span>Choose a match for broadcast first.</span></div>`};
-  const sc=score(m.id), st=sc.striker?sc.bs[sc.striker]:null, nn=sc.bs[sc.non], bw=sc.bw[sc.bowler]||{b:0,r:0,w:0};
-  const legalInOver=sc.over.filter(x=>!/^(Wd|Nb)/.test(x)).length;
-  const chips=sc.over.map(x=>`<span class="ballc ${x==='W'?'bw':x==='4'?'b4':x==='6'?'b6':/^(Wd|Nb|\dB|\dLB)/.test(x)?'bx':''}">${x}</span>`).join('')+Array.from({length:Math.max(0,6-legalInOver)},()=>'<span class="ballc empty"></span>').join('');
-  const P=S.pending, dis=sc.done?'disabled':'';
-  let h=`<div class="scorecard">
-    <div class="sc-top"><div><p class="eyebrow">${esc(tname(sc.bat))}${sc.inn===2?' · Chasing '+sc.target:''}</p><div class="sc-big">${sc.runs}/${sc.wk}<small>${ov(sc.balls)}</small></div></div>
-    <div class="sc-meta"><b>${esc(scoreCtx(sc,m))}</b>${m.overs} overs · ${sc.inn===2?esc(sc.first):'1st innings'}</div></div>
-    ${sc.striker?`<div class="bat"><b>${esc(pname(sc.striker))} *</b><span class="num">${st.r} (${st.b})</span></div>`:''}
-    <div class="bat"><b>${esc(pname(sc.non))}</b><span class="num">${nn.r} (${nn.b})</span></div>
-    <div class="bat"><span class="muted">${esc(pname(sc.bowler))}</span><span class="num muted">${ov(bw.b)}-0-${bw.r}-${bw.w}</span></div>
-    <div class="overline"><span class="small muted" style="margin-right:2px">This over</span>${chips}</div>
-  </div>`;
-  if(sc.done){
-    h+=`<div class="banner ${sc.result?'live':'info'}">${ic('info',18)}<div><b>${sc.result?esc(sc.result):'Innings complete'}</b>${sc.result?'The result is sent to Scorezy and standings update.':`${esc(tname(sc.bowlT))} need ${sc.runs+1} to win.`}</div></div>`;
-    if(!sc.result) h+=`<button class="btn pri block" data-act="inn2">Start 2nd innings</button>`;
-  }
-  const hint=P?{nb:'No ball: tap runs scored off the bat',wd:'Wide: tap extra runs they ran',b:'Byes: tap runs',lb:'Leg byes: tap runs'}[P]:null;
-  if(hint) h+=`<div class="banner warn">${ic('info',18)}<div><b>${hint}</b><button class="link" data-act="pend" data-arg="" style="color:var(--accent);font-weight:700;margin-top:2px">Cancel</button></div></div>`;
-  const nums=[0,1,2,3,4,6].map(n=>`<button class="key k${n}" data-act="run" data-arg="${n}" ${dis}>${n}</button>`);
-  h+=`<div class="pad">${nums.slice(0,4).join('')}${nums[4]}${nums[5]}
-    <button class="key kw" data-act="wicketSheet" ${dis||(P?'disabled':'')}>W</button>
-    <button class="key ks" data-act="undo" ${(S.undo[m.id]||[]).length?'':'disabled'} aria-label="Undo last ball">${ic('undo',18)}</button>
-    ${['wd','nb','b','lb'].map(x=>`<button class="key kx${P===x?' on':''}" data-act="pend" data-arg="${x}" ${dis}>${x.toUpperCase()}</button>`).join('')}
-    <button class="key ks" data-act="swap" ${dis} style="grid-column:span 2">${ic('swap',16)} Swap strike</button>
-    <button class="key ks" data-act="sheet" data-arg="bowler" ${dis} style="grid-column:span 2">Change bowler</button></div>
-    <div class="sync"><i></i>Synced to Scorezy · graphics update on air instantly</div>`;
-  return {title:'Live score',back:S.role==='scorer'?'home':'broadcast',tab:S.role==='scorer'?'score':'broadcast',body:h};
 };
 V.cameras=()=>{
   startPairing();
@@ -957,7 +840,7 @@ V.cameras=()=>{
     return `<div class="devrow">${feed(c.id,{label:false})}
       <div style="min-width:0"><b>CAM ${camNo(c.id)} · ${esc(ANGLES[c.angle])}</b>
         <div class="small muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.who)} · ${esc(c.device)}</div>
-        <div class="stats">${c.st==='reconnecting'?pill('warn','Reconnecting'):sig(c.sig)}${batt(c)}${c.local?'<span>Local</span>':`<span class="num" data-bind="lat:${c.id}">${c.lat} ms</span>`}${S.pgm===c.id?pill('live','PGM'):S.pvw===c.id?pill('ok','PVW'):''}</div>
+        <div class="stats">${c.st==='reconnecting'?pill('warn','Reconnecting'):sig(c.sig)}${batt(c)}${c.local?'<span>Local</span>':`<span class="num" data-bind="lat:${c.id}">${c.lat} ms</span>`}${S.pgm===c.id?pill('live','PGM'):''}</div>
         ${isRemoving?`<div class="btn-row" style="margin-top:8px"><button class="btn sm" data-act="rmCancel">Keep</button><button class="btn sm danger" data-act="rmDo" data-arg="${c.id}">Remove</button></div>`:''}
       </div>
       ${c.local?'':`<div style="display:flex;flex-direction:column;gap:6px"><button class="btn sm" data-act="sheet" data-arg="angle|${c.id}">Angle</button><button class="btn sm ghost" data-act="rmAsk" data-arg="${c.id}">Remove</button></div>`}
@@ -969,15 +852,12 @@ V.cameras=()=>{
 };
 V.mixer=()=>{
   startPairing();
-  const ovl=[['score','Score bug'],['lower','Batter lower third'],['lineup','Lineup'],['sponsor','Sponsor']];
-  let h=alerts();
-  h+=`<div id="pgmwin">${feed(S.pgm,{gfx:true,tag:'pgm'})}</div>
-  <div class="mix-pvw">${S.pvw&&cam(S.pvw)?feed(S.pvw,{tag:'pvw'}):`<div class="feed none">Tap a camera to preview</div>`}
-    <div class="mix-btns"><button class="btn cut" data-act="cut">CUT</button><button class="btn" data-act="auto">AUTO</button></div></div>
-  ${sec('Cameras',`<div class="cams">${S.cams.map((c,i)=>`<button class="camtile ${S.pgm===c.id?'pgm':S.pvw===c.id?'pvw':''}" data-act="pvw" data-arg="${c.id}" aria-label="Preview camera ${i+1}">${feed(c.id,{label:false})}<span class="cap"><b>${i+1} · ${esc(ANGLES[c.angle])}</b><span>${esc(c.who.split(' ')[0])}</span></span></button>`).join('')}
-    ${S.cams.length<S.cap?`<button class="camtile" data-go="cameras"><div class="feed none">${ic('plus',22)}</div><span class="cap"><b>Add camera</b></span></button>`:''}</div>`)}
-  ${sec('Graphics on program',`<div class="toggles">${ovl.map(([k,l])=>`<button class="tog" aria-pressed="${S.ovl[k]}" data-act="ovl" data-arg="${k}">${S.ovl[k]?ic('check',14):''}${l}</button>`).join('')}</div><p class="small muted">Score graphics follow Scorezy automatically.</p>`)}
-  ${live()?`<button class="btn block" data-go="golive"><span class="dot-live" style="color:var(--live)"></span>Live · <span class="num" data-bind="elapsed">${hms(S.stream.el)}</span></button>`:lockBtn('Go live to Streemzy','stream','go','golive','btn pri block','broadcast')}`;
+  let h=`<div class="pgm-sticky" id="pgmwin">${feed(S.pgm,{gfx:true,tag:'pgm'})}</div>`;
+  h+=alerts();
+  h+=sec('Cameras · tap to put on program',`<div class="cams">${S.cams.map((c,i)=>`<button class="camtile ${S.pgm===c.id?'pgm':''}" data-act="take" data-arg="${c.id}" aria-pressed="${S.pgm===c.id}" aria-label="Put camera ${i+1} on program">${feed(c.id,{label:false})}<span class="cap"><b>${i+1} · ${esc(ANGLES[c.angle])}</b><span>${S.pgm===c.id?'<span style="color:var(--live);font-weight:700">On air</span>':esc(c.who.split(' ')[0])}</span></span></button>`).join('')}
+    ${S.cams.length<S.cap?`<button class="camtile" data-go="cameras"><div class="feed none">${ic('plus',22)}</div><span class="cap"><b>Add camera</b></span></button>`:''}</div>`);
+  h+=sec('Scorezy overlay',`<div class="card" style="display:flex;flex-direction:column;gap:12px"><div class="ovlrow"><div style="flex:1;min-width:0"><b>Show Scorezy graphics</b><p class="small muted">Scoreboard and graphics are designed and controlled in the Scorezy control panel.</p></div><button class="switch" role="switch" aria-checked="${S.ovl.score}" aria-label="Show Scorezy overlay" data-act="ovl"></button></div>${szLink('Open Scorezy control panel','btn sm')}</div>`);
+  h+=live()?`<button class="btn block" data-go="golive"><span class="dot-live" style="color:var(--live)"></span>Live · <span class="num" data-bind="elapsed">${hms(S.stream.el)}</span></button>`:lockBtn('Go live to Streemzy','stream','go','golive','btn pri block','broadcast');
   return {title:'Mixer',back:'broadcast',tab:'broadcast',body:h};
 };
 V.golive=()=>{
@@ -1040,7 +920,7 @@ V.camphone=()=>{
       ${cp.err?`<div class="banner warn">${ic('warn',18)}<div>${esc(cp.err)}</div></div>`:''}
       <button class="btn ghost" data-act="cpLeave">Cancel</button>`};
   }
-  const me=cam('me'), state=S.pgm==='me'?['on','On air']:S.pvw==='me'?['pv','Preview']:['sb','Standby'];
+  const me=cam('me'), state=S.pgm==='me'?['on','On air']:['sb','Standby'];
   return {title:'Camera',tab:'camphone',back:null,body:`<div class="tally ${state[0]}">${state[0]==='on'?'<span class="dot-live"></span>':''}${state[1]}</div>
     ${me?feed('me',{}):''}
     <dl class="card kv"><dt>Match</dt><dd>${esc(abbr(mm.a))} vs ${esc(abbr(mm.b))}</dd><dt>Angle</dt><dd>CAM ${camNo('me')} · ${esc(ANGLES[me.angle])}</dd><dt>Sending</dt><dd>720p30 to director</dd><dt>Battery</dt><dd>${batt(me)}</dd></dl>
@@ -1067,13 +947,6 @@ function sheetHTML(){
     const taken=Object.entries(m.crew).filter(([k,v])=>k!==sh.slot&&v).map(([,v])=>v);
     const list=[...CREW].sort((a,b)=>(b.skill===want)-(a.skill===want));
     h=`<h3>Assign ${sh.slot.startsWith('cam')?'Camera '+sh.slot.slice(3):want}</h3><div class="list">${list.map(c=>{const busy=taken.includes(c.id);return `<button class="row" ${busy?'disabled style="opacity:.5"':''} data-act="assign" data-arg="${c.id}"><span class="grow"><span class="t">${esc(c.name)}</span><span class="s">${c.skill}${busy?' · already on this match':''}</span></span>${cur===c.id?`<span style="color:var(--accent)">${ic('check',18)}</span>`:''}</button>`;}).join('')}</div>${cur?`<button class="btn block" data-act="assign" data-arg="">Remove ${esc(crewName(cur))}</button>`:''}`;
-  } else if(sh.type==='wicket'){
-    const sc=score(S.active);
-    h=`<h3>Wicket · ${esc(pname(sc.striker))}</h3><div class="grid2">${['Bowled','Caught','LBW','Run out','Stumped','Hit wicket'].map(k=>`<button class="btn" data-act="wicket" data-arg="${k}">${k}</button>`).join('')}</div>
-      <p class="small muted">${sc.next<players(sc.bat).length?`Next in: ${esc(pname(sc.bat+':'+sc.next))}`:'Last wicket. This ends the innings.'}</p>`;
-  } else if(sh.type==='bowler'){
-    const sc=score(S.active), m=active(), maxB=Math.ceil(m.overs/5)*6;
-    h=`<h3>Change bowler</h3><div class="list">${bowlerPool(sc).map(id=>{const b=sc.bw[id]||{b:0,r:0,w:0};const blocked=id===sc.prevBowler?'Bowled the last over':b.b>=maxB?'Overs used up':null;return `<button class="row" ${blocked?'disabled style="opacity:.5"':''} data-act="setBowler" data-arg="${id}"><span class="grow"><span class="t">${esc(pname(id))}</span><span class="s">${blocked||`${ov(b.b)}-0-${b.r}-${b.w}`}</span></span>${sc.bowler===id?`<span style="color:var(--accent)">${ic('check',18)}</span>`:''}</button>`;}).join('')}</div>`;
   } else if(sh.type==='angle'){
     const c=cam(sh.cid);
     h=`<h3>Angle for CAM ${camNo(sh.cid)}</h3><div class="list">${Object.entries(ANGLES).map(([k,l])=>`<button class="row" data-act="setAngle" data-arg="${k}"><span class="grow"><span class="t">${l}</span></span>${c.angle===k?`<span style="color:var(--accent)">${ic('check',18)}</span>`:''}</button>`).join('')}</div>`;
@@ -1082,7 +955,7 @@ function sheetHTML(){
 }
 
 /* ============ routing + render ============ */
-const GATE={tournaments:'tournament.view','new-tournament':'tournament.create',t:'tournament.view',matches:'match.view',m:'match.view',score:'score',cameras:'cameras',mixer:'mixer',golive:'stream',camphone:'camphone',broadcast:['cameras','mixer','stream']};
+const GATE={tournaments:'tournament.view','new-tournament':'tournament.create',t:'tournament.view',matches:'match.view',m:'match.view',cameras:'cameras',mixer:'mixer',golive:'stream',camphone:'camphone',broadcast:['cameras','mixer','stream']};
 function parse(r){const i=r.indexOf('-');if(r==='new-tournament'||i<0)return[r,null];const b=r.slice(0,i);return (b==='t'||b==='m')?[b,r.slice(i+1)]:[r,null];}
 function view(){
   const [b,id]=parse(S.route);
@@ -1096,8 +969,7 @@ function tabsHTML(cur){
   const t=[['home','Home','home']];
   if(can('tournament.view')) t.push(['tournaments','Tournaments','trophy']);
   if(can('match.view')&&!['camera','streamer'].includes(S.role)) t.push(['matches','Matches','calendar']);
-  if(S.role==='scorer') t.push(['score','Score','score']);
-  else if(can('cameras')||can('mixer')||can('stream')) t.push(['broadcast','Broadcast','broadcast']);
+  if(can('cameras')||can('mixer')||can('stream')) t.push(['broadcast','Broadcast','broadcast']);
   if(S.role==='camera') t.push(['camphone','Camera','camera']);
   t.push(['more','More','more']);
   return `<nav class="tabbar" aria-label="Main">${t.map(([r,l,i])=>`<button data-go="${r}" class="${cur===r?'on':''}"${cur===r?' aria-current="page"':''}>${ic(i,22)}<span>${l}</span></button>`).join('')}</nav>`;
@@ -1187,15 +1059,6 @@ const ACT={
   assign(uid){const sh=S.sheet,m=S.matches[sh.mid];
     if(uid){m.crew[sh.slot]=uid;toast(`${crewName(uid)} assigned. They'll get a notification.`);} else {toast(`${crewName(m.crew[sh.slot])} removed from the crew.`);delete m.crew[sh.slot];}
     S.sheet=null;render();},
-  run(n){const P=S.pending;n=+n;
-    if(P==='nb') ball('nb',n); else if(P==='wd') ball('wd',n); else if(P==='b'||P==='lb'){ if(n===0){toast('Byes need at least 1 run.');return;} ball(P,n);} else ball('run',n);},
-  pend(x){S.pending=x||null;if(x==='wd'){} render();},
-  wicketSheet(){const sc=score(S.active); if(!sc.striker){return;} S.sheet={type:'wicket'};render();},
-  wicket(k){S.sheet=null;ball('w',0,k);},
-  undo(){const st=S.undo[S.active]; if(!st||!st.length) return; S.scores[S.active]=JSON.parse(st.pop()); S.pending=null; toast('Last ball undone.'); render();},
-  swap(){const sc=score(S.active); pushUndo(S.active); [sc.striker,sc.non]=[sc.non,sc.striker]; render();},
-  setBowler(id){const sc=score(S.active); pushUndo(S.active); sc.bowler=id; S.sheet=null; toast(`${pname(id)} is bowling.`); render();},
-  inn2(){secondInnings();},
   copyCode(){ try{ navigator.clipboard.writeText('482913').then(()=>toast('Code copied.'),()=>toast('Copy is not available here. The code is 482 913.')); }catch(e){toast('Copy is not available here. The code is 482 913.');} },
   cap(d){const n=S.cap+(+d);
     if(n<S.cams.length){toast(`${S.cams.length} cameras are connected. Remove one before lowering the limit.`);return;}
@@ -1204,11 +1067,10 @@ const ACT={
   admit(id){const j=JOINERS.find(x=>x.id===id); if(S.cams.length>=S.cap){toast(`Raise the camera limit above ${S.cap} first.`);return;} tryJoin(j);render();},
   rmAsk(id){ if(S.pgm===id&&live()){toast(`CAM ${camNo(id)} is on program. Cut to another angle before removing it.`);return;} S.removing=id;render();},
   rmCancel(){S.removing=null;render();},
-  rmDo(id){const c=cam(id); S.cams=S.cams.filter(x=>x.id!==id); if(S.pgm===id) S.pgm='c1'; if(S.pvw===id) S.pvw=(S.cams.find(x=>x.id!==S.pgm)||{}).id||null; S.removing=null; addLog(`${c.who} removed. Their phone stops sending.`); toast('Camera removed.'); render();},
+  rmDo(id){const c=cam(id); S.cams=S.cams.filter(x=>x.id!==id); if(S.pgm===id) S.pgm='c1'; S.removing=null; addLog(`${c.who} removed. Their phone stops sending.`); toast('Camera removed.'); render();},
   setAngle(k){const c=cam(S.sheet.cid), other=S.cams.find(x=>x.angle===k&&x.id!==c.id); if(other){other.angle=c.angle;} c.angle=k; S.sheet=null; render();},
-  pvw(id){S.pvw=id;render();},
-  cut(){doCut(false);}, auto(){doCut(true);},
-  ovl(k){S.ovl[k]=!S.ovl[k];render();},
+  take(id){take(id);},
+  ovl(){S.ovl.score=!S.ovl.score;toast(S.ovl.score?'Scorezy overlay on program.':'Scorezy overlay hidden.');render();},
   dest(k){S.stream.dest[k]=!S.stream.dest[k];S.stream.err=null;render();},
   proto(k){S.stream.proto=k;render();}, qual(k){S.stream.q=k;render();},
   checks(){startChecks();}, checksReset(){chainTok++;S.stream.st='setup';render();},
@@ -1218,9 +1080,9 @@ const ACT={
   newStream(){const s=S.stream;Object.assign(s,{st:'setup',el:0,br:0,drop:0,v:{fb:0,yt:0,ig:0},peak:0,hist:[]});render();},
   cpAngle(k){
     if(S.cams.length>=S.cap){S.cp.err=`This match already has ${S.cap} of ${S.cap} cameras. Ask the director to raise the limit.`;render();return;}
-    startPairing(); S.cams.push({id:'me',who:'You',device:'This phone',angle:k,bat:76,sig:4,lat:52,st:'ok'}); if(!S.pvw) S.pvw='me';
+    startPairing(); S.cams.push({id:'me',who:'You',device:'This phone',angle:k,bat:76,sig:4,lat:52,st:'ok'});
     addLog(`You joined as CAM ${S.cams.length} · ${ANGLES[k]}.`); S.cp={step:'live',err:null,t:0}; render();},
-  cpLeave(){S.cams=S.cams.filter(c=>c.id!=='me'); if(S.pgm==='me') S.pgm='c1'; if(S.pvw==='me') S.pvw=null; S.cp={step:'code',err:null}; render();},
+  cpLeave(){S.cams=S.cams.filter(c=>c.id!=='me'); if(S.pgm==='me') S.pgm='c1'; S.cp={step:'code',err:null}; render();},
   simDrop(){
     if(!S.role){S.role='owner';save();}
     const remote=S.cams.filter(c=>!c.local&&c.id!=='me');
@@ -1230,12 +1092,11 @@ const ACT={
   simSession(){ S.session='retrying'; S.sessionT=12; render(); },
   reset(){chainTok++;store.del('sportzy-proto');init();location.hash='signin';S.route=null;onHash();toast('Demo reset.');}
 };
-function doCut(fade){
-  if(!S.pvw||!cam(S.pvw)){toast('Tap a camera to put it in preview first.');return;}
-  if(cam(S.pvw).st==='reconnecting'){toast(`CAM ${camNo(S.pvw)} is reconnecting. Pick another angle.`);return;}
-  const sw=()=>{[S.pgm,S.pvw]=[S.pvw,S.pgm];render();};
-  if(fade){const w=$('#pgmwin'); if(w){w.classList.add('fading');setTimeout(sw,300);return;}}
-  sw();
+function take(id){
+  const c=cam(id); if(!c) return;
+  if(c.st==='reconnecting'){toast(`CAM ${camNo(id)} is reconnecting. Pick another camera.`);return;}
+  if(S.pgm===id) return;
+  S.pgm=id; toast(`CAM ${camNo(id)} · ${ANGLES[c.angle]} on program.`); render();
 }
 const FORM={
   signin(fd){const v=(fd.get('sid')||'').trim(); go('roles'); if(!v) toast('Signed in with the demo account.');},
@@ -1267,9 +1128,7 @@ document.addEventListener('submit',e=>{const f=e.target.closest('form[data-form]
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&S.sheet){S.sheet=null;render();return;}
   if(S.route!=='mixer'||/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)||!can('mixer')) return;
-  if(/^[1-9]$/.test(e.key)){const c=S.cams[+e.key-1]; if(c){S.pvw=c.id;render();}}
-  else if(e.key===' '||e.key==='Enter'){e.preventDefault();doCut(false);}
-  else if(e.key==='a'||e.key==='A'){doCut(true);}
+  if(/^[1-9]$/.test(e.key)){const c=S.cams[+e.key-1]; if(c) take(c.id);}
 });
 $('#roleSel').addEventListener('change',e=>{ACT.setRole(e.target.value);});
 $('#roleSel').innerHTML=['Organisation','Organiser','Crew'].map(g=>`<optgroup label="${g}">${Object.entries(ROLES).filter(([,r])=>r.group===g).map(([k,r])=>`<option value="${k}">${r.label}</option>`).join('')}</optgroup>`).join('');
@@ -1303,11 +1162,14 @@ setInterval(()=>{
   if(S.session==='retrying'){S.sessionT--; if(S.sessionT<=0){S.session=null;toast('Match session confirmed. Nothing was interrupted.');dirty=true;}}
   if(S.role==='camera'&&S.cp.step==='live'){
     S.cp.t=(S.cp.t||0)+1;
-    if(S.cp.t%6===0&&S.cams.length>1){const ids=S.cams.map(c=>c.id);const i=ids.indexOf(S.pgm);S.pvw=S.pgm;S.pgm=ids[(i+1)%ids.length];dirty=true;}
+    if(S.cp.t%6===0&&S.cams.length>1){const ids=S.cams.map(c=>c.id);const i=ids.indexOf(S.pgm);S.pgm=ids[(i+1)%ids.length];dirty=true;}
   }
+  S.tick++;
+  if(S.tick%10===0&&scorezyBall()) dirty=true;
   if(dirty) S.dirty=true;
   const typing=/INPUT|SELECT|TEXTAREA/.test((document.activeElement||{}).tagName||'');
-  if(S.dirty&&!typing&&!S.sheet) render(); else patch();
+  const liveRoute=['home','broadcast','cameras','mixer','golive','camphone'].includes(S.route)||S.route==='m-'+S.active;
+  if(S.dirty&&liveRoute&&!typing&&!S.sheet) render(); else patch();
 },1000);
 
 init();

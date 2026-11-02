@@ -22,9 +22,9 @@ The central Sportzy app connects and manages all three from one Android/iOS app,
 
 - Sportzy ID sign-in, an org switcher, and role-based permissions
 - Tournaments: create, publish, registrations, fixtures and standings
-- Matches: crew assignment and live score entry
+- Matches: crew assignment; scoring hands off to the Scorezy control panel in the browser
 - Multi-phone camera pairing
-- An angle mixer with the score overlay
+- An angle mixer with a pinned program screen, tap-to-switch cameras, and a Scorezy overlay toggle
 - Streaming the program feed to Streemzy, including camera drops, weak uplink, and session-check failures
 
 ## Engineering work behind the product
