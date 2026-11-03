@@ -2,7 +2,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&family=Hind+Siliguri:wght@400;600;700&display=swap">
 <style>
 /* Layout: a phone-sized player app on turf-tinted dark neutrals, next to a notes column that maps screens to SPOR-110 */
 :root{
@@ -13,8 +13,8 @@
   /* video + broadcast graphics: theme-independent, like real footage */
   --turf-a:#1E5A35; --turf-b:#256A3F; --pitch:#CDB98F; --feed-bg:#0B1710; --feed-fg:#FFFFFF;
   --gfx-bg:rgba(5,11,8,.9); --gfx-accent:#3DDC84; --gfx-ink:#03160B;
-  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
-  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-display:"Barlow Condensed","Hind Siliguri","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow","Hind Siliguri",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:dark;
 }
 @media (prefers-color-scheme: light){
@@ -285,6 +285,9 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .facs{display:flex;gap:6px;flex-wrap:wrap}
 .facs span{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--raised-2);color:var(--fg)}
 ul.rules{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--muted)}
+.mini-seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;flex:none}
+.mini-seg button{height:30px;min-width:34px;padding:0 8px;font-size:12px;font-weight:700;color:var(--muted)}
+.mini-seg button.on{background:var(--accent);color:var(--accent-ink)}
 </style>
 
 <div class="stage">
@@ -311,7 +314,7 @@ ul.rules{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;f
         <div><span>Pay: QR Pay BD, or send money with TrxID</span><span class="links"><a href="#checkout">Pay</a></span></div>
         <div><span>My bookings, payments, cancellations, refunds</span><span class="links"><a href="#me">Me</a><a href="#b-b2">Refundable</a><a href="#b-b1">Inside 24 h</a></span></div>
       </div>
-      <p class="small" style="margin-top:8px">Out of scope: organiser and production features (Organizer app), player discovery beyond open games, bKash/Nagad gateway.</p>
+      <p class="small" style="margin-top:8px">Out of scope: organiser and production features (Organizer app), player discovery beyond open games, bKash/Nagad gateway. Tournament entry fees are QR Pay BD only (SPOR-95).</p>
     </div>
 
     <div>
@@ -320,7 +323,9 @@ ul.rules{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;f
         <button class="btn sm" data-act="simTake">Someone books my slot</button>
         <button class="btn sm" data-act="simFail">Next payment fails</button>
         <button class="btn sm" data-act="simExpire">Expire my hold now</button>
+        <button class="btn sm" data-act="simReject">Organiser rejects my team</button>
       </div>
+      <div style="margin-top:12px"><h2>Language</h2><select id="langSel" aria-label="Language"><option value="en">English</option><option value="bn">বাংলা</option></select></div>
       <p class="small" style="margin-top:6px">Select slots on a venue first to see a slot taken before you hold it. Once held, nobody else can book it.</p>
     </div>
 
@@ -439,7 +444,7 @@ function seed(){
   };
 }
 let S;
-function init(){S=seed();const sv=store.get('sportzy-player');if(sv&&sv.user){S.user=sv.user;S.f.city=sv.user.city||'Dhaka';}}
+function init(){S=seed();try{S.lang=localStorage.getItem('sportzy-player-lang')==='bn'?'bn':'en';}catch(e){S.lang='en';}document.documentElement.lang=S.lang;const sv=store.get('sportzy-player');if(sv&&sv.user){S.user=sv.user;S.f.city=sv.user.city||'Dhaka';}}
 const save=()=>store.set('sportzy-player',{user:S.user});
 const DEMO_USER={name:'Israfil Islam',phone:'1711000214',city:'Dhaka'};
 const nowMin=()=>19*60+12+Math.floor(S.secs/60);
@@ -479,7 +484,11 @@ function later(sec,fn){S.timers.push({t:sec,fn});}
 
 /* ============ atoms ============ */
 const pill=(cls,t)=>`<span class="pill ${cls}">${t}</span>`;
-const sec=(title,body,link)=>`<section class="sec"><div class="sec-h"><h3>${title}</h3>${link||''}</div>${body}</section>`;
+const BN={'Home':'হোম','Turfs':'টার্ফ','Tournaments':'টুর্নামেন্ট','Games':'খেলা','Me':'আমি','Find a turf':'টার্ফ খুঁজুন','Open games':'খোলা খেলা','Pay':'পেমেন্ট','Booking':'বুকিং','Booking confirmed':'বুকিং নিশ্চিত','Register a team':'দল নিবন্ধন করুন',
+ 'Next booking':'পরের বুকিং','Tournaments open':'চলমান নিবন্ধন','Open games soon':'শীঘ্রই খোলা খেলা','Pick a date':'তারিখ বাছুন','Cancellation policy':'বাতিলের নিয়ম','House rules':'মাঠের নিয়ম','Rules':'নিয়ম','Roster':'খেলোয়াড় তালিকা',
+ 'Upcoming':'আসন্ন','Cancelled':'বাতিল','Past':'আগের','My games':'আমার খেলা','My tournament teams':'আমার টুর্নামেন্ট দল','Open slots on':'খালি স্লট','Language':'ভাষা','Sign out':'সাইন আউট','Home city':'নিজের শহর'};
+const T=s=>(S&&S.lang==='bn'&&BN[s])||s;
+const sec=(title,body,link)=>`<section class="sec"><div class="sec-h"><h3>${T(title)}</h3>${link||''}</div>${body}</section>`;
 const art=(v,hero)=>`<div class="art ${v.kind}${hero?' hero':''}"><span class="tagl">${esc(v.sports.join(' · '))}</span></div>`;
 function vcard(v){const n=nextOpen(v,0);return `<button class="vcard" data-go="v-${v.id}">${art(v)}<div class="body"><b>${esc(v.name)}</b><span class="small muted">${esc(v.area)}, ${esc(v.city)}</span><span style="display:flex;justify-content:space-between;align-items:center;margin-top:4px"><span class="price">${taka(v.off)}<small>/hr</small></span><span class="rating">${ic('star',14)}${v.rating}</span></span><span class="small" style="color:${n!=null?'var(--accent)':'var(--muted)'};font-weight:600">${n!=null?'Open today from '+hhmm(n):'Full today'}</span></div></button>`;}
 function venueRow(v,day){const n=nextOpen(v,day),c=openCount(v,day);return `<button class="row" data-go="v-${v.id}" data-act="vday" data-arg="${day}"><span class="grow"><span class="t">${esc(v.name)}</span><span class="s">${esc(v.area)}, ${esc(v.city)} · ${esc(v.sports.join(', '))}</span><span class="s" style="color:${c?'var(--accent)':'var(--muted)'};font-weight:600">${c?`${c} open slot${c>1?'s':''} · next ${hhmm(n)}`:'No open slots'}</span></span><span style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span class="price">${taka(v.off)}<small>/hr</small></span><span class="rating">${ic('star',13)}${v.rating}</span></span></button>`;}
@@ -493,7 +502,7 @@ function bookingStatus(b){
 function bookingRow(b){const v=venue(b.v);return `<button class="row" data-go="b-${b.id}"><span class="grow"><span class="t">${esc(v.name)}</span><span class="s">${dayName(b.day)} · ${range(b.hours)} · ${taka(b.amount)}</span></span>${bookingStatus(b)}</button>`;}
 function reqPill(st){return {requested:pill('warn','Requested'),accepted:pill('ok','Accepted'),waitlisted:pill('warn','Waitlist'),declined:pill('idle','Declined')}[st]||'';}
 function gameRow(g){const v=venue(g.v),left=g.spots-g.filled-(S.req[g.id]==='accepted'?1:0);return `<button class="row" data-go="g-${g.id}"><span class="time num">${hhmm(g.h)}</span><span class="grow"><span class="t">${esc(g.sport)} · ${esc(g.fmt)}</span><span class="s">${dayName(g.day)} · ${esc(v.name)} · ${esc(g.level)}</span></span>${S.req[g.id]?reqPill(S.req[g.id]):left>0?pill('ok',`${left} spot${left>1?'s':''}`):pill('idle','Full')}</button>`;}
-function tourRow(t){const left=t.limit-t.teams,r=S.regs[t.id];return `<button class="row" data-go="tr-${t.id}"><span class="grow"><span class="t">${esc(t.name)}</span><span class="s">${esc(t.sport)} · ${esc(t.format)} · ${esc(t.city)}</span><span class="s">${taka(t.fee)} per team · ${esc(t.dates)}</span></span>${r?pill(r.st==='pending'?'warn':'ok',r.st==='pending'?'Pending':r.st==='verifying'?'Verifying':'Registered'):left>0?pill('ok',`${left} left`):pill('idle','Closed')}</button>`;}
+function tourRow(t){const left=t.limit-t.teams,r=S.regs[t.id];return `<button class="row" data-go="tr-${t.id}"><span class="grow"><span class="t">${esc(t.name)}</span><span class="s">${esc(t.sport)} · ${esc(t.format)} · ${esc(t.city)}</span><span class="s">${taka(t.fee)} per team · ${esc(t.dates)}</span></span>${r?pill(r.st==='pending'||r.st==='verifying'?'warn':r.st==='withdrawn'||r.st==='rejected'?'idle':'ok',{pending:'Pending',verifying:'Verifying',withdrawn:'Withdrawn',rejected:'Not accepted'}[r.st]||'Registered'):left>0?pill('ok',`${left} left`):pill('idle','Closed')}</button>`;}
 
 /* ============ views ============ */
 const V={};
@@ -575,7 +584,8 @@ function payPanel(){
   <section class="card" style="display:flex;flex-direction:column;gap:10px"><div><p class="eyebrow">${p.kind==='booking'?'Turf booking':'Tournament registration'}</p><b style="font-size:17px">${esc(p.title)}</b><p class="small muted">${esc(p.sub)}</p></div>
     <dl class="kv">${lines}<dt style="font-weight:700;color:var(--fg)">Total</dt><dd class="num" style="font-size:17px">${taka(p.amount)}</dd></dl></section>`;
   if(p.st==='failed') h+=`<div class="banner live">${ic('warn',18)}<div><b>Payment didn't go through</b>Nothing was charged. Your hold is still active, so try again or pay with send money.</div></div>`;
-  h+=`<div class="seg" role="tablist" aria-label="Payment method">${[['qr','QR Pay BD'],['trx','Send money (TrxID)']].map(([k,l])=>`<button role="tab" aria-selected="${p.method===k}" class="${p.method===k?'on':''}" data-act="method" data-arg="${k}">${l}</button>`).join('')}</div>`;
+  if(p.kind==='reg'){p.method='qr'; h+=`<p class="small muted">Entry fees are paid with QR Pay BD. Send money isn't available for tournaments.</p>`;}
+  else h+=`<div class="seg" role="tablist" aria-label="Payment method">${[['qr','QR Pay BD'],['trx','Send money (TrxID)']].map(([k,l])=>`<button role="tab" aria-selected="${p.method===k}" class="${p.method===k?'on':''}" data-act="method" data-arg="${k}">${l}</button>`).join('')}</div>`;
   if(p.method==='qr'){
     h+=`<div class="card paybox">${p.st==='processing'?`<span class="spinner" style="width:36px;height:36px;border-width:3px"></span><b>Confirming with QR Pay BD…</b>`:`<canvas class="qr" width="29" height="29" data-seed="${p.seed}" aria-label="QR Pay BD code"></canvas><b>Scan with any QR Pay BD app</b><span class="small muted">Pay ${taka(p.amount)} to Sportzy. This page updates on its own when the payment lands.</span><button class="btn pri block" data-act="payQR">Simulate successful payment</button>`}</div>`;
   } else {
@@ -613,10 +623,16 @@ V.tr=id=>{
   const left=t.limit-t.teams, r=S.regs[id];
   let h=`<section class="sec" style="gap:6px"><p class="eyebrow">${esc(t.org)}</p><h1 class="h1">${esc(t.name)}</h1><p class="small muted">${esc(t.sport)} · ${esc(t.format)}</p></section>
   <dl class="card kv"><dt>Dates</dt><dd>${esc(t.dates)}</dd><dt>Venue</dt><dd>${esc(t.venue)}</dd><dt>Entry fee</dt><dd class="num">${taka(t.fee)} per team</dd><dt>Squad</dt><dd>${t.min}–${t.max} players</dd><dt>Teams</dt><dd class="num">${t.teams} of ${t.limit}</dd><dt>Registration</dt><dd>${esc(t.closes)}</dd></dl>`;
-  if(r) h+=`<div class="banner ${r.st==='approved'?'info':'warn'}">${ic(r.st==='approved'?'check':'clock',18)}<div><b>${esc(r.team)} · ${r.st==='verifying'?'Verifying payment':r.st==='pending'?'Pending organiser approval':'Approved'}</b>Captain: you · ${r.players.length+1} players</div></div>`;
+  if(r&&(r.st==='withdrawn'||r.st==='rejected')) h+=`<div class="banner info">${ic('refund',18)}<div><b>${esc(r.team)} · ${r.st==='withdrawn'?'You withdrew':'Not accepted by the organiser'}</b>Full refund of ${taka(t.fee)}: ${r.refund==='refunded'?'refunded to QR Pay BD':'processing, 3–5 working days'}.</div></div>`;
+  else if(r){
+    h+=`<div class="banner ${r.st==='approved'?'info':'warn'}">${ic(r.st==='approved'?'check':'clock',18)}<div><b>${esc(r.team)} · ${r.st==='verifying'?'Verifying payment':r.st==='pending'?'Pending organiser approval':'Approved'}</b>Captain: you · ${r.players.length+1} players</div></div>`;
+    const open=t.closes!=='Closed';
+    if(S.wAsk===id) h+=`<div class="confirm"><b>Withdraw ${esc(r.team)}?</b><p class="small">It's before the deadline (${esc(t.closes.replace('Closes ',''))}), so you get a full refund of ${taka(t.fee)} to QR Pay BD.</p><div class="btn-row"><button class="btn" data-act="withdrawNo">Keep my team in</button><button class="btn danger" data-act="withdrawYes" data-arg="${id}">Withdraw and refund</button></div></div>`;
+    else if(r.st!=='verifying') h+=open?`<button class="btn ghost block" data-act="withdrawAsk" data-arg="${id}" style="color:var(--live)">Withdraw team</button><p class="small muted">Full refund if you withdraw before the deadline.</p>`:`<p class="small muted">The deadline has passed, so your team can't withdraw with a refund. Contact the organiser.</p>`;
+  }
   else if(left<=0) h+=`<div class="banner info">${ic('info',18)}<div><b>Registration closed</b>All ${t.limit} team places are taken.</div></div>`;
-  else h+=`<button class="btn pri block" data-go="reg-${id}">${ic('users',18)}Register a team · ${taka(t.fee)}</button><p class="small muted">${left} team place${left>1?'s':''} left. You register as captain and pay the entry fee with QR Pay BD or send money.</p>`;
-  h+=sec('Rules',`<ul class="rules"><li>Squad of ${t.min} to ${t.max}, named at registration. Changes need organiser approval.</li><li>Entry fee is refunded in full if the organiser rejects your team.</li><li>Fixtures are published once registration closes.</li></ul>`);
+  else h+=`<button class="btn pri block" data-go="reg-${id}">${ic('users',18)}Register a team · ${taka(t.fee)}</button><p class="small muted">${left} team place${left>1?'s':''} left. You register as captain and pay the entry fee with QR Pay BD.</p>`;
+  h+=sec('Rules',`<ul class="rules"><li>Squad of ${t.min} to ${t.max}, named at registration. Changes need organiser approval.</li><li>Entry fee is refunded in full if the organiser rejects your team, cancels the tournament, or you withdraw before the deadline.</li><li>Fixtures are published once registration closes.</li></ul>`);
   return {title:t.name,back:'tours',tab:'tours',body:h};
 };
 V.reg=id=>{
@@ -668,9 +684,9 @@ V.me=()=>{
     const mg=Object.keys(S.req).map(id=>S.games[id]);
     h+=sec('My games',mg.length?`<div class="list">${mg.map(gameRow).join('')}</div>`:`<div class="card empty"><b>No game requests yet</b><button class="btn sm" data-go="games">Browse open games</button></div>`);
     const rs=Object.entries(S.regs);
-    h+=sec('My tournament teams',rs.length?`<div class="list">${rs.map(([tid,r])=>`<button class="row" data-go="tr-${tid}"><span class="grow"><span class="t">${esc(r.team)}</span><span class="s">${esc(S.tours[tid].name)} · ${r.players.length+1} players</span></span>${pill('warn',r.st==='verifying'?'Verifying':'Pending approval')}</button>`).join('')}</div>`:`<div class="card empty"><b>No teams yet</b><button class="btn sm" data-go="tours">Find a tournament</button></div>`);
+    h+=sec('My tournament teams',rs.length?`<div class="list">${rs.map(([tid,r])=>`<button class="row" data-go="tr-${tid}"><span class="grow"><span class="t">${esc(r.team)}</span><span class="s">${esc(S.tours[tid].name)} · ${r.players.length+1} players</span></span>${pill(r.st==='withdrawn'||r.st==='rejected'?'idle':'warn',{verifying:'Verifying',pending:'Pending approval',withdrawn:'Withdrawn · '+(r.refund==='refunded'?'refunded':'refund processing'),rejected:'Not accepted · '+(r.refund==='refunded'?'refunded':'refund processing')}[r.st]||r.st)}</button>`).join('')}</div>`:`<div class="card empty"><b>No teams yet</b><button class="btn sm" data-go="tours">Find a tournament</button></div>`);
   }
-  h+=`<div class="list"><button class="row" data-act="sheet" data-arg="city">${ic('pin')}<span class="grow"><span class="t">Home city</span><span class="s">${esc(S.f.city)}</span></span>${ic('chev',18)}</button><button class="row" data-act="signout">${ic('out')}<span class="grow"><span class="t">Sign out</span></span></button></div>`;
+  h+=`<div class="list"><button class="row" data-act="sheet" data-arg="city">${ic('pin')}<span class="grow"><span class="t">Home city</span><span class="s">${esc(S.f.city)}</span></span>${ic('chev',18)}</button><div class="row">${ic('info')}<span class="grow"><span class="t">${T('Language')}</span></span><span class="mini-seg">${[['en','EN'],['bn','বাং']].map(([k,l])=>`<button class="${S.lang===k?'on':''}" data-act="lang" data-arg="${k}">${l}</button>`).join('')}</span></div><button class="row" data-act="signout">${ic('out')}<span class="grow"><span class="t">${T('Sign out')}</span></span></button></div>`;
   return {title:'Me',tab:'me',body:h};
 };
 V.b=id=>{
@@ -702,19 +718,19 @@ function parse(r){const i=r.indexOf('-');if(i<0)return[r,null];return [r.slice(0
 function view(){const [b,id]=parse(S.route);const fn=V[b];return fn?fn(id):V.home();}
 function tabsHTML(cur){
   const t=[['home','Home','home'],['turfs','Turfs','search'],['tours','Tournaments','trophy'],['games','Games','users'],['me','Me','user']];
-  return `<nav class="tabbar" aria-label="Main">${t.map(([r,l,i])=>`<button data-go="${r}" class="${cur===r?'on':''}"${cur===r?' aria-current="page"':''}>${ic(i,22)}<span>${l}</span></button>`).join('')}</nav>`;
+  return `<nav class="tabbar" aria-label="Main">${t.map(([r,l,i])=>`<button data-go="${r}" class="${cur===r?'on':''}"${cur===r?' aria-current="page"':''}>${ic(i,22)}<span>${T(l)}</span></button>`).join('')}</nav>`;
 }
 function render(){
   const old=$('.content'), st=old?old.scrollTop:0, same=S.lastRoute===S.route;
   const v=view();
   let h=`<div class="statusbar"><span class="num">19:12</span><span class="sb-r"><span class="sb-batt"><i></i></span></span></div>`;
   if(v.bare) h+=`<div class="content bare">${v.body}</div>`;
-  else h+=`<header class="hdr">${v.back?`<button class="iconbtn" data-go="${v.back}" aria-label="Back">${ic('back')}</button>`:''}<div class="hdr-t"><span class="hdr-org">Sportzy Player</span><h2>${esc(v.title)}</h2></div><button class="avatar" data-act="sheet" data-arg="city" aria-label="Change city" style="width:auto;padding:0 12px;border-radius:999px;font-size:13px">${esc(S.f.city)}</button></header>
+  else h+=`<header class="hdr">${v.back?`<button class="iconbtn" data-go="${v.back}" aria-label="Back">${ic('back')}</button>`:''}<div class="hdr-t"><span class="hdr-org">Sportzy Player</span><h2>${esc(T(v.title))}</h2></div><button class="avatar" data-act="sheet" data-arg="city" aria-label="Change city" style="width:auto;padding:0 12px;border-radius:999px;font-size:13px">${esc(S.f.city)}</button></header>
     <main class="content">${v.body}</main>${v.tab!==null?tabsHTML(v.tab):''}`;
   h+=sheetHTML();
   $('#screen').innerHTML=h;
   const c=$('.content'); if(c&&same) c.scrollTop=st;
-  S.lastRoute=S.route; S.dirty=false; drawQRs();
+  S.lastRoute=S.route; S.dirty=false; drawQRs(); const ls=$('#langSel'); if(ls) ls.value=S.lang;
 }
 function patch(){
   document.querySelectorAll('[data-bind]').forEach(el=>{
@@ -815,9 +831,16 @@ const ACT={
     S.sel.forEach(h=>{S.taken[`${S.vid}|${S.vday}|${h}`]=true;}); toast('Someone else just booked your selected slot. Try to hold it.');
   },
   simFail(){S.failNext=true;toast('The next QR Pay BD payment will fail.');},
+  withdrawAsk(id){S.wAsk=id;render();}, withdrawNo(){S.wAsk=null;render();},
+  withdrawYes(id){refundReg(id,'withdrawn');S.wAsk=null;toast('Team withdrawn. Your refund is on its way.');render();},
+  simReject(){const id=Object.keys(S.regs).find(k=>S.regs[k].st==='pending'); if(!id){toast('Register a team for a tournament first.');return;} refundReg(id,'rejected'); toast('The organiser rejected your team. A full refund was opened.'); if(S.user) go('tr-'+id); else render();},
+  lang(l){S.lang=l==='bn'?'bn':'en';document.documentElement.lang=S.lang;try{localStorage.setItem('sportzy-player-lang',S.lang);}catch(e){}render();},
   simExpire(){if(S.pay&&['held','failed'].includes(S.pay.st)){S.pay.exp=1;toast('Hold expires in a second.');}else toast('Hold a slot first.');},
   reset(){store.del('sportzy-player');init();S.route=null;location.hash='signin';onHash();toast('Demo reset.');}
 };
+function refundReg(id,st){const r=S.regs[id],t=S.tours[id]; r.st=st; r.refund='processing'; t.teams=Math.max(0,t.teams-1);
+  const pid='rr'+id+Date.now(); S.payments.unshift({id:pid,what:`Refund · ${t.name} entry fee`,amount:t.fee,method:'QR Pay BD',st:'Refund processing',at:'2 Nov'});
+  later(8,()=>{r.refund='refunded';const p=S.payments.find(x=>x.id===pid);if(p)p.st='Refunded';toast(`Refund of ${taka(t.fee)} sent.`);return true;});}
 function readSquad(){document.querySelectorAll('[data-squad]').forEach((el,i)=>{S.reg.players[i]=el.value;});const t=$('#rteam');if(t)S.reg.team=t.value;}
 const FORM={
   phone(fd){const a=S.auth, ph=String(fd.get('phone')||'').replace(/\D/g,'').replace(/^880/,'').replace(/^0/,'');
@@ -856,6 +879,7 @@ document.addEventListener('change',e=>{
 });
 document.addEventListener('input',e=>{ if(e.target.id==='fmax'){const o=$('#fmaxv'); if(o) o.textContent=taka(e.target.value);} });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&S.sheet){S.sheet=null;render();}});
+$('#langSel').addEventListener('change',e=>ACT.lang(e.target.value));
 window.addEventListener('hashchange',onHash);
 
 /* ============ clock ============ */
