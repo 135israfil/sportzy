@@ -1,0 +1,878 @@
+<title>Sportzy Player Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a phone-sized player app on turf-tinted dark neutrals, next to a notes column that maps screens to SPOR-110 */
+:root{
+  --bg:#0A0E0C; --app:#0F1411; --raised:#161D19; --raised-2:#1D2621; --line:#29332D;
+  --fg:#E6EEE9; --muted:#8D9A94; --accent:#3DDC84; --accent-ink:#03160B; --accent-soft:rgba(61,220,132,.13);
+  --live:#FF5252; --live-soft:rgba(255,82,82,.14); --warn:#F2B43C; --warn-soft:rgba(242,180,60,.13);
+  --bezel:#030504; --shadow:0 30px 80px rgba(0,0,0,.55);
+  /* video + broadcast graphics: theme-independent, like real footage */
+  --turf-a:#1E5A35; --turf-b:#256A3F; --pitch:#CDB98F; --feed-bg:#0B1710; --feed-fg:#FFFFFF;
+  --gfx-bg:rgba(5,11,8,.9); --gfx-accent:#3DDC84; --gfx-ink:#03160B;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#E3E9E5; --app:#F5F8F6; --raised:#FFFFFF; --raised-2:#ECF1EE; --line:#D2DBD6;
+    --fg:#0F1612; --muted:#56635D; --accent:#168A4B; --accent-ink:#FFFFFF; --accent-soft:rgba(22,138,75,.11);
+    --live:#D12B2B; --live-soft:rgba(209,43,43,.09); --warn:#9C620A; --warn-soft:rgba(156,98,10,.11);
+    --bezel:#18201B; --shadow:0 30px 70px rgba(20,45,30,.20);
+    color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#E3E9E5; --app:#F5F8F6; --raised:#FFFFFF; --raised-2:#ECF1EE; --line:#D2DBD6;
+  --fg:#0F1612; --muted:#56635D; --accent:#168A4B; --accent-ink:#FFFFFF; --accent-soft:rgba(22,138,75,.11);
+  --live:#D12B2B; --live-soft:rgba(209,43,43,.09); --warn:#9C620A; --warn-soft:rgba(156,98,10,.11);
+  --bezel:#18201B; --shadow:0 30px 70px rgba(20,45,30,.20);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ic{flex:none;display:block}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- stage ---------- */
+.stage{display:grid;grid-template-columns:390px minmax(0,380px);gap:48px;justify-content:center;align-items:start}
+@media (max-width:880px){.stage{grid-template-columns:minmax(0,1fr);gap:28px}.notes{max-width:390px;margin-inline:auto;width:100%}}
+.phone{position:relative;width:390px;max-width:100%;height:min(844px,calc(100svh - 48px));min-height:620px;margin-inline:auto;
+  background:var(--app);border:10px solid var(--bezel);border-radius:50px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+@media (max-width:500px){
+  body{padding-block:16px}
+  .phone{border-width:1px;border-color:var(--line);border-radius:22px;height:calc(100svh - 32px);min-height:560px;box-shadow:none}
+  .statusbar{display:none!important}
+}
+#screen{flex:1;min-height:0;display:flex;flex-direction:column}
+.statusbar{height:38px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 26px 0 30px;font-weight:600;font-size:14px}
+.statusbar .sb-r{display:flex;gap:6px;align-items:center}
+.sb-batt{width:24px;height:11px;border:1.5px solid currentColor;border-radius:3px;padding:1px;opacity:.85}
+.sb-batt i{display:block;height:100%;width:72%;background:currentColor;border-radius:1px}
+
+/* ---------- header ---------- */
+.hdr{flex:none;display:flex;align-items:center;gap:10px;padding:8px 16px 10px;border-bottom:1px solid var(--line);background:var(--app)}
+.hdr-t{flex:1;min-width:0}
+.hdr-t h2{margin:0;font-family:var(--f-display);font-weight:700;font-size:22px;letter-spacing:.2px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr-org{display:block;font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
+.iconbtn{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:var(--fg);flex:none}
+.iconbtn:hover{background:var(--raised-2)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-family:var(--f-display);font-weight:700;font-size:14px;letter-spacing:.5px;flex:none}
+.livepill{display:flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:999px;background:var(--live);color:#fff;font-family:var(--f-display);font-weight:700;font-size:14px;letter-spacing:.6px}
+.livepill i,.dot-live{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+
+/* ---------- content ---------- */
+.content{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:16px 16px 28px;display:flex;flex-direction:column;gap:18px}
+.content.bare{padding:0}
+.h1{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1.05;margin:0;text-wrap:balance}
+.eyebrow{margin:0;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted)}
+.sec{display:flex;flex-direction:column;gap:8px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.sec-h h3{margin:0;font-size:12px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted)}
+.sec-h .link{font-size:13px;font-weight:600;color:var(--accent)}
+p{margin:0}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+
+.card{background:var(--raised);border:1px solid var(--line);border-radius:14px;padding:14px}
+.list{background:var(--raised);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:12px 14px;width:100%;text-align:left;min-height:56px}
+.row + .row{border-top:1px solid var(--line)}
+button.row:hover,a.row:hover{background:var(--raised-2)}
+.row .grow{flex:1;min-width:0}
+.row .t{font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .s{display:block;font-size:13px;color:var(--muted)}
+.row .chev{color:var(--muted)}
+.time{font-family:var(--f-display);font-weight:600;font-size:18px;width:48px;flex:none}
+
+.pill{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;white-space:nowrap;flex:none}
+.pill.ok{background:var(--accent-soft);color:var(--accent)}
+.pill.live{background:var(--live-soft);color:var(--live)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.idle{background:var(--raised-2);color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--raised);font-size:13px;font-weight:600}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;padding:0 18px;border-radius:12px;font-weight:700;font-size:15px;background:var(--raised-2);border:1px solid var(--line);color:var(--fg)}
+.btn:hover{border-color:var(--muted)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{background:var(--live);border-color:var(--live);color:#fff}
+.btn.ghost{background:none}
+.btn.sm{height:34px;padding:0 12px;font-size:13px;border-radius:10px}
+.btn.block{width:100%}
+.btn.locked{opacity:.55;border-style:dashed;background:none}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn-row .btn{flex:1}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{background:var(--raised);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px;text-align:left;min-height:84px}
+button.tile:hover{border-color:var(--muted)}
+.tile .ic{color:var(--accent)}
+.tile.locked .ic{color:var(--muted)}
+.tile b{font-size:14px}
+.tile span{font-size:12px;color:var(--muted)}
+
+.banner{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.35;border:1px solid transparent}
+.banner .ic{margin-top:1px}
+.banner.warn{background:var(--warn-soft);color:var(--fg);border-color:var(--warn)}
+.banner.warn .ic{color:var(--warn)}
+.banner.live{background:var(--live-soft);border-color:var(--live)}
+.banner.live .ic{color:var(--live)}
+.banner.info{background:var(--raised-2);border-color:var(--line)}
+.banner b{display:block}
+
+.err{color:var(--live);font-size:13px;font-weight:600}
+.seg{display:flex;gap:4px;padding:4px;background:var(--raised-2);border-radius:12px;overflow-x:auto}
+.seg button{flex:1;height:34px;padding:0 10px;border-radius:9px;font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap}
+.seg button.on{background:var(--raised);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.15)}
+
+label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:var(--muted)}
+.f input,.f select{height:44px;border-radius:10px;border:1px solid var(--line);background:var(--raised);padding:0 12px;font-size:15px;color:var(--fg);font-weight:500;width:100%}
+.f input:focus,.f select:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
+form{display:flex;flex-direction:column;gap:12px}
+
+.kv{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:14px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;text-align:right;font-weight:600}
+
+table.tbl{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.tbl th{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:700;text-align:right;padding:10px 8px}
+.tbl td{padding:10px 8px;text-align:right;border-top:1px solid var(--line)}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl td:last-child{font-weight:700}
+
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:32px 16px;color:var(--muted)}
+.empty .ic{color:var(--muted)}
+.empty b{color:var(--fg);font-size:16px}
+
+/* ---------- tab bar ---------- */
+.tabbar{flex:none;display:flex;border-top:1px solid var(--line);background:var(--app);padding:6px 6px 10px}
+.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;color:var(--muted);padding:6px 0;border-radius:10px}
+.tabbar button.on{color:var(--accent)}
+
+/* ---------- sheet + toast ---------- */
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;z-index:20;animation:fade .15s ease-out}
+.sheet{width:100%;max-height:82%;overflow-y:auto;background:var(--app);border-radius:20px 20px 0 0;padding:10px 16px 22px;display:flex;flex-direction:column;gap:14px;animation:up .2s ease-out}
+.sheet .grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto}
+.sheet h3{margin:0;font-family:var(--f-display);font-size:22px;font-weight:700}
+@keyframes fade{from{opacity:0}}
+@keyframes up{from{transform:translateY(30px);opacity:.4}}
+#toast{position:absolute;left:16px;right:16px;bottom:84px;z-index:30;display:flex;justify-content:center;pointer-events:none}
+#toast div{background:var(--fg);color:var(--app);padding:10px 14px;border-radius:12px;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.3);animation:up .2s ease-out;max-width:100%}
+
+/* ---------- sign in ---------- */
+.signin{flex:1;display:flex;flex-direction:column;justify-content:center;gap:28px;padding:24px 24px 40px}
+.brand{display:flex;flex-direction:column;gap:6px}
+.wordmark{font-family:var(--f-display);font-weight:700;font-size:48px;letter-spacing:-.5px;line-height:1;display:flex;align-items:center;gap:10px}
+.wordmark i{width:14px;height:14px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 6px var(--accent-soft)}
+.brand span{font-family:var(--f-display);font-size:20px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--accent)}
+.role-g{display:flex;flex-direction:column;gap:6px}
+
+a.btn,a.tile,a.row{text-decoration:none;color:inherit}
+a.btn.pri{color:var(--accent-ink)}
+canvas.qr{width:116px;height:116px;border-radius:10px;background:var(--raised);image-rendering:pixelated;border:1px solid var(--line)}
+.spinner{width:16px;height:16px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.switch{width:46px;height:28px;border-radius:14px;background:var(--line);position:relative;flex:none;transition:background .15s}
+.switch::after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.switch[aria-checked="true"]{background:var(--accent)}
+.switch[aria-checked="true"]::after{transform:translateX(18px)}
+/* ---------- notes ---------- */
+.notes{display:flex;flex-direction:column;gap:22px;padding-top:8px}
+.notes h1{font-family:var(--f-display);font-weight:700;font-size:40px;line-height:1;margin:0;text-wrap:balance}
+.notes h1 span{color:var(--accent)}
+.notes h2{margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted)}
+.notes p{max-width:60ch;color:var(--muted)}
+.notes p b{color:var(--fg)}
+.jump{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.jump div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:9px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.jump div > span{font-size:14px}
+.jump .links{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.jump a{color:var(--accent);font-weight:600;font-size:13px;text-decoration:none;white-space:nowrap}
+.jump a:hover{text-decoration:underline}
+.notes select{height:40px;border-radius:10px;border:1px solid var(--line);background:var(--raised);padding:0 10px;width:100%;color:var(--fg)}
+.decisions{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;color:var(--muted);font-size:14px}
+.decisions b{color:var(--fg)}
+.kbd{font-family:ui-monospace,Menlo,monospace;font-size:12px;border:1px solid var(--line);border-radius:5px;padding:1px 5px;background:var(--raised)}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+
+/* ---------- player app ---------- */
+.content > *{flex-shrink:0}
+.hscroll{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;padding:0 16px 4px;scrollbar-width:none}
+.hscroll::-webkit-scrollbar{display:none}
+.vcard{flex:0 0 228px;scroll-snap-align:start;background:var(--raised);border:1px solid var(--line);border-radius:14px;overflow:hidden;text-align:left;display:flex;flex-direction:column}
+.vcard:hover{border-color:var(--muted)}
+.vcard .body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:3px}
+.vcard b{font-size:15px}
+.art{position:relative;height:92px;background:repeating-linear-gradient(100deg,var(--turf-a) 0 18px,var(--turf-b) 18px 36px);overflow:hidden;color:#fff}
+.art::before{content:"";position:absolute;left:50%;top:50%;width:46%;height:70%;transform:translate(-50%,-50%);border:2px solid rgba(255,255,255,.55);border-radius:4px}
+.art::after{content:"";position:absolute;left:50%;top:15%;bottom:15%;border-left:2px solid rgba(255,255,255,.55)}
+.art.court{background:repeating-linear-gradient(100deg,#2E5E8C 0 18px,#346799 18px 36px)}
+.art.box{background:repeating-linear-gradient(100deg,#2B6B48 0 12px,#317752 12px 24px)}
+.art .tagl{position:absolute;left:10px;bottom:8px;z-index:1;font-family:var(--f-display);font-weight:700;font-size:13px;letter-spacing:.6px;background:rgba(0,0,0,.55);padding:2px 8px;border-radius:6px;text-transform:uppercase}
+.art.hero{height:150px;border-radius:14px}
+.art.hero .tagl{font-size:15px}
+.rating{display:inline-flex;align-items:center;gap:3px;font-weight:700;font-size:13px}
+.rating .ic{color:var(--warn)}
+.price{font-family:var(--f-display);font-weight:700;font-size:18px}
+.price small{font-family:var(--f-body);font-size:12px;color:var(--muted);font-weight:600}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.fchip{height:34px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--raised);font-size:13px;font-weight:600}
+.fchip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.daystrip{display:flex;gap:8px;overflow-x:auto;margin:0 -16px;padding:0 16px 2px;scrollbar-width:none}
+.daystrip::-webkit-scrollbar{display:none}
+.day{flex:0 0 56px;height:62px;border-radius:12px;border:1px solid var(--line);background:var(--raised);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.day small{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+.day b{font-family:var(--f-display);font-size:22px;line-height:1}
+.day.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.day.on small{color:inherit;opacity:.8}
+input[type=range]{width:100%;accent-color:var(--accent)}
+
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.slot{height:58px;border-radius:12px;border:1px solid var(--line);background:var(--raised);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-family:var(--f-display);font-weight:700;font-size:18px;line-height:1.05}
+.slot small{font-family:var(--f-body);font-size:11px;font-weight:600;color:var(--muted)}
+.slot:hover:not(:disabled){border-color:var(--muted)}
+.slot.sel{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.slot.sel small{color:inherit;opacity:.85}
+.slot.booked,.slot.past{opacity:.38;cursor:not-allowed;background:var(--raised-2)}
+.slot.booked span{text-decoration:line-through}
+.slot.held{border-color:var(--warn);border-style:dashed;cursor:not-allowed}
+.slot.held small{color:var(--warn)}
+.slot.mine{border:2px solid var(--accent)}
+.slot.mine small,.slot.yours small{color:var(--accent)}
+.slot.yours{background:var(--accent-soft);border-color:var(--accent);cursor:default}
+.slot.peak:not(.sel) small b{color:var(--warn)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:1px solid var(--line);background:var(--raised)}
+.legend .l-sel{background:var(--accent);border-color:var(--accent)}
+.legend .l-held{border:1px dashed var(--warn)}
+.legend .l-booked{background:var(--raised-2);opacity:.5}
+.selbar{position:sticky;bottom:-28px;z-index:6;margin:0 -16px -28px;padding:12px 16px 16px;background:var(--app);border-top:1px solid var(--line);display:flex;align-items:center;gap:12px}
+.selbar .grow{flex:1;min-width:0}
+.selbar b{display:block;font-size:15px}
+
+.holdbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-radius:12px;background:var(--warn-soft);border:1px solid var(--warn)}
+.holdbar b{font-family:var(--f-display);font-size:26px;line-height:1;font-variant-numeric:tabular-nums}
+.paybox{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.paybox canvas.qr{width:168px;height:168px}
+.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.mono{font-family:ui-monospace,Menlo,monospace;letter-spacing:1px}
+.bigcheck{width:64px;height:64px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;margin:0 auto}
+.bigcheck.wait{background:var(--warn-soft);color:var(--warn)}
+.code{font-family:var(--f-display);font-weight:700;font-size:30px;letter-spacing:2px}
+.otp{font-family:var(--f-display)!important;font-size:30px!important;letter-spacing:10px;text-align:center;height:60px!important}
+.prefix{display:flex;align-items:stretch;gap:0}
+.prefix span{display:grid;place-items:center;padding:0 12px;border:1px solid var(--line);border-right:0;border-radius:10px 0 0 10px;background:var(--raised-2);color:var(--fg);font-weight:600}
+.prefix input{border-radius:0 10px 10px 0!important}
+.squad{display:flex;gap:8px;align-items:center}
+.squad input{flex:1;min-width:0;height:42px;border-radius:10px;border:1px solid var(--line);background:var(--raised);padding:0 12px;color:var(--fg)}
+.squad .n{width:22px;flex:none;color:var(--muted);font-size:13px;font-weight:700;text-align:right}
+.spots{display:flex;gap:3px}
+.spots i{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.spots i.f{background:var(--line)}
+.confirm{border:1px solid var(--live);background:var(--live-soft);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.facs{display:flex;gap:6px;flex-wrap:wrap}
+.facs span{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--raised-2);color:var(--fg)}
+ul.rules{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--muted)}
+</style>
+
+<div class="stage">
+  <div class="phone" id="phone" aria-label="Sportzy Player app prototype">
+    <div id="screen"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <aside class="notes" aria-label="Prototype notes">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <p class="eyebrow">SPOR-110 · Clickable prototype</p>
+      <h1>Sportzy <span>Player</span></h1>
+      <p>One app for players to find and book turfs, register a team for tournaments, join open games and pay. <b>Example data only.</b> No real accounts, bookings or payments. It is stack-neutral, so it can settle flows and screens while the stack, the mobile API and the Federation sign-in flow are still being decided.</p>
+    </div>
+
+    <div>
+      <h2>Epic scope → screens</h2>
+      <div class="jump">
+        <div><span>Register and sign in with Sportzy ID (phone)</span><span class="links"><a href="#signin">Sign in</a></span></div>
+        <div><span>Search turfs by city, area, sport, price, open slots</span><span class="links"><a href="#turfs">Search</a><a href="#v-v1">Venue</a></span></div>
+        <div><span>Book slots: hold → pay → confirmed</span><span class="links"><a href="#v-v2">Book</a><a href="#checkout">Checkout</a></span></div>
+        <div><span>Tournaments: register a team as captain</span><span class="links"><a href="#tours">List</a><a href="#tr-t1">Night Cup</a></span></div>
+        <div><span>Open games: request to join, roster status</span><span class="links"><a href="#games">Games</a><a href="#g-g1">Game</a></span></div>
+        <div><span>Pay: QR Pay BD, or send money with TrxID</span><span class="links"><a href="#checkout">Pay</a></span></div>
+        <div><span>My bookings, payments, cancellations, refunds</span><span class="links"><a href="#me">Me</a><a href="#b-b2">Refundable</a><a href="#b-b1">Inside 24 h</a></span></div>
+      </div>
+      <p class="small" style="margin-top:8px">Out of scope: organiser and production features (Organizer app), player discovery beyond open games, bKash/Nagad gateway.</p>
+    </div>
+
+    <div>
+      <h2>Simulate</h2>
+      <div class="btn-row">
+        <button class="btn sm" data-act="simTake">Someone books my slot</button>
+        <button class="btn sm" data-act="simFail">Next payment fails</button>
+        <button class="btn sm" data-act="simExpire">Expire my hold now</button>
+      </div>
+      <p class="small" style="margin-top:6px">Select slots on a venue first to see a slot taken before you hold it. Once held, nobody else can book it.</p>
+    </div>
+
+    <div>
+      <h2>Open decisions</h2>
+      <ol class="decisions">
+        <li><b>Stack.</b> React Native (Expo), Flutter, or native Swift + Kotlin.</li>
+        <li><b>Repo.</b> The existing sportzy repo, or a new one.</li>
+        <li><b>Mobile API.</b> The platform has no public JSON API yet. Booking rules here (holds, overlap, 24-hour refund) mirror the web.</li>
+        <li><b>Sign-in.</b> Native app login on Federation needs a token flow such as PKCE.</li>
+      </ol>
+    </div>
+
+    <div>
+      <h2>Demo details</h2>
+      <p class="small">It is Mon 2 Nov, 19:12 in Dhaka. OTP is <span class="kbd">123456</span>. A valid TrxID is any 10 letters and numbers, like <span class="kbd">9K7XQ2M4PL</span>. Holds last 10 minutes.</p>
+      <p style="margin-top:12px"><button class="btn sm" data-act="reset">Reset demo</button></p>
+    </div>
+  </aside>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ============ helpers ============ */
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const I={
+ home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
+ search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+ trophy:'<path d="M7 4h10v4a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M9 17h6"/>',
+ users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+ pin:'<path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/>',
+ star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" fill="currentColor" stroke="none"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+ calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+ card:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+ check:'<path d="M5 12l5 5 9-10"/>',
+ chev:'<path d="M9 6l6 6-6 6"/>',
+ back:'<path d="M15 6l-6 6 6 6"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ x:'<path d="M6 6l12 12M18 6L6 18"/>',
+ warn:'<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/>',
+ info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/>',
+ qr:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM18 18h3v3h-3z"/>',
+ out:'<path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 17l5-5-5-5M15 12H3"/>',
+ phone:'<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/>',
+ refund:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',
+ ball:'<circle cx="12" cy="12" r="9"/><path d="M12 3v18M3.5 9h17M3.5 15h17"/>'
+};
+const ic=(n,s=20)=>`<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n]||''}</svg>`;
+const pad2=n=>String(n).padStart(2,'0');
+const mmss=s=>`${pad2(Math.floor(s/60))}:${pad2(s%60)}`;
+const taka=n=>'৳'+Math.round(Number(n)).toLocaleString('en-IN');
+const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const hhmm=h=>`${pad2(h%24)}:00`;
+const range=hs=>`${hhmm(hs[0])}–${hhmm(hs[hs.length-1]+1)}`;
+const code5=()=>Array.from({length:5},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[ri(0,31)]).join('');
+
+/* ============ example data ============ */
+const DAYS=[['Mon',2],['Tue',3],['Wed',4],['Thu',5],['Fri',6],['Sat',7],['Sun',8]];
+const dayName=i=>i===-1?'Sun 1 Nov':i===0?'Today':i===1?'Tomorrow':`${DAYS[i][0]} ${DAYS[i][1]} Nov`;
+const CITIES={Dhaka:['Mirpur','Banani','Uttara','Dhanmondi','Bashundhara'],Chattogram:['Halishahar','Agrabad'],Sylhet:['Zindabazar']};
+const SPORTS=['Cricket','Football','Futsal','Badminton'];
+const VENUES=[
+ {id:'v1',name:'Kick Off Arena',area:'Mirpur',city:'Dhaka',addr:'Mirpur DOHS, Road 9',sports:['Cricket','Football'],off:1800,peak:2800,rating:4.7,reviews:412,kind:'',facs:['Floodlights','Changing room','Parking','Drinking water','Cafeteria'],unit:'turf'},
+ {id:'v2',name:'Banani Box Turf',area:'Banani',city:'Dhaka',addr:'Road 11, Block E',sports:['Futsal','Cricket'],off:2000,peak:3200,rating:4.5,reviews:268,kind:'box',facs:['Floodlights','Roof net','Changing room','Drinking water'],unit:'box turf'},
+ {id:'v3',name:'Uttara Sports Hub',area:'Uttara',city:'Dhaka',addr:'Sector 10, Lake Road',sports:['Football','Cricket'],off:1500,peak:2400,rating:4.3,reviews:190,kind:'',facs:['Floodlights','Parking','Drinking water'],unit:'turf'},
+ {id:'v4',name:'Dhanmondi Shuttle Court',area:'Dhanmondi',city:'Dhaka',addr:'Road 27 (old)',sports:['Badminton'],off:600,peak:900,rating:4.6,reviews:155,kind:'court',facs:['Indoor','AC','Racket rental'],unit:'court'},
+ {id:'v5',name:'Bashundhara Arena Turf',area:'Bashundhara',city:'Dhaka',addr:'Block C, Main Road',sports:['Football','Futsal'],off:2200,peak:3500,rating:4.8,reviews:530,kind:'',facs:['Floodlights','Changing room','Showers','Parking','Cafeteria'],unit:'turf'},
+ {id:'v6',name:'Halishahar Turf Ground',area:'Halishahar',city:'Chattogram',addr:'Block K, Port Link Road',sports:['Cricket','Football'],off:1500,peak:2200,rating:4.4,reviews:98,kind:'',facs:['Floodlights','Parking'],unit:'turf'},
+ {id:'v7',name:'Shahjalal Indoor Arena',area:'Zindabazar',city:'Sylhet',addr:'Zindabazar Point',sports:['Futsal','Badminton'],off:1600,peak:2500,rating:4.5,reviews:121,kind:'court',facs:['Indoor','Changing room','Drinking water'],unit:'court'}
+];
+const venue=id=>VENUES.find(v=>v.id===id);
+const HOURS=Array.from({length:18},(_,i)=>i+6); // 06:00 – 23:00 starts
+const isPeak=h=>h>=17;
+const priceOf=(v,h)=>isPeak(h)?v.peak:v.off;
+function hash(str){let h=2166136261;for(const c of str){h^=c.charCodeAt(0);h=Math.imul(h,16777619);}return (h>>>0)/4294967295;}
+
+function seed(){
+  return {
+    user:null, auth:{step:'phone',phone:'',err:null,tries:0,resend:0,mode:'login',name:'',city:'Dhaka'},
+    f:{city:'Dhaka',area:'',sport:'',max:4000,day:0}, vday:0, vid:null, sel:[], selErr:null,
+    taken:{}, failNext:false,
+    pay:null,
+    bookings:[
+      {id:'b1',code:'SPZ-4HQ7M',v:'v1',day:1,hours:[18],amount:2800,st:'confirmed',method:'QR Pay BD',refund:null},
+      {id:'b2',code:'SPZ-9TR2K',v:'v2',day:5,hours:[20,21],amount:6400,st:'confirmed',method:'Send money · TrxID',refund:null},
+      {id:'b3',code:'SPZ-2LM8D',v:'v3',day:-1,hours:[7],amount:1500,st:'completed',method:'QR Pay BD',refund:null}
+    ],
+    payments:[
+      {id:'p1',what:'Kick Off Arena · Tomorrow 18:00',amount:2800,method:'QR Pay BD',st:'Paid',at:'30 Oct'},
+      {id:'p2',what:'Banani Box Turf · Sat 20:00–22:00',amount:6400,method:'Send money · TrxID 8N3T5Q1ZKD',st:'Paid',at:'1 Nov'},
+      {id:'p3',what:'Uttara Sports Hub · Sun 07:00',amount:1500,method:'QR Pay BD',st:'Paid',at:'29 Oct'},
+      {id:'p0',what:'Uttara Sports Hub · Sun 07:00',amount:1500,method:'QR Pay BD',st:'Failed',at:'29 Oct'}
+    ],
+    usedTrx:['8N3T5Q1ZKD'],
+    tours:{
+      t1:{id:'t1',name:'DTL Night Cup 2026',sport:'Cricket',format:'T10 · 8-a-side',city:'Dhaka',venue:'Kick Off Arena, Mirpur',dates:'1 – 22 Nov',closes:'Closes Thu 5 Nov',fee:6000,teams:8,limit:10,min:8,max:12,org:'Dhaka Turf League'},
+      t2:{id:'t2',name:'Winter Futsal Series',sport:'Futsal',format:'5-a-side league',city:'Dhaka',venue:'Kick Off Arena, Mirpur',dates:'5 – 20 Dec',closes:'Closes Mon 30 Nov',fee:4000,teams:2,limit:8,min:5,max:8,org:'Dhaka Turf League'},
+      t3:{id:'t3',name:'Port City Corporate Cup',sport:'Cricket',format:'T20',city:'Chattogram',venue:'Halishahar Turf Ground',dates:'14 – 28 Nov',closes:'Closed',fee:10000,teams:12,limit:12,min:11,max:15,org:'Chattogram Cricket Academy'},
+      t4:{id:'t4',name:'Sylhet Futsal Open',sport:'Futsal',format:'Knockout',city:'Sylhet',venue:'Shahjalal Indoor Arena',dates:'21 – 22 Nov',closes:'Closes Wed 18 Nov',fee:3000,teams:5,limit:16,min:5,max:8,org:'Sylhet Futsal Club'}
+    },
+    regs:{}, reg:null, tf:{sport:'',city:''},
+    games:{
+      g1:{id:'g1',sport:'Futsal',fmt:'5-a-side',v:'v2',day:0,h:21,level:'Intermediate',spots:10,filled:8,cost:300,host:'Rakib Hossain',reply:'accepted',roster:['Rakib Hossain','Shuvo Das','Mahin Karim','Asif Mahmud','Nafis Ahmed','Rony Talukder','Sajid Hasan','Emon Sarker']},
+      g2:{id:'g2',sport:'Cricket',fmt:'Box 6-a-side',v:'v1',day:0,h:22,level:'Casual',spots:12,filled:11,cost:250,host:'Tanvir Islam',reply:'declined',roster:['Tanvir Islam','Imran Kabir','Fahim Rahman','Jubayer Alam','Rafiq Hasan','Arif Chowdhury','Nayeem Uddin','Sabbir Ahmed','Habib Miah','Kamrul Sheikh','Zahid Roy']},
+      g3:{id:'g3',sport:'Football',fmt:'7-a-side',v:'v3',day:1,h:7,level:'Competitive',spots:14,filled:14,cost:200,host:'Masud Bhuiyan',reply:'waitlisted',roster:[]},
+      g4:{id:'g4',sport:'Badminton',fmt:'Doubles',v:'v4',day:5,h:18,level:'Beginner',spots:4,filled:3,cost:200,host:'Sadia Rahman',reply:'accepted',roster:['Sadia Rahman','Nusrat Jahan','Mitu Akter']},
+      g5:{id:'g5',sport:'Football',fmt:'6-a-side',v:'v6',day:2,h:20,level:'Casual',spots:12,filled:7,cost:180,host:'Polash Das',reply:'accepted',roster:[]}
+    },
+    req:{}, reqT:{},
+    meTab:'bookings', cancelAsk:null, sheet:null, secs:0, timers:[], route:null
+  };
+}
+let S;
+function init(){S=seed();const sv=store.get('sportzy-player');if(sv&&sv.user){S.user=sv.user;S.f.city=sv.user.city||'Dhaka';}}
+const save=()=>store.set('sportzy-player',{user:S.user});
+const DEMO_USER={name:'Israfil Islam',phone:'1711000214',city:'Dhaka'};
+const nowMin=()=>19*60+12+Math.floor(S.secs/60);
+const minsUntil=(day,h)=>day*1440+h*60-nowMin();
+function until(day,h){const m=minsUntil(day,h);if(m<=0)return 'now';const d=Math.floor(m/1440),hh=Math.floor(m%1440/60),mm=m%60;return d?`in ${d} d ${hh} h`:hh?`in ${hh} h ${mm} m`:`in ${mm} m`;}
+
+/* ============ slots ============ */
+function slotState(v,day,h){
+  if(day===0&&h*60<nowMin()) return 'past';
+  if(S.pay&&S.pay.kind==='booking'&&S.pay.v===v.id&&S.pay.day===day&&S.pay.hours.includes(h)&&['held','failed','processing','verifying'].includes(S.pay.st)) return 'mine';
+  if(S.bookings.some(b=>b.v===v.id&&b.day===day&&b.hours.includes(h)&&['confirmed','verifying'].includes(b.st))) return 'yours';
+  const k=`${v.id}|${day}|${h}`;
+  if(S.taken[k]) return 'booked';
+  const r=hash(k);
+  if(r<(isPeak(h)?0.3:0.18)) return 'booked';
+  if(r>0.95) return 'held';
+  return 'open';
+}
+const openCount=(v,day)=>HOURS.filter(h=>slotState(v,day,h)==='open').length;
+const nextOpen=(v,day)=>HOURS.find(h=>slotState(v,day,h)==='open');
+
+/* ============ QR ============ */
+function drawQRs(){
+  document.querySelectorAll('canvas.qr').forEach(cv=>{
+    const x=cv.getContext('2d'),N=29,cs=getComputedStyle(document.documentElement),bg=cs.getPropertyValue('--raised').trim()||'#fff',fg=cs.getPropertyValue('--fg').trim()||'#000';
+    let sd=+cv.dataset.seed||7;const r=()=>(sd=(sd*1103515245+12345)%2147483648)/2147483648;
+    x.fillStyle=bg;x.fillRect(0,0,N,N);x.fillStyle=fg;
+    for(let i=1;i<N-1;i++)for(let j=1;j<N-1;j++){const inF=(i<9&&j<9)||(i<9&&j>N-10)||(i>N-10&&j<9);if(!inF&&r()>.52)x.fillRect(i,j,1,1);}
+    [[1,1],[N-8,1],[1,N-8]].forEach(([a,b])=>{x.fillStyle=fg;x.fillRect(a,b,7,7);x.fillStyle=bg;x.fillRect(a+1,b+1,5,5);x.fillStyle=fg;x.fillRect(a+2,b+2,3,3);});
+  });
+}
+
+/* ============ toast ============ */
+let toastT;
+function toast(msg){const t=$('#toast');t.innerHTML=`<div>${esc(msg)}</div>`;clearTimeout(toastT);toastT=setTimeout(()=>{t.innerHTML='';},2800);}
+function later(sec,fn){S.timers.push({t:sec,fn});}
+
+/* ============ atoms ============ */
+const pill=(cls,t)=>`<span class="pill ${cls}">${t}</span>`;
+const sec=(title,body,link)=>`<section class="sec"><div class="sec-h"><h3>${title}</h3>${link||''}</div>${body}</section>`;
+const art=(v,hero)=>`<div class="art ${v.kind}${hero?' hero':''}"><span class="tagl">${esc(v.sports.join(' · '))}</span></div>`;
+function vcard(v){const n=nextOpen(v,0);return `<button class="vcard" data-go="v-${v.id}">${art(v)}<div class="body"><b>${esc(v.name)}</b><span class="small muted">${esc(v.area)}, ${esc(v.city)}</span><span style="display:flex;justify-content:space-between;align-items:center;margin-top:4px"><span class="price">${taka(v.off)}<small>/hr</small></span><span class="rating">${ic('star',14)}${v.rating}</span></span><span class="small" style="color:${n!=null?'var(--accent)':'var(--muted)'};font-weight:600">${n!=null?'Open today from '+hhmm(n):'Full today'}</span></div></button>`;}
+function venueRow(v,day){const n=nextOpen(v,day),c=openCount(v,day);return `<button class="row" data-go="v-${v.id}" data-act="vday" data-arg="${day}"><span class="grow"><span class="t">${esc(v.name)}</span><span class="s">${esc(v.area)}, ${esc(v.city)} · ${esc(v.sports.join(', '))}</span><span class="s" style="color:${c?'var(--accent)':'var(--muted)'};font-weight:600">${c?`${c} open slot${c>1?'s':''} · next ${hhmm(n)}`:'No open slots'}</span></span><span style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span class="price">${taka(v.off)}<small>/hr</small></span><span class="rating">${ic('star',13)}${v.rating}</span></span></button>`;}
+function bookingStatus(b){
+  if(b.st==='confirmed') return minsUntil(b.day,b.hours[0])>0?pill('ok','Confirmed'):pill('idle','Played');
+  if(b.st==='verifying') return pill('warn','Verifying payment');
+  if(b.st==='completed') return pill('idle','Played');
+  if(b.st==='cancelled') return b.refund==='processing'?pill('warn','Refund processing'):b.refund==='refunded'?pill('ok','Refunded'):pill('idle','Cancelled');
+  return '';
+}
+function bookingRow(b){const v=venue(b.v);return `<button class="row" data-go="b-${b.id}"><span class="grow"><span class="t">${esc(v.name)}</span><span class="s">${dayName(b.day)} · ${range(b.hours)} · ${taka(b.amount)}</span></span>${bookingStatus(b)}</button>`;}
+function reqPill(st){return {requested:pill('warn','Requested'),accepted:pill('ok','Accepted'),waitlisted:pill('warn','Waitlist'),declined:pill('idle','Declined')}[st]||'';}
+function gameRow(g){const v=venue(g.v),left=g.spots-g.filled-(S.req[g.id]==='accepted'?1:0);return `<button class="row" data-go="g-${g.id}"><span class="time num">${hhmm(g.h)}</span><span class="grow"><span class="t">${esc(g.sport)} · ${esc(g.fmt)}</span><span class="s">${dayName(g.day)} · ${esc(v.name)} · ${esc(g.level)}</span></span>${S.req[g.id]?reqPill(S.req[g.id]):left>0?pill('ok',`${left} spot${left>1?'s':''}`):pill('idle','Full')}</button>`;}
+function tourRow(t){const left=t.limit-t.teams,r=S.regs[t.id];return `<button class="row" data-go="tr-${t.id}"><span class="grow"><span class="t">${esc(t.name)}</span><span class="s">${esc(t.sport)} · ${esc(t.format)} · ${esc(t.city)}</span><span class="s">${taka(t.fee)} per team · ${esc(t.dates)}</span></span>${r?pill(r.st==='pending'?'warn':'ok',r.st==='pending'?'Pending':r.st==='verifying'?'Verifying':'Registered'):left>0?pill('ok',`${left} left`):pill('idle','Closed')}</button>`;}
+
+/* ============ views ============ */
+const V={};
+V.signin=()=>{
+  const a=S.auth;
+  let body;
+  if(a.step==='phone'){
+    body=`<form data-form="phone">
+      <label class="f">Mobile number<span class="prefix"><span>+880</span><input id="ph" name="phone" inputmode="numeric" autocomplete="tel-national" placeholder="1XXX-XXXXXX" maxlength="12" value="${esc(a.phone)}"></span></label>
+      ${a.mode==='register'?`<label class="f">Your name<input id="rn" name="name" autocomplete="name" placeholder="Full name" value="${esc(a.name)}"></label>
+      <label class="f">City<select id="rc" name="city">${Object.keys(CITIES).map(c=>`<option${a.city===c?' selected':''}>${c}</option>`).join('')}</select></label>`:''}
+      ${a.err?`<p class="err">${esc(a.err)}</p>`:''}
+      <button class="btn pri block" type="submit">${a.mode==='register'?'Create Sportzy ID':'Send code'}</button></form>
+      <p class="small muted" style="text-align:center">${a.mode==='register'?'Already have a Sportzy ID? <button class="link" data-act="authMode" data-arg="login" style="color:var(--accent);font-weight:700">Sign in</button>':'New to Sportzy? <button class="link" data-act="authMode" data-arg="register" style="color:var(--accent);font-weight:700">Create your Sportzy ID</button>'}</p>`;
+  } else {
+    body=`<div class="card" style="display:flex;flex-direction:column;gap:4px"><b>Enter the 6-digit code</b><span class="small muted">Sent by SMS to +880 ${esc(a.phone)}. <button class="link" data-act="authBack" style="color:var(--accent);font-weight:700">Change number</button></span></div>
+      <form data-form="otp"><input id="otp" name="otp" class="f otp" style="border:1px solid var(--line);border-radius:10px;background:var(--raised);color:var(--fg);width:100%" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" aria-label="Verification code">
+      ${a.err?`<p class="err">${esc(a.err)}</p>`:''}
+      <button class="btn pri block" type="submit" ${a.tries>=3?'disabled':''}>Verify</button></form>
+      <p class="small muted" style="text-align:center">${a.resend>0?`Resend code in <span class="num" data-bind="resend">${a.resend}</span> s`:`<button class="link" data-act="resend" style="color:var(--accent);font-weight:700">Resend code</button>`} · Demo code 123456</p>`;
+  }
+  return {bare:true,body:`<div class="signin">
+    <div class="brand"><div class="wordmark"><i></i>Sportzy</div><span>Player</span></div>
+    <p class="muted">Book turfs, join games and enter tournaments. One Sportzy ID for the Sportzy website, Scorezy and Streemzy.</p>
+    ${body}</div>`};
+};
+V.home=()=>{
+  const u=S.user, up=S.bookings.filter(b=>['confirmed','verifying'].includes(b.st)&&minsUntil(b.day,b.hours[0])>0).sort((a,b)=>minsUntil(a.day,a.hours[0])-minsUntil(b.day,b.hours[0]));
+  const nb=up[0], vs=VENUES.filter(v=>v.city===S.f.city);
+  let h=`<section class="sec" style="gap:6px"><p class="eyebrow">Mon 2 Nov · ${esc(S.f.city)}</p><h1 class="h1">Good evening, ${esc(u.name.split(' ')[0])}</h1></section>`;
+  if(S.pay&&['held','failed'].includes(S.pay.st)) h+=`<button class="holdbar" data-go="checkout" style="text-align:left"><span><b data-bind="hold">${mmss(S.pay.exp)}</b><span class="small" style="display:block">left to pay for your held ${S.pay.kind==='booking'?'slots':'team slot'}</span></span>${ic('chev',18)}</button>`;
+  if(nb){const v=venue(nb.v);h+=sec('Next booking',`<button class="card" data-go="b-${nb.id}" style="display:flex;flex-direction:column;gap:6px;text-align:left"><span style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="font-size:17px">${esc(v.name)}</b>${bookingStatus(nb)}</span><span class="small muted">${dayName(nb.day)} · ${range(nb.hours)} · ${esc(v.area)}</span><span style="font-family:var(--f-display);font-size:24px;font-weight:700;color:var(--accent)" data-bind="until:${nb.id}">${until(nb.day,nb.hours[0])}</span></button>`);}
+  h+=`<button class="btn block" data-go="turfs" style="justify-content:flex-start;color:var(--muted)">${ic('search',18)}Search turfs, sports or areas</button>`;
+  h+=sec(`Turfs in ${esc(S.f.city)}`,vs.length?`<div class="hscroll">${vs.map(vcard).join('')}</div>`:`<div class="card empty"><b>No turfs here yet</b></div>`,`<button class="link" data-go="turfs">See all</button>`);
+  const ts=Object.values(S.tours).filter(t=>t.teams<t.limit).slice(0,2);
+  h+=sec('Tournaments open',`<div class="list">${ts.map(tourRow).join('')}</div>`,`<button class="link" data-go="tours">All</button>`);
+  const gs=Object.values(S.games).filter(g=>g.day<=1&&venue(g.v).city===S.f.city);
+  h+=sec('Open games soon',gs.length?`<div class="list">${gs.map(gameRow).join('')}</div>`:`<div class="card empty"><b>No open games nearby</b></div>`,`<button class="link" data-go="games">All</button>`);
+  return {title:'Home',tab:'home',body:h};
+};
+V.turfs=()=>{
+  const f=S.f, areas=CITIES[f.city]||[];
+  const res=VENUES.filter(v=>v.city===f.city&&(!f.area||v.area===f.area)&&(!f.sport||v.sports.includes(f.sport))&&v.off<=f.max&&openCount(v,f.day)>0);
+  let h=`<div class="grid2"><label class="f">City<select id="fcity" data-filter="city">${Object.keys(CITIES).map(c=>`<option${f.city===c?' selected':''}>${c}</option>`).join('')}</select></label>
+    <label class="f">Area<select id="farea" data-filter="area"><option value="">All areas</option>${areas.map(a=>`<option${f.area===a?' selected':''}>${a}</option>`).join('')}</select></label></div>
+  <div class="chips" role="group" aria-label="Sport"><button class="fchip" aria-pressed="${!f.sport}" data-act="fsport" data-arg="">All sports</button>${SPORTS.map(s=>`<button class="fchip" aria-pressed="${f.sport===s}" data-act="fsport" data-arg="${s}">${s}</button>`).join('')}</div>
+  <label class="f">Price up to <span style="color:var(--fg)"><span id="fmaxv">${taka(f.max)}</span> per hour (off-peak)</span><input id="fmax" type="range" min="500" max="4000" step="250" value="${f.max}" data-filter="max"></label>
+  ${sec('Open slots on',`<div class="daystrip">${DAYS.map((d,i)=>`<button class="day${f.day===i?' on':''}" data-act="fday" data-arg="${i}"><small>${i===0?'Today':d[0]}</small><b>${d[1]}</b></button>`).join('')}</div>`)}`;
+  h+=sec(`${res.length} turf${res.length===1?'':'s'} with open slots ${f.day===0?'today':'on '+dayName(f.day)}`,res.length?`<div class="list">${res.map(v=>venueRow(v,f.day)).join('')}</div>`
+    :`<div class="card empty">${ic('search',28)}<b>No turfs match</b><span>Try another area, sport, price or date.</span><button class="btn sm" data-act="fclear">Clear filters</button></div>`);
+  return {title:'Find a turf',tab:'turfs',body:h};
+};
+V.v=id=>{
+  const v=venue(id); if(!v) return {title:'Venue',back:'turfs',tab:'turfs',body:`<div class="empty"><b>Venue not found</b></div>`};
+  if(S.vid!==id){S.vid=id;S.sel=[];S.selErr=null;}
+  const d=S.vday;
+  let h=`${art(v,true)}<section class="sec" style="gap:4px"><h1 class="h1">${esc(v.name)}</h1><p class="muted small" style="display:flex;gap:4px;align-items:center">${ic('pin',14)}${esc(v.addr)}, ${esc(v.area)}, ${esc(v.city)}</p>
+    <p style="display:flex;gap:12px;align-items:center"><span class="rating">${ic('star',14)}${v.rating} <span class="muted" style="font-weight:500">(${v.reviews})</span></span><span class="small muted">Off-peak ${taka(v.off)} · Peak ${taka(v.peak)} per hour</span></p></section>
+  <div class="facs">${v.facs.map(x=>`<span>${esc(x)}</span>`).join('')}</div>`;
+  h+=sec('Pick a date',`<div class="daystrip">${DAYS.map((x,i)=>`<button class="day${d===i?' on':''}" data-act="vday" data-arg="${i}"><small>${i===0?'Today':x[0]}</small><b>${x[1]}</b></button>`).join('')}</div>`);
+  if(S.selErr) h+=`<div class="banner warn">${ic('warn',18)}<div>${esc(S.selErr)}</div></div>`;
+  h+=sec(`Slots · ${dayName(d)}`,`<div class="slots">${HOURS.map(hr=>{const st=S.sel.includes(hr)?'sel':slotState(v,d,hr);const lab={open:`<b>${taka(priceOf(v,hr))}</b>`,sel:taka(priceOf(v,hr)),booked:'Booked',past:'Past',held:'On hold',mine:'Your hold',yours:'Booked by you'}[st];
+      const dis=['booked','past','held','yours','mine'].includes(st);
+      return `<button class="slot ${st}${isPeak(hr)?' peak':''}" data-act="slot" data-arg="${hr}" ${dis?'disabled':''} aria-pressed="${st==='sel'}"><span class="num">${hhmm(hr)}</span><small>${lab}</small></button>`;}).join('')}</div>
+    <div class="legend"><span><i></i>Open</span><span><i class="l-sel"></i>Selected</span><span><i class="l-held"></i>On hold</span><span><i class="l-booked"></i>Booked</span><span style="color:var(--warn)">Peak from 17:00</span></div>`);
+  h+=sec('Cancellation policy',`<div class="card small">Cancel more than 24 hours before your slot for a full refund to your original payment method. Inside 24 hours, no refund.</div>`);
+  h+=sec('House rules',`<ul class="rules"><li>Arrive 10 minutes early and show your booking code at the desk.</li><li>Turf shoes only. No metal studs.</li><li>Slots end on the hour so the next group can start.</li></ul>`);
+  if(S.sel.length){const total=S.sel.reduce((a,hr)=>a+priceOf(v,hr),0);
+    h+=`<div class="selbar"><div class="grow"><b>${range(S.sel)} · ${taka(total)}</b><span class="small muted">${S.sel.length} hour${S.sel.length>1?'s':''} · ${dayName(d)}</span></div><button class="btn pri" data-act="hold">Hold ${S.sel.length>1?'slots':'slot'}</button></div>`;}
+  return {title:v.name,back:'turfs',tab:'turfs',body:h};
+};
+function payPanel(){
+  const p=S.pay;
+  if(!p) return {title:'Checkout',back:'home',tab:null,body:`<div class="card empty">${ic('card',28)}<b>Nothing to pay</b><span>Hold a slot on a venue page, or register a team for a tournament.</span><button class="btn" data-go="turfs">Find a turf</button></div>`};
+  const back=p.kind==='booking'?'v-'+p.v:'tr-'+p.tid;
+  if(p.st==='expired') return {title:'Hold expired',back,tab:null,body:`<div class="card empty">${ic('clock',32)}<b>Your hold expired</b><span>${p.kind==='booking'?'The slots were released so others can book them. Nothing was charged.':'The team slot was released. Nothing was charged.'}</span><button class="btn pri" data-act="afterExpire">${p.kind==='booking'?'Pick a new slot':'Back to tournament'}</button></div>`};
+  const lines=p.kind==='booking'?p.hours.map(hr=>`<dt>${hhmm(hr)}–${hhmm(hr+1)}${isPeak(hr)?' · peak':''}</dt><dd class="num">${taka(priceOf(venue(p.v),hr))}</dd>`).join(''):`<dt>Entry fee · ${esc(p.team)}</dt><dd class="num">${taka(p.amount)}</dd>`;
+  let h=`<div class="holdbar"><span class="small"><span style="display:block;font-weight:700">${p.kind==='booking'?'Slots held for you':'Team slot held for you'}</span>Pay before the timer runs out.</span><b data-bind="hold">${mmss(p.exp)}</b></div>
+  <section class="card" style="display:flex;flex-direction:column;gap:10px"><div><p class="eyebrow">${p.kind==='booking'?'Turf booking':'Tournament registration'}</p><b style="font-size:17px">${esc(p.title)}</b><p class="small muted">${esc(p.sub)}</p></div>
+    <dl class="kv">${lines}<dt style="font-weight:700;color:var(--fg)">Total</dt><dd class="num" style="font-size:17px">${taka(p.amount)}</dd></dl></section>`;
+  if(p.st==='failed') h+=`<div class="banner live">${ic('warn',18)}<div><b>Payment didn't go through</b>Nothing was charged. Your hold is still active, so try again or pay with send money.</div></div>`;
+  h+=`<div class="seg" role="tablist" aria-label="Payment method">${[['qr','QR Pay BD'],['trx','Send money (TrxID)']].map(([k,l])=>`<button role="tab" aria-selected="${p.method===k}" class="${p.method===k?'on':''}" data-act="method" data-arg="${k}">${l}</button>`).join('')}</div>`;
+  if(p.method==='qr'){
+    h+=`<div class="card paybox">${p.st==='processing'?`<span class="spinner" style="width:36px;height:36px;border-width:3px"></span><b>Confirming with QR Pay BD…</b>`:`<canvas class="qr" width="29" height="29" data-seed="${p.seed}" aria-label="QR Pay BD code"></canvas><b>Scan with any QR Pay BD app</b><span class="small muted">Pay ${taka(p.amount)} to Sportzy. This page updates on its own when the payment lands.</span><button class="btn pri block" data-act="payQR">Simulate successful payment</button>`}</div>`;
+  } else {
+    h+=`<form class="card" data-form="trx"><ol class="steps"><li>Open your mobile banking app and choose <b>Send money</b>.</li><li>Send <b>${taka(p.amount)}</b> to the Sportzy merchant number shown in the app (example: 01XXX-XXXXXX).</li><li>Enter the TrxID from the confirmation SMS.</li></ol>
+      <label class="f">TrxID<input id="trx" name="trx" class="mono" autocomplete="off" autocapitalize="characters" maxlength="12" placeholder="e.g. 9K7XQ2M4PL"></label>
+      ${p.trxErr?`<p class="err">${esc(p.trxErr)}</p>`:''}
+      <button class="btn pri block" type="submit">Submit TrxID</button><p class="small muted">We check it with the operator. Verification usually takes a few minutes, and your slot stays reserved meanwhile.</p></form>`;
+  }
+  h+=`<button class="btn ghost block" data-act="release">Release hold</button>`;
+  return {title:'Pay',back,tab:null,body:h};
+}
+V.checkout=()=>payPanel();
+V.done=()=>{
+  const p=S.pay; if(!p||!['confirmed','verifying'].includes(p.st)) return V.home();
+  if(p.kind==='reg'){const t=S.tours[p.tid],r=S.regs[p.tid];
+    return {title:'Registration sent',back:'tours',tab:'tours',body:`<div class="card" style="display:flex;flex-direction:column;gap:12px;text-align:center"><div class="bigcheck${r.st==='verifying'?' wait':''}">${r.st==='verifying'?'<span class="spinner" style="width:28px;height:28px"></span>':ic('check',30)}</div>
+      <b style="font-size:19px">${r.st==='verifying'?'Verifying your payment':'Payment received'}</b><p class="small muted">${esc(r.team)} · ${esc(t.name)}</p>
+      <div class="banner info" style="text-align:left">${ic('info',18)}<div><b>Next: organiser approval</b>${esc(t.org)} reviews your squad. You'll get a notification when your team is approved.</div></div></div>
+      <div class="btn-row"><button class="btn" data-go="tr-${t.id}">View tournament</button><button class="btn pri" data-act="meTab" data-arg="games">My teams</button></div>`};}
+  const b=S.bookings.find(x=>x.id===p.bid), v=venue(b.v);
+  return {title:b.st==='verifying'?'Verifying payment':'Booking confirmed',back:'home',tab:'home',body:`<div class="card" style="display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center">
+    ${b.st==='verifying'?`<div class="bigcheck wait"><span class="spinner" style="width:28px;height:28px"></span></div><b style="font-size:19px">Checking your TrxID</b><p class="small muted">Your slots stay reserved while we verify. This usually takes a few minutes.</p>`
+    :`<div class="bigcheck">${ic('check',30)}</div><b style="font-size:19px">You're booked</b><canvas class="qr" width="29" height="29" data-seed="${b.code.charCodeAt(4)*977}" style="width:140px;height:140px" aria-label="Check-in code"></canvas><div class="code">${b.code}</div><p class="small muted">Show this at the desk to check in.</p>`}
+    <dl class="kv" style="width:100%;text-align:left"><dt>Venue</dt><dd>${esc(v.name)}</dd><dt>When</dt><dd>${dayName(b.day)} · ${range(b.hours)}</dd><dt>${b.st==='verifying'?'Amount':'Paid'}</dt><dd class="num">${taka(b.amount)} · ${esc(b.method.split(' · ')[0])}</dd></dl></div>
+    <div class="btn-row"><button class="btn" data-act="calendar">Add to calendar</button><button class="btn pri" data-go="b-${b.id}">View booking</button></div>`};
+};
+V.tours=()=>{
+  const f=S.tf, ts=Object.values(S.tours).filter(t=>(!f.sport||t.sport===f.sport)&&(!f.city||t.city===f.city));
+  return {title:'Tournaments',tab:'tours',body:`<div class="chips"><button class="fchip" aria-pressed="${!f.sport}" data-act="tsport" data-arg="">All</button>${['Cricket','Futsal','Football'].map(s=>`<button class="fchip" aria-pressed="${f.sport===s}" data-act="tsport" data-arg="${s}">${s}</button>`).join('')}</div>
+    <label class="f">City<select id="tcity" data-tfilter="city"><option value="">All cities</option>${Object.keys(CITIES).map(c=>`<option${f.city===c?' selected':''}>${c}</option>`).join('')}</select></label>
+    ${ts.length?`<div class="list">${ts.map(tourRow).join('')}</div>`:`<div class="card empty"><b>No tournaments match</b><span>Try another sport or city.</span></div>`}`};
+};
+V.tr=id=>{
+  const t=S.tours[id]; if(!t) return {title:'Tournament',back:'tours',tab:'tours',body:`<div class="empty"><b>Not found</b></div>`};
+  const left=t.limit-t.teams, r=S.regs[id];
+  let h=`<section class="sec" style="gap:6px"><p class="eyebrow">${esc(t.org)}</p><h1 class="h1">${esc(t.name)}</h1><p class="small muted">${esc(t.sport)} · ${esc(t.format)}</p></section>
+  <dl class="card kv"><dt>Dates</dt><dd>${esc(t.dates)}</dd><dt>Venue</dt><dd>${esc(t.venue)}</dd><dt>Entry fee</dt><dd class="num">${taka(t.fee)} per team</dd><dt>Squad</dt><dd>${t.min}–${t.max} players</dd><dt>Teams</dt><dd class="num">${t.teams} of ${t.limit}</dd><dt>Registration</dt><dd>${esc(t.closes)}</dd></dl>`;
+  if(r) h+=`<div class="banner ${r.st==='approved'?'info':'warn'}">${ic(r.st==='approved'?'check':'clock',18)}<div><b>${esc(r.team)} · ${r.st==='verifying'?'Verifying payment':r.st==='pending'?'Pending organiser approval':'Approved'}</b>Captain: you · ${r.players.length+1} players</div></div>`;
+  else if(left<=0) h+=`<div class="banner info">${ic('info',18)}<div><b>Registration closed</b>All ${t.limit} team places are taken.</div></div>`;
+  else h+=`<button class="btn pri block" data-go="reg-${id}">${ic('users',18)}Register a team · ${taka(t.fee)}</button><p class="small muted">${left} team place${left>1?'s':''} left. You register as captain and pay the entry fee with QR Pay BD or send money.</p>`;
+  h+=sec('Rules',`<ul class="rules"><li>Squad of ${t.min} to ${t.max}, named at registration. Changes need organiser approval.</li><li>Entry fee is refunded in full if the organiser rejects your team.</li><li>Fixtures are published once registration closes.</li></ul>`);
+  return {title:t.name,back:'tours',tab:'tours',body:h};
+};
+V.reg=id=>{
+  const t=S.tours[id];
+  if(!t) return V.tours();
+  if(S.regs[id]) return V.tr(id);
+  if(t.teams>=t.limit) return V.tr(id);
+  if(!S.reg||S.reg.tid!==id) S.reg={tid:id,team:'',players:['Rakib Hossain','Shuvo Das','Mahin Karim','Asif Mahmud'],err:null};
+  const r=S.reg;
+  return {title:'Register a team',back:'tr-'+id,tab:'tours',body:`<p class="muted">${esc(t.name)} · squad of ${t.min} to ${t.max} including you.</p>
+    <form data-form="reg"><label class="f">Team name<input id="rteam" name="team" maxlength="40" placeholder="e.g. Mirpur Mavericks" value="${esc(r.team)}"></label>
+    <div class="sec"><div class="sec-h"><h3>Squad · ${r.players.filter(x=>x.trim()).length+1} of ${t.min}–${t.max}</h3></div>
+    <div class="squad"><span class="n">1</span><input value="${esc(S.user.name)} (captain)" disabled aria-label="Captain"></div>
+    ${r.players.map((p,i)=>`<div class="squad"><span class="n">${i+2}</span><input data-squad id="sq${i}" value="${esc(p)}" placeholder="Player name or Sportzy ID phone" aria-label="Player ${i+2}"><button type="button" class="iconbtn" data-act="rmPlayer" data-arg="${i}" aria-label="Remove player ${i+2}">${ic('x',18)}</button></div>`).join('')}
+    ${r.players.length+1<t.max?`<button type="button" class="btn sm" data-act="addPlayer" style="align-self:flex-start">${ic('plus',16)}Add player</button>`:''}</div>
+    ${r.err?`<p class="err">${esc(r.err)}</p>`:''}
+    <button class="btn pri block" type="submit">Continue to payment · ${taka(t.fee)}</button>
+    <p class="small muted">Players get an invite to confirm on their own Sportzy ID.</p></form>`};
+};
+V.games=()=>{
+  const gs=Object.values(S.games).filter(g=>venue(g.v).city===S.f.city).sort((a,b)=>a.day-b.day||a.h-b.h);
+  return {title:'Open games',tab:'games',body:`<p class="muted">Public matches looking for players in ${esc(S.f.city)}. Ask to join and the host confirms.</p>${gs.length?`<div class="list">${gs.map(gameRow).join('')}</div>`:`<div class="card empty"><b>No open games in ${esc(S.f.city)}</b></div>`}`};
+};
+V.g=id=>{
+  const g=S.games[id]; if(!g) return V.games();
+  const v=venue(g.v), st=S.req[id], full=g.filled>=g.spots, filled=g.filled+(st==='accepted'?1:0);
+  let h=`<section class="sec" style="gap:6px"><p class="eyebrow">${dayName(g.day)} · ${hhmm(g.h)}–${hhmm(g.h+1)}</p><h1 class="h1">${esc(g.sport)} · ${esc(g.fmt)}</h1><p class="small muted">${esc(v.name)}, ${esc(v.area)}</p></section>
+  <dl class="card kv"><dt>Host</dt><dd>${esc(g.host)}</dd><dt>Level</dt><dd>${esc(g.level)}</dd><dt>Players</dt><dd class="num">${filled} of ${g.spots}</dd><dt>Cost</dt><dd class="num">${taka(g.cost)} per player · pay the host</dd></dl>
+  <div class="spots" aria-hidden="true">${Array.from({length:g.spots},(_,i)=>`<i class="${i<filled?'':'f'}"></i>`).join('')}</div>`;
+  if(st) h+=`<div class="banner ${st==='accepted'?'info':st==='declined'?'live':'warn'}">${ic(st==='accepted'?'check':st==='declined'?'x':'clock',18)}<div><b>${{requested:'Request sent',accepted:"You're in",waitlisted:"You're on the waitlist",declined:'Request declined'}[st]}</b>${{requested:`Waiting for ${esc(g.host.split(' ')[0])} to confirm.`,accepted:`See you at ${hhmm(g.h)}. Bring ${taka(g.cost)} for the host.`,waitlisted:'You get the next spot that opens. We notify you.',declined:'The host picked a full squad. Try another game.'}[st]}</div></div>`;
+  if(!st) h+=full?`<button class="btn block" data-act="join" data-arg="${id}">${ic('clock',18)}Join the waitlist</button>`:`<button class="btn pri block" data-act="join" data-arg="${id}">${ic('users',18)}Ask to join</button>`;
+  else if(st!=='declined') h+=`<button class="btn ghost block" data-act="withdraw" data-arg="${id}">${st==='accepted'?'Leave game':'Withdraw request'}</button>`;
+  const roster=g.roster.length?g.roster:Array.from({length:g.filled},(_,i)=>`Player ${i+1}`);
+  h+=sec('Roster',`<div class="list">${roster.map((p,i)=>`<div class="row"><span class="grow"><span class="t">${esc(p)}</span></span>${i===0?pill('idle','Host'):''}</div>`).join('')}${st?`<div class="row"><span class="grow"><span class="t">You</span></span>${reqPill(st)}</div>`:''}</div>`);
+  return {title:`${g.sport} · ${hhmm(g.h)}`,back:'games',tab:'games',body:h};
+};
+V.me=()=>{
+  const u=S.user, t=S.meTab;
+  let h=`<div class="card" style="display:flex;gap:12px;align-items:center"><span class="avatar" style="width:46px;height:46px;display:grid;place-items:center;font-size:17px">${esc(u.name.split(' ').map(x=>x[0]).join('').slice(0,2))}</span><div style="min-width:0"><b>${esc(u.name)}</b><p class="small muted">Sportzy ID · +880 ${esc(u.phone)} · ${esc(u.city)}</p></div></div>
+  <div class="seg" role="tablist">${[['bookings','Bookings'],['payments','Payments'],['games','Games & teams']].map(([k,l])=>`<button role="tab" aria-selected="${t===k}" class="${t===k?'on':''}" data-act="meTab" data-arg="${k}">${l}</button>`).join('')}</div>`;
+  if(t==='bookings'){
+    const up=S.bookings.filter(b=>['confirmed','verifying'].includes(b.st)&&minsUntil(b.day,b.hours[0])>0), can=S.bookings.filter(b=>b.st==='cancelled'), past=S.bookings.filter(b=>b.st==='completed'||(b.st==='confirmed'&&minsUntil(b.day,b.hours[0])<=0));
+    h+=sec('Upcoming',up.length?`<div class="list">${up.map(bookingRow).join('')}</div>`:`<div class="card empty"><b>No upcoming bookings</b><button class="btn sm" data-go="turfs">Find a turf</button></div>`);
+    if(can.length) h+=sec('Cancelled',`<div class="list">${can.map(bookingRow).join('')}</div>`);
+    if(past.length) h+=sec('Past',`<div class="list">${past.map(bookingRow).join('')}</div>`);
+  } else if(t==='payments'){
+    h+=`<div class="list">${S.payments.map(p=>`<div class="row"><span class="grow"><span class="t">${esc(p.what)}</span><span class="s">${esc(p.at)} · ${esc(p.method)}</span></span><span style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="num" style="font-weight:700">${p.st==='Refunded'||p.st==='Refund processing'?'+':''}${taka(p.amount)}</span>${pill({Paid:'ok',Verifying:'warn',Refunded:'ok','Refund processing':'warn',Failed:'live'}[p.st]||'idle',p.st)}</span></div>`).join('')}</div><p class="small muted">Refunds go back to the original payment method within 3–5 working days.</p>`;
+  } else {
+    const mg=Object.keys(S.req).map(id=>S.games[id]);
+    h+=sec('My games',mg.length?`<div class="list">${mg.map(gameRow).join('')}</div>`:`<div class="card empty"><b>No game requests yet</b><button class="btn sm" data-go="games">Browse open games</button></div>`);
+    const rs=Object.entries(S.regs);
+    h+=sec('My tournament teams',rs.length?`<div class="list">${rs.map(([tid,r])=>`<button class="row" data-go="tr-${tid}"><span class="grow"><span class="t">${esc(r.team)}</span><span class="s">${esc(S.tours[tid].name)} · ${r.players.length+1} players</span></span>${pill('warn',r.st==='verifying'?'Verifying':'Pending approval')}</button>`).join('')}</div>`:`<div class="card empty"><b>No teams yet</b><button class="btn sm" data-go="tours">Find a tournament</button></div>`);
+  }
+  h+=`<div class="list"><button class="row" data-act="sheet" data-arg="city">${ic('pin')}<span class="grow"><span class="t">Home city</span><span class="s">${esc(S.f.city)}</span></span>${ic('chev',18)}</button><button class="row" data-act="signout">${ic('out')}<span class="grow"><span class="t">Sign out</span></span></button></div>`;
+  return {title:'Me',tab:'me',body:h};
+};
+V.b=id=>{
+  const b=S.bookings.find(x=>x.id===id); if(!b) return V.me();
+  const v=venue(b.v), m=minsUntil(b.day,b.hours[0]), upcoming=['confirmed','verifying'].includes(b.st)&&m>0, refundable=m>24*60;
+  let h=`<section class="card" style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><div><p class="eyebrow">Booking ${b.code}</p><b style="font-size:19px">${esc(v.name)}</b><p class="small muted">${esc(v.addr)}, ${esc(v.area)}</p></div>${bookingStatus(b)}</div>
+    ${b.st==='confirmed'&&upcoming?`<div style="display:flex;gap:14px;align-items:center"><canvas class="qr" width="29" height="29" data-seed="${b.code.charCodeAt(4)*977}" style="width:96px;height:96px;flex:none" aria-label="Check-in code"></canvas><div><div class="code" style="font-size:24px">${b.code}</div><p class="small muted">Show at the desk to check in.</p><p class="small" style="color:var(--accent);font-weight:700" data-bind="until:${b.id}">${until(b.day,b.hours[0])}</p></div></div>`:''}
+    <dl class="kv"><dt>When</dt><dd>${dayName(b.day)} · ${range(b.hours)}</dd><dt>Paid</dt><dd class="num">${taka(b.amount)}</dd><dt>Method</dt><dd>${esc(b.method)}</dd>${b.refund?`<dt>Refund</dt><dd>${b.refund==='none'?'No refund (inside 24 h)':b.refund==='processing'?'Processing · 3–5 working days':'Refunded '+taka(b.amount)}</dd>`:''}</dl></section>`;
+  if(upcoming){
+    if(b.st==='verifying') h+=`<div class="banner warn">${ic('clock',18)}<div><b>Payment is being verified</b>You can cancel once it's confirmed.</div></div>`;
+    else if(S.cancelAsk===id) h+=`<div class="confirm"><b>Cancel this booking?</b><p class="small">${refundable?`It's more than 24 hours away, so you get a full refund of <b>${taka(b.amount)}</b> to ${b.method.startsWith('Send money')?'your mobile banking account':'your QR Pay BD account'} within 3–5 working days.`:`It starts ${until(b.day,b.hours[0])}, which is inside 24 hours. Under the cancellation policy <b>no refund applies</b>.`}</p><div class="btn-row"><button class="btn" data-act="cancelNo">Keep booking</button><button class="btn danger" data-act="cancelYes" data-arg="${id}">${refundable?'Cancel and refund':'Cancel without refund'}</button></div></div>`;
+    else h+=`<button class="btn block" data-act="cancelAsk" data-arg="${id}" style="color:var(--live);border-color:var(--live)">Cancel booking</button><p class="small muted">${refundable?'Free cancellation until 24 hours before the slot.':'Inside 24 hours: cancelling now gives no refund.'}</p>`;
+  }
+  h+=`<button class="btn block" data-go="v-${v.id}">Book ${esc(v.name)} again</button>`;
+  return {title:'Booking',back:'me',tab:'me',body:h};
+};
+
+/* ============ sheets ============ */
+function sheetHTML(){
+  const sh=S.sheet; if(!sh) return '';
+  let h='';
+  if(sh.type==='city') h=`<h3>Home city</h3><div class="list">${Object.keys(CITIES).map(c=>`<button class="row" data-act="setCity" data-arg="${c}"><span class="grow"><span class="t">${c}</span><span class="s">${VENUES.filter(v=>v.city===c).length} turfs</span></span>${S.f.city===c?`<span style="color:var(--accent)">${ic('check',18)}</span>`:''}</button>`).join('')}</div>`;
+  return `<div class="scrim" data-act="closeSheet"><div class="sheet" data-act="noop" role="dialog" aria-modal="true"><div class="grab"></div>${h}</div></div>`;
+}
+
+/* ============ routing + render ============ */
+function parse(r){const i=r.indexOf('-');if(i<0)return[r,null];return [r.slice(0,i),r.slice(i+1)];}
+function view(){const [b,id]=parse(S.route);const fn=V[b];return fn?fn(id):V.home();}
+function tabsHTML(cur){
+  const t=[['home','Home','home'],['turfs','Turfs','search'],['tours','Tournaments','trophy'],['games','Games','users'],['me','Me','user']];
+  return `<nav class="tabbar" aria-label="Main">${t.map(([r,l,i])=>`<button data-go="${r}" class="${cur===r?'on':''}"${cur===r?' aria-current="page"':''}>${ic(i,22)}<span>${l}</span></button>`).join('')}</nav>`;
+}
+function render(){
+  const old=$('.content'), st=old?old.scrollTop:0, same=S.lastRoute===S.route;
+  const v=view();
+  let h=`<div class="statusbar"><span class="num">19:12</span><span class="sb-r"><span class="sb-batt"><i></i></span></span></div>`;
+  if(v.bare) h+=`<div class="content bare">${v.body}</div>`;
+  else h+=`<header class="hdr">${v.back?`<button class="iconbtn" data-go="${v.back}" aria-label="Back">${ic('back')}</button>`:''}<div class="hdr-t"><span class="hdr-org">Sportzy Player</span><h2>${esc(v.title)}</h2></div><button class="avatar" data-act="sheet" data-arg="city" aria-label="Change city" style="width:auto;padding:0 12px;border-radius:999px;font-size:13px">${esc(S.f.city)}</button></header>
+    <main class="content">${v.body}</main>${v.tab!==null?tabsHTML(v.tab):''}`;
+  h+=sheetHTML();
+  $('#screen').innerHTML=h;
+  const c=$('.content'); if(c&&same) c.scrollTop=st;
+  S.lastRoute=S.route; S.dirty=false; drawQRs();
+}
+function patch(){
+  document.querySelectorAll('[data-bind]').forEach(el=>{
+    const [k,a]=el.dataset.bind.split(':'); let v=null;
+    if(k==='hold'&&S.pay) v=mmss(S.pay.exp);
+    else if(k==='resend') v=S.auth.resend;
+    else if(k==='until'){const b=S.bookings.find(x=>x.id===a); if(b) v=until(b.day,b.hours[0]);}
+    if(v!=null&&el.textContent!==String(v)) el.textContent=v;
+  });
+}
+function go(r){ if(location.hash.slice(1)===r) onHash(); else location.hash=r; }
+function onHash(){
+  let r=location.hash.slice(1)||'';
+  if(!S.user&&r&&r!=='signin'){S.user={...DEMO_USER};save();}
+  if(!r) r=S.user?'home':'signin';
+  if(S.user&&r==='signin'&&S.route&&S.route!=='signin'){/* allow viewing sign in again */ S.user=null;S.auth=seed().auth;save();}
+  if(S.route!==r){S.cancelAsk=null;S.sheet=null;S.selErr=null;}
+  S.route=r; render();
+}
+
+/* ============ actions ============ */
+function confirmPayment(method){
+  const p=S.pay;
+  if(p.kind==='booking'){
+    const id='b'+(S.bookings.length+10);
+    S.bookings.push({id,code:'SPZ-'+code5(),v:p.v,day:p.day,hours:p.hours.slice(),amount:p.amount,st:method==='trx'?'verifying':'confirmed',method:method==='trx'?`Send money · TrxID ${p.trx}`:'QR Pay BD',refund:null});
+    const pid='p'+(S.payments.length+10);
+    S.payments.unshift({id:pid,what:`${venue(p.v).name} · ${dayName(p.day)} ${range(p.hours)}`,amount:p.amount,method:method==='trx'?`Send money · TrxID ${p.trx}`:'QR Pay BD',st:method==='trx'?'Verifying':'Paid',at:'2 Nov'});
+    p.bid=id; p.st=method==='trx'?'verifying':'confirmed';
+    if(method==='trx') later(6,()=>{const b=S.bookings.find(x=>x.id===id),pp=S.payments.find(x=>x.id===pid);if(b&&b.st==='verifying'){b.st='confirmed';pp.st='Paid';if(S.pay&&S.pay.bid===id)S.pay.st='confirmed';toast('TrxID verified. Your booking is confirmed.');return true;}});
+    S.sel=[];
+  } else {
+    const t=S.tours[p.tid];
+    S.regs[p.tid]={team:p.team,players:p.players,st:method==='trx'?'verifying':'pending'}; t.teams++;
+    const pid='p'+(S.payments.length+10);
+    S.payments.unshift({id:pid,what:`${t.name} · entry fee`,amount:p.amount,method:method==='trx'?`Send money · TrxID ${p.trx}`:'QR Pay BD',st:method==='trx'?'Verifying':'Paid',at:'2 Nov'});
+    p.st=method==='trx'?'verifying':'confirmed';
+    if(method==='trx') later(6,()=>{const r=S.regs[p.tid];if(r&&r.st==='verifying'){r.st='pending';S.payments.find(x=>x.id===pid).st='Paid';if(S.pay&&S.pay.tid===t.id)S.pay.st='confirmed';toast('TrxID verified. Waiting for organiser approval.');return true;}});
+    S.reg=null;
+  }
+  go('done');
+}
+const ACT={
+  noop(){}, go(a){go(a);},
+  authMode(m){S.auth.mode=m;S.auth.err=null;render();},
+  authBack(){S.auth.step='phone';S.auth.err=null;render();},
+  resend(){S.auth.resend=30;S.auth.tries=0;S.auth.err=null;toast('New code sent. Demo code is 123456.');render();},
+  signout(){S.user=null;S.auth=seed().auth;save();go('signin');},
+  sheet(t){S.sheet={type:t};render();}, closeSheet(){S.sheet=null;render();},
+  setCity(c){S.f.city=c;S.f.area='';if(S.user){S.user.city=c;save();}S.sheet=null;toast(`Showing ${c}.`);render();},
+  fsport(s){S.f.sport=s;render();}, fday(d){S.f.day=+d;render();},
+  fclear(){S.f={city:S.f.city,area:'',sport:'',max:4000,day:S.f.day};render();},
+  vday(d){S.vday=+d;S.sel=[];S.selErr=null;if(S.route.startsWith('v-'))render();},
+  slot(hr){
+    hr=+hr; const s=S.sel; S.selErr=null;
+    if(s.includes(hr)){ if(hr===s[0]||hr===s[s.length-1]) S.sel=s.filter(x=>x!==hr); else {S.selErr='Remove slots from either end of your selection.';} }
+    else if(!s.length) S.sel=[hr];
+    else if(hr===s[0]-1||hr===s[s.length-1]+1){ if(s.length>=3) S.selErr='You can book up to 3 hours in one booking.'; else S.sel=[...s,hr].sort((a,b)=>a-b); }
+    else S.selErr='Pick slots next to each other. For separate times, make two bookings.';
+    render();
+  },
+  hold(){
+    const v=venue(S.vid), d=S.vday;
+    if(S.pay&&['held','failed','processing'].includes(S.pay.st)){S.selErr=`You already have ${S.pay.kind==='booking'?'slots':'a team slot'} on hold. Pay for it or release it first.`;render();return;}
+    const gone=S.sel.filter(h=>slotState(v,d,h)!=='open');
+    if(gone.length){S.selErr=`${hhmm(gone[0])} was just booked by someone else. Pick another time.`;S.sel=S.sel.filter(h=>!gone.includes(h));render();return;}
+    const hrs=S.sel.slice();
+    S.pay={kind:'booking',v:v.id,day:d,hours:hrs,amount:hrs.reduce((a,h)=>a+priceOf(v,h),0),exp:600,st:'held',method:'qr',seed:ri(1000,99999),title:v.name,sub:`${dayName(d)} · ${range(hrs)} · ${v.unit}`};
+    S.sel=[]; toast('Held for 10 minutes. Pay to confirm.'); go('checkout');
+  },
+  method(m){S.pay.method=m;S.pay.trxErr=null;render();},
+  payQR(){const p=S.pay; if(p.exp<=0) return; p.st='processing'; render();
+    setTimeout(()=>{ if(S.pay!==p||p.st!=='processing') return; if(S.failNext){S.failNext=false;p.st='failed';S.payments.unshift({id:'pf'+Date.now(),what:p.title,amount:p.amount,method:'QR Pay BD',st:'Failed',at:'2 Nov'});render();return;} confirmPayment('qr'); },1800);},
+  release(){const p=S.pay; S.pay=null; toast(p.kind==='booking'?'Hold released. The slots are open again.':'Team slot released.'); go(p.kind==='booking'?'v-'+p.v:'tr-'+p.tid);},
+  afterExpire(){const p=S.pay;S.pay=null;go(p.kind==='booking'?'v-'+p.v:'tr-'+p.tid);},
+  calendar(){toast('Added to your calendar.');},
+  tsport(s){S.tf.sport=s;render();},
+  addPlayer(){readSquad();S.reg.players.push('');render();setTimeout(()=>{const i=$('#sq'+(S.reg.players.length-1));i&&i.focus();});},
+  rmPlayer(i){readSquad();S.reg.players.splice(+i,1);render();},
+  join(id){const g=S.games[id];
+    if(Object.entries(S.req).some(([gid,st])=>gid!==id&&st==='accepted'&&S.games[gid].day===g.day&&S.games[gid].h===g.h)){toast("You're already in another game at that time.");return;}
+    if(g.filled>=g.spots){S.req[id]='waitlisted';toast("You're on the waitlist.");render();return;}
+    S.req[id]='requested'; toast('Request sent to '+g.host.split(' ')[0]+'.');
+    later(5,()=>{if(S.req[id]!=='requested')return; S.req[id]=g.reply==='waitlisted'?'waitlisted':g.reply; toast(g.reply==='accepted'?`${g.host.split(' ')[0]} accepted you.`:g.reply==='declined'?'Your request was declined.':'Added to the waitlist.'); return true;});
+    render();},
+  withdraw(id){delete S.req[id];toast('Removed from the game.');render();},
+  meTab(k){S.meTab=k;go('me');if(S.route==='me')render();},
+  cancelAsk(id){S.cancelAsk=id;render();}, cancelNo(){S.cancelAsk=null;render();},
+  cancelYes(id){const b=S.bookings.find(x=>x.id===id), refundable=minsUntil(b.day,b.hours[0])>24*60;
+    b.st='cancelled'; b.refund=refundable?'processing':'none'; S.cancelAsk=null;
+    if(refundable){const pid='pr'+id;S.payments.unshift({id:pid,what:`Refund · ${venue(b.v).name}`,amount:b.amount,method:b.method.split(' · ')[0],st:'Refund processing',at:'2 Nov'});
+      later(8,()=>{b.refund='refunded';const p=S.payments.find(x=>x.id===pid);if(p)p.st='Refunded';toast(`Refund of ${taka(b.amount)} sent.`);return true;});
+      toast('Booking cancelled. Refund is on its way.');} else toast('Booking cancelled. No refund inside 24 hours.');
+    render();},
+  simTake(){
+    if(S.pay&&['held','failed','processing'].includes(S.pay.st)&&S.pay.kind==='booking'){toast('Your slots are on hold, so nobody else can book them.');return;}
+    if(!S.sel.length||!S.vid){toast('Open a venue and select a slot first.');if(!S.route||!S.route.startsWith('v-'))go('v-v1');return;}
+    S.sel.forEach(h=>{S.taken[`${S.vid}|${S.vday}|${h}`]=true;}); toast('Someone else just booked your selected slot. Try to hold it.');
+  },
+  simFail(){S.failNext=true;toast('The next QR Pay BD payment will fail.');},
+  simExpire(){if(S.pay&&['held','failed'].includes(S.pay.st)){S.pay.exp=1;toast('Hold expires in a second.');}else toast('Hold a slot first.');},
+  reset(){store.del('sportzy-player');init();S.route=null;location.hash='signin';onHash();toast('Demo reset.');}
+};
+function readSquad(){document.querySelectorAll('[data-squad]').forEach((el,i)=>{S.reg.players[i]=el.value;});const t=$('#rteam');if(t)S.reg.team=t.value;}
+const FORM={
+  phone(fd){const a=S.auth, ph=String(fd.get('phone')||'').replace(/\D/g,'').replace(/^880/,'').replace(/^0/,'');
+    a.phone=ph; if(a.mode==='register'){a.name=String(fd.get('name')||'').trim();a.city=fd.get('city')||'Dhaka';}
+    if(!/^1[3-9]\d{8}$/.test(ph)){a.err='Enter a Bangladesh mobile number, like 1711-000214.';render();return;}
+    if(a.mode==='register'&&a.name.length<2){a.err='Enter your name so teammates can find you.';render();return;}
+    a.err=null;a.step='otp';a.tries=0;a.resend=30;toast('Code sent by SMS. Demo code is 123456.');render();setTimeout(()=>{const i=$('#otp');i&&i.focus();});},
+  otp(fd){const a=S.auth, c=String(fd.get('otp')||'').trim();
+    if(c!=='123456'){a.tries++;a.err=a.tries>=3?'Too many tries. Request a new code.':`That code doesn't match. ${3-a.tries} ${3-a.tries===1?'try':'tries'} left.`;render();return;}
+    S.user=a.mode==='register'?{name:a.name,phone:a.phone,city:a.city}:{...DEMO_USER,phone:a.phone};
+    S.f.city=S.user.city; save(); toast(a.mode==='register'?'Your Sportzy ID is ready.':'Signed in.'); go('home');},
+  trx(fd){const p=S.pay, v=String(fd.get('trx')||'').toUpperCase().replace(/\s/g,'');
+    if(p.exp<=0) return;
+    if(!/^[A-Z0-9]{10}$/.test(v)){p.trxErr='A TrxID is 10 letters and numbers, like 9K7XQ2M4PL. Check the SMS from your bank.';render();return;}
+    if(S.usedTrx.includes(v)){p.trxErr='This TrxID was already used for another payment.';render();return;}
+    S.usedTrx.push(v); p.trx=v; p.trxErr=null; confirmPayment('trx');},
+  reg(fd){readSquad(); const r=S.reg, t=S.tours[r.tid], team=r.team.trim(), players=r.players.map(x=>x.trim()).filter(Boolean), n=players.length+1;
+    if(team.length<2){r.err='Give your team a name.';render();return;}
+    if(n<t.min){r.err=`Add ${t.min-n} more player${t.min-n>1?'s':''}. This tournament needs at least ${t.min}, including you.`;render();return;}
+    if(n>t.max){r.err=`Squads can have at most ${t.max} players.`;render();return;}
+    if(new Set(players.map(x=>x.toLowerCase())).size!==players.length){r.err='Each player can only be listed once.';render();return;}
+    if(S.pay&&['held','failed','processing'].includes(S.pay.st)){r.err='You already have a payment on hold. Finish or release it first.';render();return;}
+    r.err=null;
+    S.pay={kind:'reg',tid:t.id,team,players,amount:t.fee,exp:600,st:'held',method:'qr',seed:ri(1000,99999),title:t.name,sub:`${team} · ${n} players · captain: you`};
+    toast('Team slot held for 10 minutes.'); go('checkout');}
+};
+document.addEventListener('click',e=>{
+  const a=e.target.closest('[data-act]'), g=e.target.closest('[data-go]');
+  if(a&&!a.disabled){ if(a.dataset.act==='closeSheet'&&e.target!==a) return; const f=ACT[a.dataset.act]; if(f){ if(!g) e.preventDefault(); f(a.dataset.arg); } }
+  if(g&&!g.disabled){e.preventDefault();go(g.dataset.go);}
+});
+document.addEventListener('submit',e=>{const f=e.target.closest('form[data-form]'); if(!f) return; e.preventDefault(); FORM[f.dataset.form](new FormData(f),f);});
+document.addEventListener('change',e=>{
+  const f=e.target.closest('[data-filter]'); if(f){const k=f.dataset.filter; S.f[k]=k==='max'?+f.value:f.value; if(k==='city'){S.f.area='';if(S.user){S.user.city=f.value;save();}} render(); return;}
+  const t=e.target.closest('[data-tfilter]'); if(t){S.tf.city=t.value;render();}
+});
+document.addEventListener('input',e=>{ if(e.target.id==='fmax'){const o=$('#fmaxv'); if(o) o.textContent=taka(e.target.value);} });
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&S.sheet){S.sheet=null;render();}});
+window.addEventListener('hashchange',onHash);
+
+/* ============ clock ============ */
+setInterval(()=>{
+  if(!S) return;
+  S.secs++; let dirty=false;
+  if(S.auth.resend>0){S.auth.resend--; if(S.auth.resend===0) dirty=true;}
+  const p=S.pay;
+  if(p&&['held','failed'].includes(p.st)){p.exp--; if(p.exp<=0){p.exp=0;p.st='expired';toast('Your hold expired.');dirty=true;}}
+  S.timers=S.timers.filter(t=>{t.t--; if(t.t<=0){ if(t.fn()) dirty=true; return false;} return true;});
+  if(dirty) S.dirty=true;
+  const typing=/INPUT|SELECT|TEXTAREA/.test((document.activeElement||{}).tagName||'');
+  const [b]=parse(S.route||'');
+  const liveRoute=['home','checkout','done','me','b','g','games','tr','tours','signin'].includes(b);
+  if(S.dirty&&liveRoute&&!typing&&!S.sheet) render(); else patch();
+},1000);
+
+init(); S.route=null; onHash();
+})();
+</script>

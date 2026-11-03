@@ -27,6 +27,18 @@ The central Sportzy app connects and manages all three from one Android/iOS app,
 - An angle mixer with a pinned program screen, tap-to-switch cameras, and a Scorezy overlay toggle
 - Streaming the program feed to Streemzy, including camera drops, weak uplink, and session-check failures
 
+## Player app prototype
+
+[`docs/player-app-prototype.html`](docs/player-app-prototype.html) is a clickable, stack-neutral UI prototype of the Sportzy Player app for iOS and Android (Jira epic SPOR-110). It runs on example data and covers:
+
+- Sportzy ID sign-in with a phone number and SMS code
+- Turf search by city, area, sport, price and open slots
+- Slot booking: hold for 10 minutes, pay, then confirmed
+- Payment with QR Pay BD, or send money with a TrxID
+- Tournament team registration as captain
+- Open games you can ask to join
+- My bookings, payments and cancellations under the 24-hour refund rule
+
 ## Engineering work behind the product
 
 - **Brand and product design** — full logo and visual identity across all three products, taken through many rounds of feedback to a professional standard
