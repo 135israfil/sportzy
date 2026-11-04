@@ -2,6 +2,11 @@
 import pathlib
 
 HERE = pathlib.Path(__file__).parent
+
+# [LAUNCH] slip rule: change here if go-live moves (used by designs and videos)
+LAUNCH_DATE_BN = "১২ ডিসেম্বর"
+LAUNCH_DATE_EN = "12 Dec"
+LAUNCH_DAY_BN = "শনিবার, সন্ধ্যা ৭টা"
 LOGO = "../../brand/sportzy-mark-pitchdeck.png"
 SCR = "../../product_screens/"
 ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'

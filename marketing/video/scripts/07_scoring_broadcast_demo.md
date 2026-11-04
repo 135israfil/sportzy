@@ -8,7 +8,7 @@
 | **Formats** | 16:9 and 9:16 |
 | **Hook (first 3 s)** | "Your match, live on Facebook. From one phone." |
 | **CTA** | Message us |
-| **Production status** | Script only. Not filmed. |
+| **Production status** | Not rendered. It needs a real Streemzy/Scorezy stream recording from a consenting event. |
 
 ## Scenes
 

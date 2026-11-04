@@ -1,0 +1,20 @@
+1
+00:00:00,000 --> 00:00:03,000
+Book a turf in 60 seconds.
+
+2
+00:00:03,000 --> 00:00:15,000
+Pick area, time and sport.
+
+3
+00:00:15,000 --> 00:00:27,000
+Open slots are green. Pick one.
+
+4
+00:00:27,000 --> 00:00:38,000
+Your slot is held while you pay.
+
+5
+00:00:38,000 --> 00:00:45,000
+Booking confirmed. Send your team the link.
+

@@ -1,0 +1,20 @@
+1
+00:00:00,000 --> 00:00:03,000
+12 captains, 12 screenshots.
+
+2
+00:00:03,000 --> 00:00:15,000
+Create the tournament: fee, teams, deadline.
+
+3
+00:00:15,000 --> 00:00:27,000
+Captains pay by QR Pay BD; spots are held.
+
+4
+00:00:27,000 --> 00:00:38,000
+Fixtures, turf slots, standings.
+
+5
+00:00:38,000 --> 00:00:45,000
+Stream the final live.
+

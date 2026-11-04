@@ -8,7 +8,7 @@
 | **Formats** | 9:16 |
 | **Hook (first 3 s)** | One funny question asked at the turf, first answer within 1 second. |
 | **CTA** | Tag a friend |
-| **Production status** | Script only. Not filmed. |
+| **Production status** | Not rendered. It needs on-camera hosts at a venue. |
 
 ## Scenes
 

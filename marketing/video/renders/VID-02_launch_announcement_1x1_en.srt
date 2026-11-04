@@ -1,0 +1,16 @@
+1
+00:00:00,000 --> 00:00:03,000
+Sportzy is live.
+
+2
+00:00:03,000 --> 00:00:10,000
+See tonight's open slots, book in a minute.
+
+3
+00:00:10,000 --> 00:00:16,000
+Send your squad one link.
+
+4
+00:00:16,000 --> 00:00:20,000
+Your next match is one tap away.
+

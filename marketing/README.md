@@ -19,7 +19,7 @@ This folder is everything needed to run Sportzy's marketing from **Mon 16 Nov 20
 | `campaigns/` | One file per campaign, grouped by phase, with the objective, audience, assets, schedule, KPI and the success/kill rule. `ads.md` in each folder has the paid creatives |
 | `content/` | The 180-day calendar (CSV and summary), every caption in Bangla and English, and the copy banks |
 | `creative/` | Brand guidelines, logo files, product screens, design briefs per format, image prompts, generated images and their index |
-| `video/` | 14 production scripts, storyboards, voice-over text and editing guides |
+| `video/` | 14 production scripts, storyboards, voice-over text and editing guides, plus `renders/` (animated MP4 masters for 7 videos with no audio, made by `motion/`) |
 | `sales/` | Venue and organiser outreach kits, partnership proposals, the player kit |
 | `analytics/` | KPI definitions and dashboard spec, event tracking plan, weekly report template, `verify_plan.py` (run before each calendar edit is committed) |
 

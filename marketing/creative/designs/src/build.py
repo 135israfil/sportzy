@@ -123,9 +123,7 @@ page("DES-17_ad_tonight", 1080, 1080, atmosphere() + head() + f"""
 
 
 # ================================================================ new designs (Nov 2026)
-LAUNCH_DATE_BN = "১২ ডিসেম্বর"      # [LAUNCH] slip rule: change here if go-live moves
-LAUNCH_DATE_EN = "12 Dec"
-LAUNCH_DAY_BN = "শনিবার, সন্ধ্যা ৭টা"
+# LAUNCH_DATE_* live in kit.py (shared with the videos)
 
 SWIPE = '<div style="position:absolute;left:72px;bottom:72px;display:flex;align-items:center;gap:14px" class="mono m"><span style="font-size:24px">{n}/{t}</span><span style="width:64px;height:64px;border-radius:50%;border:2px solid var(--green);display:grid;place-items:center;color:var(--green)">' + ARROW.replace("<svg", "<svg width=28 height=28") + '</span></div>'
 RAIL = '<div style="position:absolute;left:0;right:0;top:1176px;height:3px;background:linear-gradient(90deg,rgba(47,214,123,.0),rgba(47,214,123,.7),rgba(47,214,123,.0))"></div>'

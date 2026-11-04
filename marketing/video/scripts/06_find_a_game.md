@@ -8,7 +8,7 @@
 | **Formats** | 9:16 |
 | **Hook (first 3 s)** | "New in Dhaka? No team?" |
 | **CTA** | Find a game |
-| **Production status** | Script only. Not filmed. |
+| **Production status** | Animated master rendered (no audio): `renders/VID-06_find_a_game_9x16.mp4`. The filmed opening (a player at the gate) is optional. |
 
 ## Scenes
 

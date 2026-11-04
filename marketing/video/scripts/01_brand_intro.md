@@ -8,7 +8,7 @@
 | **Formats** | 9:16 reels and TikTok; 16:9 YouTube; 1:1 feed |
 | **Hook (first 3 s)** | Floodlights slam on over a dark pitch (sound of a stadium-light thunk). |
 | **CTA** | Get notified on WhatsApp |
-| **Production status** | Script only. Not filmed. |
+| **Production status** | Animated master rendered (no audio): `renders/VID-01_brand_intro_animated_9x16.mp4`, `_1x1.mp4`, `_15s_9x16.mp4`. This is an animated cut. The filmed version described below still needs a shoot. |
 
 ## Scenes
 

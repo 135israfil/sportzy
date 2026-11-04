@@ -8,7 +8,7 @@
 | **Formats** | 9:16, 1:1, 16:9 |
 | **Hook (first 3 s)** | "Sportzy is live." Text slams in over the floodlights. |
 | **CTA** | Book now |
-| **Production status** | Script only. Not filmed. |
+| **Production status** | Animated master rendered (no audio): `renders/VID-02_launch_announcement_9x16.mp4`, `_1x1.mp4`, and `VID-02_launch_teaser_10s_9x16.mp4`. Gated by go-live. Swap in a live-site screen recording once it exists. |
 
 ## Scenes
 

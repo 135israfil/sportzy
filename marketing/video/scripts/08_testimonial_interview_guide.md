@@ -8,7 +8,7 @@
 | **Formats** | 9:16, 1:1 |
 | **Hook (first 3 s)** | The best real line from the interview, said straight to camera. |
 | **CTA** | Matches the segment |
-| **Production status** | Script only. Not filmed. |
+| **Production status** | Not rendered. Real testimonials only: interview people with written consent. |
 
 ## Scenes
 

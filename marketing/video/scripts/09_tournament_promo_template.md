@@ -8,7 +8,7 @@
 | **Formats** | 9:16, 1:1 |
 | **Hook (first 3 s)** | The trophy on the centre spot under the lights. |
 | **CTA** | Register your team |
-| **Production status** | Script only. Not filmed. |
+| **Production status** | Template rendered (no audio): `renders/VID-09_tournament_promo_9x16_sample.mp4` and `_1x1_sample.mp4`. For a real event run `python3 motion/build_videos.py fill VID-09 <tournament.json>`. |
 
 ## Scenes
 

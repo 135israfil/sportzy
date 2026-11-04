@@ -8,7 +8,7 @@
 | **Formats** | 9:16 and 16:9 |
 | **Hook (first 3 s)** | "Book a turf in 60 seconds." A timer starts on screen. |
 | **CTA** | Book now |
-| **Production status** | Script only. Not filmed. |
+| **Production status** | Animated master rendered (no audio): `renders/VID-03_how_to_book_9x16.mp4`, from the approved screens. The 90 s YouTube cut needs a live-site screen recording. The refund line was dropped until the refund policy is confirmed. |
 
 ## Scenes
 

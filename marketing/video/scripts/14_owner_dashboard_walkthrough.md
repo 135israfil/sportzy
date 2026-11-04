@@ -8,7 +8,7 @@
 | **Formats** | 16:9 |
 | **Hook (first 3 s)** | "Here is your turf on Sportzy, in 90 seconds." |
 | **CTA** | WhatsApp us |
-| **Production status** | Script only. Not filmed. |
+| **Production status** | Not rendered. It needs a capture of the live owner dashboard (SPOR-85) that shows central collection. |
 
 ## Scenes
 

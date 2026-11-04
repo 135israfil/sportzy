@@ -8,7 +8,7 @@
 | **Formats** | 9:16, 16:9 |
 | **Hook (first 3 s)** | "12 captains. 12 bKash screenshots." The phone buzzes non-stop. |
 | **CTA** | Message us |
-| **Production status** | Script only. Not filmed. |
+| **Production status** | Animated master rendered (no audio): `renders/VID-05_organiser_tournaments_9x16.mp4`. The team counts on screen are labelled SAMPLE. The 16:9 cut is still to do. |
 
 ## Scenes
 

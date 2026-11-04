@@ -8,7 +8,7 @@
 | **Formats** | 9:16, 16:9 |
 | **Hook (first 3 s)** | The best moment first: goal, save or wicket. |
 | **CTA** | Watch / Message us |
-| **Production status** | Script only. Not filmed. |
+| **Production status** | Not rendered as a full video, because it needs match footage. Its reusable 5 s bumper is rendered: `renders/VID-13_match_of_the_week_bumper_9x16_sample.mp4` (fill with `fill VID-13 <live_thumbnail.json>`). |
 
 ## Scenes
 

@@ -8,7 +8,7 @@
 | **Formats** | 9:16 |
 | **Hook (first 3 s)** | A clock hits 7:00 PM; slot cards flip in. |
 | **CTA** | Book now |
-| **Production status** | Script only. Not filmed. |
+| **Production status** | Template rendered (no audio): `renders/VID-12_tonight_in_dhaka_9x16_sample.mp4`. Make it weekly with `python3 motion/build_videos.py fill VID-12 <open_slots.json>`. |
 
 ## Scenes
 

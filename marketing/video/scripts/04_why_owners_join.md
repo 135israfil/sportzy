@@ -8,7 +8,7 @@
 | **Formats** | 16:9 (YouTube, WhatsApp share) and 9:16 |
 | **Hook (first 3 s)** | An owner looks at an empty pitch at 3 PM: "This hour earns nothing." |
 | **CTA** | List your turf / WhatsApp |
-| **Production status** | Script only. Not filmed. |
+| **Production status** | Not rendered. It needs a re-capture of the live owner dashboard, because the current owner screens show the old payment flow (see `creative/product_screens/INDEX.md`). |
 
 ## Scenes
 

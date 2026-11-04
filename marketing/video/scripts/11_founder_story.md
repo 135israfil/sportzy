@@ -8,7 +8,7 @@
 | **Formats** | 9:16, 16:9, 1:1 |
 | **Hook (first 3 s)** | The founder at a turf gate: "I visited every turf I could find." |
 | **CTA** | Follow / Book |
-| **Production status** | Script only. Not filmed. |
+| **Production status** | Not rendered. It needs the founder on camera. |
 
 ## Scenes
 
