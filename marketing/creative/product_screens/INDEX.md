@@ -18,7 +18,7 @@ The viewport files (`*-desktop.png` at 1440×900, `*-mobile.png` at 390×844 @3x
 | matchroster-desktop.png, matchroster-mobile.png | Match page: roster and requests | **Approved** (Built: SPOR-40, 41) | Clean after the test names were swapped |
 | managematch-desktop.png, managematch-mobile.png | Organiser manages the match: players, teams, crew | **Approved** (Built: SPOR-35, 41) | Clean |
 | signup-desktop.png, signup-mobile.png | Sign up | **Approved** (Built: SPOR-79) | Clean |
-| ownersignup-desktop.png, ownersignup-mobile.png | List your turf | **Approved for owner campaigns** (Built: SPOR-18, 74) | Clean |
+| ownersignup-desktop.png, ownersignup-mobile.png | List your turf | **Not approved** | The copy says "Players pay you directly… Sportzy never holds your money" and "Verify payments", which is the old flow replaced by central collection (SPOR-89). Re-capture once the live copy is updated |
 | dashboard-desktop.png | Player dashboard | **Not approved** | Shows "The venue is checking your bKash/Nagad reference", an old flow |
 | dashboard-mobile.png | Player dashboard, top | Approved for organic only | The top fold is clean; recheck once the live site exists |
 | ownerdashboard-*.png | Owner dashboard with "payments to verify" | **Not approved** | Manual payment checks were replaced by central collection (SPOR-89). Re-capture from the live owner dashboard (SPOR-85) |

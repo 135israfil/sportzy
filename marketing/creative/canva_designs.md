@@ -1,5 +1,7 @@
 # Canva designs: index
 
+> **Superseded on 4 Nov 2026.** The founder rejected the Canva AI drafts as not professional enough for the Bangladesh market. The core designs are now built in code; see `designs/README.md`. Nothing below was saved or published. The library assets (logo and screens) are still in Canva for manual edits.
+
 **Status on 4 Nov 2026:**
 
 - Canva AI made **design candidates** for 10 briefs. They aren't saved designs yet.

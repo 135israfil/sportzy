@@ -37,6 +37,7 @@ Legacy (pitch deck): #3DDC84 green, #0A0E0C background, DM Sans and Domine. Don'
 - **Manrope 500–800:** body and buttons.
 - **JetBrains Mono 500–700:** times, prices, scores (for example "9:00 PM", "৳1,500").
 - **Bangla:** Anton has no Bangla glyphs. Use **Hind Siliguri 600–700** for Bangla headlines and body (the prototypes already use it). Keep Bangla headlines under 8 words.
+- **Bangla display (proposed, founder to confirm):** **Anek Bangla 800** for big Bangla headlines on posts and posters. It is condensed and sporty, and it pairs with Anton; see `designs/`. Hind Siliguri stays the font for Bangla body text.
 
 ## Visual language
 
