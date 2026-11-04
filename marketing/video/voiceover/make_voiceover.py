@@ -13,9 +13,11 @@ Environment:
   ELEVENLABS_API_KEY   required (store it as an environment secret, never in the repo)
   ELEVENLABS_VOICE_ID  voice to use (pick one in the ElevenLabs Voice Library that sounds natural in Bangladeshi Bangla)
   ELEVENLABS_MODEL     default eleven_v3 (Bengali-capable); eleven_multilingual_v2 / eleven_flash_v2_5 also work for English
+  ELEVENLABS_AUTH      leave unset to send the key as xi-api-key; set to "proxy" if an environment Network secret
+                       already injects an xi-api-key header (ElevenLabs rejects two auth headers, and Bearer auth)
 Generated clips are cached in voiceover/cache/ by text+voice+model, so re-runs don't cost characters again.
 """
-import argparse, hashlib, json, os, pathlib, re, subprocess, sys, urllib.request
+import argparse, hashlib, json, os, pathlib, re, subprocess, sys, urllib.error, urllib.request
 
 HERE = pathlib.Path(__file__).parent
 RENDERS = HERE.parent / "renders"
@@ -47,6 +49,13 @@ def duration(path):
     return float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(path)]).decode().strip())
 
 
+def headers(key, extra=None):
+    h = dict(extra or {})
+    if os.environ.get("ELEVENLABS_AUTH") != "proxy":
+        h["xi-api-key"] = key
+    return h
+
+
 def tts(text, voice, model, key):
     CACHE.mkdir(exist_ok=True)
     f = CACHE / (hashlib.sha1(f"{model}|{voice}|{text}".encode()).hexdigest()[:16] + ".mp3")
@@ -54,7 +63,7 @@ def tts(text, voice, model, key):
         return f
     body = json.dumps({"text": text, "model_id": model, "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}}).encode()
     req = urllib.request.Request(API.format(voice=voice), data=body, method="POST",
-                                 headers={"xi-api-key": key, "Content-Type": "application/json", "Accept": "audio/mpeg"})
+                                 headers=headers(key, {"Content-Type": "application/json", "Accept": "audio/mpeg"}))
     with urllib.request.urlopen(req, timeout=120) as r:
         f.write_bytes(r.read())
     return f
@@ -106,16 +115,29 @@ def main():
         work.append((video, lines))
         print(f"{video.name}: {len(lines)} lines, {chars} characters")
     print(f"TOTAL {total} characters ({args.lang}, model {model}). Cached lines are not billed again.")
+    proxy = os.environ.get("ELEVENLABS_AUTH") == "proxy"
     if args.check:
-        if not key:
+        if not key and not proxy:
             print("ELEVENLABS_API_KEY is not set."); sys.exit(1)
+        if not voice:
+            print("ELEVENLABS_VOICE_ID is not set."); sys.exit(1)
         try:
-            urllib.request.urlopen(urllib.request.Request("https://api.elevenlabs.io/v1/user/subscription", headers={"xi-api-key": key}), timeout=15)
-            print("ElevenLabs API reachable and key accepted.")
+            with urllib.request.urlopen(urllib.request.Request(f"https://api.elevenlabs.io/v1/voices/{voice}", headers=headers(key)), timeout=15) as r:
+                v = json.loads(r.read())
+            langs = [l.get("language") + (f"/{l['accent']}" if l.get("accent") else "") for l in v.get("verified_languages") or []]
+            print(f"ElevenLabs OK. Voice: {v.get('name')} | labels: {v.get('labels')} | verified languages: {langs or 'n/a'}")
+        except urllib.error.HTTPError as e:
+            detail = e.read().decode(errors="replace")[:300]
+            print(f"ElevenLabs refused the request ({e.code}): {detail}")
+            if "Received both headers" in detail:
+                print("-> An environment Network secret is also injecting an Authorization header. Remove it, or set ELEVENLABS_AUTH=proxy if it injects xi-api-key.")
+            elif "authorization header was invalid" in detail:
+                print("-> The injected Authorization (Bearer) header is not accepted by ElevenLabs: it needs xi-api-key. Remove the Network secret and keep ELEVENLABS_API_KEY as an environment variable.")
+            sys.exit(1)
         except Exception as e:
-            print(f"ElevenLabs API not reachable or key rejected: {e}"); sys.exit(1)
+            print(f"ElevenLabs API not reachable: {e}"); sys.exit(1)
         return
-    if not key or not voice:
+    if (not key and not proxy) or not voice:
         sys.exit("Set ELEVENLABS_API_KEY and ELEVENLABS_VOICE_ID first (see README.md).")
     for video, lines in work:
         print(f"-> {video.name}")
