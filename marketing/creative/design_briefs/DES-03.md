@@ -12,3 +12,5 @@
 | **CTA** | Turn on notifications |
 | **Brand notes** | Logo top-centre at 64 px. Colours, fonts and logo rules are in `../brand_guidelines.md`. Bangla text uses Hind Siliguri. |
 | **Text overlay rule** | Text is added in Canva, never baked into generated images |
+
+**Built file(s):** `designs/DES-03_countdown_feed.png`, `designs/DES-03_countdown_story_1.png`, `designs/DES-03_countdown_story_2.png`, `designs/DES-03_countdown_story_3.png`, `designs/DES-03_countdown_story_4.png`, `designs/DES-03_countdown_story_5.png`, `designs/DES-03_countdown_story_6.png`, `designs/DES-03_countdown_story_7.png` (see `../designs/README.md`)

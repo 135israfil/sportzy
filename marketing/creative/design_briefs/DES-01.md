@@ -12,3 +12,5 @@
 | **CTA** | Save this post |
 | **Brand notes** | Swipe arrow bottom-right; logo on slide 6 only. Colours, fonts and logo rules are in `../brand_guidelines.md`. Bangla text uses Hind Siliguri. |
 | **Text overlay rule** | Text is added in Canva, never baked into generated images |
+
+**Built file(s):** `designs/DES-01_brand_carousel_01.png`, `designs/DES-01_brand_carousel_02.png`, `designs/DES-01_brand_carousel_03.png`, `designs/DES-01_brand_carousel_04.png`, `designs/DES-01_brand_carousel_05.png`, `designs/DES-01_brand_carousel_06.png` (see `../designs/README.md`)

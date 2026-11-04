@@ -12,3 +12,5 @@
 | **CTA** | Scan to book |
 | **Brand notes** | Logo top; venue logo bottom (with consent). Colours, fonts and logo rules are in `../brand_guidelines.md`. Bangla text uses Hind Siliguri. |
 | **Text overlay rule** | Text is added in Canva, never baked into generated images |
+
+**Built file(s):** `designs/DES-07_venue_qr_poster_sample.png` (see `../designs/README.md`)

@@ -1,0 +1,106 @@
+{
+  "_note": "SAMPLE. Used by both the fixtures and standings cards. Max 6 fixtures and 8 table rows. qualify = how many top rows are highlighted.",
+  "event": "Winter Futsal Cup",
+  "round": 2,
+  "date_bn": "শুক্রবার, ১৩ ডিসেম্বর",
+  "venue": "Pitch 9 Arena, মিরপুর",
+  "fixtures": [
+    {
+      "time": "7:00 PM",
+      "home": "Lions",
+      "away": "Strikers",
+      "court_bn": "কোর্ট ১"
+    },
+    {
+      "time": "7:00 PM",
+      "home": "Rangers",
+      "away": "Falcons",
+      "court_bn": "কোর্ট ২"
+    },
+    {
+      "time": "8:00 PM",
+      "home": "Titans",
+      "away": "United",
+      "court_bn": "কোর্ট ১"
+    },
+    {
+      "time": "8:00 PM",
+      "home": "Warriors",
+      "away": "Royals",
+      "court_bn": "কোর্ট ২"
+    },
+    {
+      "time": "9:00 PM",
+      "home": "Eagles",
+      "away": "Blazers",
+      "court_bn": "কোর্ট ১"
+    }
+  ],
+  "qualify": 4,
+  "table": [
+    {
+      "team": "Lions",
+      "p": 2,
+      "w": 2,
+      "d": 0,
+      "l": 0,
+      "pts": 6
+    },
+    {
+      "team": "Titans",
+      "p": 2,
+      "w": 1,
+      "d": 1,
+      "l": 0,
+      "pts": 4
+    },
+    {
+      "team": "Falcons",
+      "p": 2,
+      "w": 1,
+      "d": 1,
+      "l": 0,
+      "pts": 4
+    },
+    {
+      "team": "Eagles",
+      "p": 2,
+      "w": 1,
+      "d": 0,
+      "l": 1,
+      "pts": 3
+    },
+    {
+      "team": "Strikers",
+      "p": 2,
+      "w": 1,
+      "d": 0,
+      "l": 1,
+      "pts": 3
+    },
+    {
+      "team": "Royals",
+      "p": 2,
+      "w": 0,
+      "d": 1,
+      "l": 1,
+      "pts": 1
+    },
+    {
+      "team": "United",
+      "p": 2,
+      "w": 0,
+      "d": 1,
+      "l": 1,
+      "pts": 1
+    },
+    {
+      "team": "Blazers",
+      "p": 2,
+      "w": 0,
+      "d": 0,
+      "l": 2,
+      "pts": 0
+    }
+  ]
+}

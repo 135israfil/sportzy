@@ -1,5 +1,6 @@
 <!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
 <style>.canvas{width:1640px;height:624px}</style></head>
+<script>function fitText(){document.querySelectorAll("[data-fit]").forEach(e=>{e.style.whiteSpace="nowrap";e.style.width="max-content";let fs=parseFloat(getComputedStyle(e).fontSize);while(e.scrollWidth>+e.dataset.fit&&fs>16){fs-=2;e.style.fontSize=fs+"px"}})}</script>
 <body data-size="1640x624" data-scale="1"><div class="canvas"><div class="sky"></div><div class="beam l"></div><div class="beam r"></div><div class="floor"><div class="turf"><div class="circle"></div></div></div><div class="vignette"></div>
 <div class="phone" style="left:70px;top:120px;width:300px;height:615px;transform:rotate(-10deg)"><div class="notch"></div><div class="scr"><div class="sb"><span>9:41</span><i></i></div><div style="height:100%;overflow:hidden"><img src="../../product_screens/discover-mobile.png" style="margin-top:-0px"></div></div></div>
 <div class="phone" style="left:1270px;top:110px;width:300px;height:615px;transform:rotate(10deg)"><div class="notch"></div><div class="scr"><div class="sb"><span>9:41</span><i></i></div><div style="height:100%;overflow:hidden"><img src="../../product_screens/main-mobile.png" style="margin-top:-0px"></div></div></div>

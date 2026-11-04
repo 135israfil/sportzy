@@ -1,0 +1,40 @@
+{
+  "_note": "SAMPLE. Fill from slots that are really open on Sportzy at posting time. Max 5 rows; badge_bn optional (e.g. শেষ স্লট).",
+  "tag_bn": "আজ রাত",
+  "kicker_en": "Tonight in Dhaka",
+  "title_line1_bn": "আজ রাতে",
+  "title_line2_bn": "খালি স্লট",
+  "slots": [
+    {
+      "venue": "Pitch 9 Arena",
+      "area_bn": "মিরপুর",
+      "time": "8:00 PM",
+      "price": "৳1,800"
+    },
+    {
+      "venue": "Wari Floodlit Field",
+      "area_bn": "ওয়ারী",
+      "time": "9:00 PM",
+      "price": "৳1,500",
+      "badge_bn": "শেষ স্লট"
+    },
+    {
+      "venue": "Banani Sports Field",
+      "area_bn": "বনানী",
+      "time": "9:30 PM",
+      "price": "৳2,200"
+    },
+    {
+      "venue": "Uttara Box Cricket",
+      "area_bn": "উত্তরা",
+      "time": "10:00 PM",
+      "price": "৳1,600"
+    },
+    {
+      "venue": "Mirpur Night Turf",
+      "area_bn": "মিরপুর",
+      "time": "11:00 PM",
+      "price": "৳1,200"
+    }
+  ]
+}

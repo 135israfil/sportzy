@@ -1,45 +1,16 @@
-"""Builds the Sportzy core marketing designs as HTML (rendered to PNG by render.js).
+"""Builds the Sportzy marketing designs as HTML; render.js turns them into PNGs.
 
-Run:  python3 build.py && node render.js
-Sample data (venue names, times, prices, teams) is marked SAMPLE in ../README.md and
-must be replaced with real, consented data before anything is published.
+  python3 build.py                              # all designs + template samples -> ../*.png (after: node render.js)
+  python3 build.py fill <template> <data.json>  # one real post from your data -> ../out/ (renders it too)
+
+Templates and their sample data live in templates.py and ../data/*.json.
+Anything built from sample data is marked SAMPLE and must not be published as-is.
 """
-import pathlib
+import json, subprocess, sys, datetime, re
+from kit import *
+from templates import TEMPLATES
 
-HERE = pathlib.Path(__file__).parent
-LOGO = "../../brand/sportzy-mark-pitchdeck.png"
-SCR = "../../product_screens/"
-ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
-CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="#2FD67B" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>'
-
-
-def atmosphere(floor=True, lamps=False):
-    s = '<div class="sky"></div><div class="beam l"></div><div class="beam r"></div>'
-    if lamps:
-        s += '<div class="lamp l">' + "<i></i>" * 8 + '</div><div class="lamp r">' + "<i></i>" * 8 + "</div>"
-    if floor:
-        s += '<div class="floor"><div class="turf"><div class="circle"></div></div></div>'
-    return s + '<div class="vignette"></div>'
-
-
-def brand(size=52, text=38):
-    return f'<div class="brand"><img src="{LOGO}" style="width:{size}px;height:{size}px"><b style="font-size:{text}px">SPORTZY</b></div>'
-
-
-def phone(img, left, top, width, rot=0, crop_top=0):
-    h = int(width * 2.05)
-    return (f'<div class="phone" style="left:{left}px;top:{top}px;width:{width}px;height:{h}px;transform:rotate({rot}deg)">'
-            f'<div class="notch"></div><div class="scr"><div class="sb"><span>9:41</span><i></i></div><div style="height:100%;overflow:hidden"><img src="{SCR}{img}" style="margin-top:-{crop_top}px"></div></div></div>')
-
-
-def page(name, w, h, body, extra_css="", scale=1):
-    html = f"""<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
-<style>.canvas{{width:{w}px;height:{h}px}}{extra_css}</style></head>
-<body data-size="{w}x{h}" data-scale="{scale}"><div class="canvas">{body}<div class="grain"></div></div></body></html>"""
-    (HERE / f"{name}.html").write_text(html, encoding="utf-8")
-
-
-PAY = '<div class="pay"><span>bKash</span><span>Nagad</span><span>QR Pay BD</span></div>'
+DATA = HERE.parent / "data"
 
 # ---------------------------------------------------------------- DES-04 launch post 1080x1350
 page("DES-04_launch_post", 1080, 1350, atmosphere() + f"""
@@ -60,24 +31,6 @@ page("DES-04_launch_post", 1080, 1350, atmosphere() + f"""
 <div style="position:absolute;left:72px;bottom:64px;display:grid;gap:20px;justify-items:start"><span class="cta">এখনই বুক করো {ARROW}</span><span class="url" style="padding-left:8px">sportzy.live</span></div>
 """)
 
-# ---------------------------------------------------------------- QR helper (links to sportzy.live; per-venue link replaces it)
-def qr_svg(url, size):
-    import qrcode
-    q = qrcode.QRCode(border=0, error_correction=qrcode.constants.ERROR_CORRECT_M); q.add_data(url); q.make()
-    m = q.get_matrix(); n = len(m); c = size / n
-    rects = "".join(f'<rect x="{x*c:.2f}" y="{y*c:.2f}" width="{c+.3:.2f}" height="{c+.3:.2f}"/>' for y, r in enumerate(m) for x, v in enumerate(r) if v)
-    return f'<svg width="{size}" height="{size}" viewBox="0 0 {size} {size}" fill="#04110A">{rects}</svg>'
-
-
-def head(right=""):
-    return f'<div style="position:absolute;left:72px;top:64px">{brand()}</div><div style="position:absolute;right:72px;top:70px">{right}</div>'
-
-
-def cta_block(label, left=72, bottom=64, url=True):
-    u = '<span class="url" style="padding-left:8px">sportzy.live</span>' if url else ""
-    return f'<div style="position:absolute;left:{left}px;bottom:{bottom}px;display:grid;gap:20px;justify-items:start"><span class="cta">{label} {ARROW}</span>{u}</div>'
-
-
 # ---------------------------------------------------------------- DES-05 Facebook cover 1640x624 (safe area: centre 1000x400)
 page("DES-05_facebook_cover", 1640, 624, atmosphere() + f"""
 {phone("discover-mobile.png", 70, 120, 300, -10)}
@@ -87,22 +40,6 @@ page("DES-05_facebook_cover", 1640, 624, atmosphere() + f"""
   <div class="bn" style="font-size:86px;white-space:nowrap">পরের ম্যাচ, <span class="g glow">এক ট্যাপ দূরে</span></div>
   <div class="en" style="font-size:40px;color:var(--muted2);letter-spacing:2px">Turf booking · Tournaments · Live streams</div>
   <div style="display:flex;gap:18px;align-items:center;margin-top:6px"><span class="url">sportzy.live</span>{PAY}</div>
-</div>
-""")
-
-# ---------------------------------------------------------------- DES-06 live thumbnail 1280x720 (SAMPLE teams)
-page("DES-06_live_thumbnail_sample", 1280, 720, atmosphere() + f"""
-<div style="position:absolute;left:60px;top:52px">{brand(46, 34)}</div>
-<div style="position:absolute;left:60px;top:150px">
-  <span class="badge" style="font-size:34px;padding:10px 20px;font-family:Anton;letter-spacing:2px">● LIVE</span>
-  <div class="en" style="font-size:150px;margin-top:26px">LIONS</div>
-  <div class="en y" style="font-size:70px;margin:6px 0 6px 6px">VS</div>
-  <div class="en g glow" style="font-size:150px">STRIKERS</div>
-</div>
-<div class="card" style="position:absolute;right:70px;top:170px;width:430px;padding:34px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.5)">
-  <div class="bn" style="font-size:44px">ফাইনাল</div>
-  <div style="background:var(--paper);color:var(--ink);border-radius:22px;margin:22px 0;padding:18px 0" class="mono"><span style="font-size:130px;line-height:1">2–1</span></div>
-  <div class="mono m" style="font-size:24px">FLOODLIT FUTSAL CUP</div>
 </div>
 """)
 
@@ -126,41 +63,6 @@ page("DES-07_venue_qr_poster_sample", 1191, 1684, atmosphere() + f"""
   <span class="url" style="font-size:32px">sportzy.live</span>{PAY}
 </div>
 """, scale=2)
-
-# ---------------------------------------------------------------- DES-08 turf spotlight 1080x1350 (SAMPLE venue)
-page("DES-08_turf_spotlight_sample", 1080, 1350, atmosphere() + head('<span class="tag">টার্ফ স্পটলাইট</span>') + f"""
-<div style="position:absolute;left:72px;top:190px">
-  <div class="mono g" style="font-size:24px;letter-spacing:4px;margin-bottom:18px">TURF OF THE WEEK · WARI</div>
-  <div class="en" style="font-size:150px">WARI</div>
-  <div class="en g glow" style="font-size:150px">FLOODLIT</div>
-</div>
-<div style="position:absolute;left:72px;top:620px;width:500px;display:grid;gap:16px">
-  {''.join(f'<div class="card" style="padding:20px 24px"><div class="bn-body m" style="font-size:24px">{a}</div><div class="{c}" style="font-size:{fs}px;margin-top:4px">{b}</div></div>' for a, b, c, fs in [("খেলা", "ফুটবল · ৫ ও ৭ জন", "bn", 40), ("ফ্লাডলাইট", "রাত ১টা পর্যন্ত", "bn", 40), ("দাম শুরু", "৳1,500 / ঘণ্টা", "mono y", 44)])}
-  <div><span style="display:inline-flex;gap:10px;align-items:center;border:1.5px solid rgba(47,214,123,.6);border-radius:99px;padding:10px 18px;font:700 22px Manrope;color:var(--green)">{CHECK.replace('<svg', '<svg width="22" height="22"')} ভেরিফায়েড ভেন্যু</span></div>
-</div>
-{phone("turfdetail-mobile.png", 640, 470, 390, 5)}
-{cta_block("এখানে বুক করো")}
-""")
-
-# ---------------------------------------------------------------- DES-09 tournament announcement 1080x1350 (SAMPLE event)
-page("DES-09_tournament_announcement_sample", 1080, 1350, atmosphere() + head('<span class="tag">রেজিস্ট্রেশন চলছে</span>') + f"""
-<div style="position:absolute;left:72px;right:72px;top:180px;text-align:center">
-  <div class="mono y" style="font-size:26px;letter-spacing:6px">DHAKA · 5-A-SIDE · 2026</div>
-  <div class="en" style="font-size:190px;margin-top:20px">WINTER</div>
-  <div class="en g glow" style="font-size:190px">FUTSAL CUP</div>
-</div>
-<div class="card" style="position:absolute;left:72px;right:72px;top:640px;display:grid;grid-template-columns:repeat(3,1fr);text-align:center">
-  {''.join(f'<div style="padding:30px 10px;{bd}"><div class="bn-body m" style="font-size:24px">{a}</div><div class="{c}" style="font-size:38px;margin-top:6px">{b}</div></div>' for a, b, c, bd in [("তারিখ", "১২–১৪ ডিসেম্বর", "bn", ""), ("ভেন্যু", "Pitch 9 Arena", "bn", "border-left:1.5px solid var(--line);border-right:1.5px solid var(--line)"), ("এন্ট্রি ফি", "৳3,000/টিম", "mono y", "")])}
-</div>
-<div style="position:absolute;left:0;right:0;top:850px;text-align:center"><span class="badge" style="font-size:44px;padding:14px 30px;transform:rotate(-2deg);display:inline-block">মাত্র ৪টি স্পট বাকি</span></div>
-<div style="position:absolute;left:72px;right:72px;top:990px;display:flex;justify-content:center;gap:14px;flex-wrap:wrap">
-  {''.join(f'<span style="display:inline-flex;gap:10px;align-items:center;background:rgba(255,255,255,.05);border:1.5px solid var(--line);border-radius:99px;padding:12px 20px" class="bn-body"><span style="font-size:26px">{CHECK.replace("<svg", "<svg width=22 height=22")} {t}</span></span>' for t in ["অনলাইনে রেজিস্ট্রেশন", "QR Pay BD-তে পেমেন্ট", "ফাইনাল লাইভ"])}
-</div>
-<div style="position:absolute;left:72px;right:72px;bottom:64px;display:flex;justify-content:space-between;align-items:flex-end">
-  <div style="display:grid;gap:20px;justify-items:start"><span class="cta">টিম রেজিস্টার করো {ARROW}</span><span class="url" style="padding-left:8px">sportzy.live</span></div>
-  <div style="text-align:center"><div style="width:120px;height:120px;border-radius:50%;border:2px dashed rgba(255,255,255,.35);display:grid;place-items:center" class="bn-body m"><span style="font-size:20px">আয়োজকের<br>লোগো</span></div></div>
-</div>
-""")
 
 # ---------------------------------------------------------------- DES-11 owner one-pager, A4 ratio (1240x1754 @2x)
 BEN = [("ফ্রি লিস্টিং", "খালি স্লট আর দাম ঢাকার খেলোয়াড়দের সামনে"),
@@ -207,26 +109,6 @@ page("DES-12_organiser_card", 1080, 1350, atmosphere() + head('<span class="tag"
 {cta_block("মেসেজ করুন")}
 """)
 
-# ---------------------------------------------------------------- DES-13 open slots story 1080x1920 (SAMPLE slots)
-SLOTS = [("Pitch 9 Arena", "মিরপুর", "8:00 PM", "৳1,800", ""), ("Wari Floodlit Field", "ওয়ারী", "9:00 PM", "৳1,500", "শেষ স্লট"),
-         ("Banani Sports Field", "বনানী", "9:30 PM", "৳2,200", ""), ("Uttara Box Cricket", "উত্তরা", "10:00 PM", "৳1,600", ""),
-         ("Mirpur Night Turf", "মিরপুর", "11:00 PM", "৳1,200", "")]
-page("DES-13_open_slots_story_sample", 1080, 1920, atmosphere() + f"""
-<div style="position:absolute;left:72px;top:270px">{brand()}</div>
-<div style="position:absolute;right:72px;top:276px"><span class="tag">আজ রাত</span></div>
-<div style="position:absolute;left:72px;top:390px">
-  <div class="mono g" style="font-size:26px;letter-spacing:5px;margin-bottom:16px">TONIGHT IN DHAKA</div>
-  <div class="bn" style="font-size:150px">আজ রাতে</div>
-  <div class="bn g glow" style="font-size:150px">খালি স্লট</div>
-</div>
-<div class="card" style="position:absolute;left:72px;right:72px;top:800px;padding:10px 0;box-shadow:0 30px 90px rgba(0,0,0,.5)">
-  {''.join(f'<div style="display:flex;align-items:center;justify-content:space-between;padding:22px 34px;{"border-top:1.5px solid var(--line)" if i else ""}"><div><div style="font:800 34px Manrope">{v}</div><div class="bn-body m" style="font-size:26px">{a}{(" &nbsp;<span class=badge style=font-size:20px;padding:3px 10px>" + b + "</span>") if b else ""}</div></div><div style="text-align:right"><div class="mono y" style="font-size:40px">{t}</div><div class="mono" style="font-size:28px;color:var(--text)">{pr}</div></div></div>' for i, (v, a, t, pr, b) in enumerate(SLOTS))}
-</div>
-<div style="position:absolute;left:72px;right:72px;top:1560px;display:flex;justify-content:space-between;align-items:center">
-  <span class="cta">এখনই বুক করো {ARROW}</span><span class="url">sportzy.live</span>
-</div>
-""")
-
 # ---------------------------------------------------------------- DES-17 paid ad static, C2 "tonight" angle 1080x1080
 page("DES-17_ad_tonight", 1080, 1080, atmosphere() + head() + f"""
 <div style="position:absolute;left:72px;top:190px;width:560px">
@@ -240,5 +122,179 @@ page("DES-17_ad_tonight", 1080, 1080, atmosphere() + head() + f"""
 """)
 
 
+# ================================================================ new designs (Nov 2026)
+LAUNCH_DATE_BN = "১২ ডিসেম্বর"      # [LAUNCH] slip rule: change here if go-live moves
+LAUNCH_DATE_EN = "12 Dec"
+LAUNCH_DAY_BN = "শনিবার, সন্ধ্যা ৭টা"
+
+SWIPE = '<div style="position:absolute;left:72px;bottom:72px;display:flex;align-items:center;gap:14px" class="mono m"><span style="font-size:24px">{n}/{t}</span><span style="width:64px;height:64px;border-radius:50%;border:2px solid var(--green);display:grid;place-items:center;color:var(--green)">' + ARROW.replace("<svg", "<svg width=28 height=28") + '</span></div>'
+RAIL = '<div style="position:absolute;left:0;right:0;top:1176px;height:3px;background:linear-gradient(90deg,rgba(47,214,123,.0),rgba(47,214,123,.7),rgba(47,214,123,.0))"></div>'
+BETA = '<span style="display:inline-block;border:1.5px solid var(--yellow);color:var(--yellow);border-radius:8px;padding:4px 10px;font:700 20px Manrope;letter-spacing:2px;vertical-align:middle;margin-left:12px">BETA</span>'
+
+# ---------------------------------------------------------------- DES-01 brand intro carousel, 6 slides 1080x1350
+CAROUSEL = [
+    ("BOOK", "YOUR TURF.", "খালি স্লট আর আসল দাম, এক জায়গায়। বুক করো, bKash বা Nagad-এ পে করো।", ("main-mobile.png", 0), ""),
+    ("PLAY", "TONIGHT.", "খেলোয়াড় কম? ম্যাচে স্পট খুলে দাও, খেলোয়াড় নিজেই রিকোয়েস্ট পাঠাবে।", ("discover-mobile.png", 0), ""),
+    ("SCORE", "EVERY GOAL.", "Scorezy-তে লাইভ স্কোর, পুরো ম্যাচ জুড়ে।", ("matchroster-mobile.png", 0), BETA),
+    ("STREAM", "THE FINAL.", "Streemzy দিয়ে ফাইনাল লাইভ, ফেসবুক আর ইউটিউবে একসাথে।", None, BETA),
+    ("SHARE", "ONE LINK.", "একটা লিংকে পুরো টিম। কারও অ্যাপ নামাতে হবে না।", ("managematch-mobile.png", 0), ""),
+]
+for i, (w1, w2, bn, scr, tag) in enumerate(CAROUSEL, 1):
+    visual = phone(scr[0], 600, 560, 400, 6, scr[1]) if scr else f"""
+<div class="card" style="position:absolute;left:560px;top:600px;width:450px;padding:36px;box-shadow:0 40px 100px rgba(0,0,0,.6)">
+  <span class="badge" style="font-family:Anton;font-size:30px;letter-spacing:2px">● LIVE</span>
+  <div class="en" style="font-size:64px;margin-top:26px">LIONS <span class="y">vs</span><br>STRIKERS</div>
+  <div class="mono" style="font-size:96px;margin-top:18px;background:var(--paper);color:var(--ink);border-radius:18px;text-align:center;padding:8px 0">2–1</div>
+  <div style="display:flex;gap:10px;margin-top:24px">{''.join(f'<span style="padding:10px 16px;border-radius:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);font:700 22px Manrope">{p}</span>' for p in ["Facebook", "YouTube"])}</div>
+</div>"""
+    page(f"DES-01_brand_carousel_0{i}", 1080, 1350, atmosphere() + RAIL + f"""
+<div style="position:absolute;left:72px;top:72px" class="mono g"><span style="font-size:24px;letter-spacing:4px">SPORTZY · 0{i}</span></div>
+<div style="position:absolute;left:72px;top:150px">
+  <div class="en" style="font-size:190px">{w1}</div>
+  <div class="en g glow" style="font-size:150px">{w2}</div>
+  <p class="bn-body" style="font-size:36px;color:var(--muted2);margin-top:34px;width:470px">{bn}{tag}</p>
+</div>
+{visual}
+{SWIPE.format(n=i, t=6)}""")
+
+page("DES-01_brand_carousel_06", 1080, 1350, atmosphere() + RAIL + f"""
+<div style="position:absolute;left:0;right:0;top:250px;text-align:center;display:grid;justify-items:center;gap:30px">
+  <img src="{LOGO}" style="width:200px;height:200px;filter:drop-shadow(0 0 50px rgba(47,214,123,.5))">
+  <div class="en" style="font-size:150px;letter-spacing:4px">SPORTZY</div>
+  <div class="bn" style="font-size:64px">বুক · খেলা · স্কোর · লাইভ · শেয়ার</div>
+  <div class="mono y" style="font-size:34px;letter-spacing:4px">LAUNCHING {LAUNCH_DATE_EN.upper()} · DHAKA</div>
+</div>
+<div style="position:absolute;left:0;right:0;top:880px;display:grid;justify-items:center;gap:22px">
+  <span class="cta">পোস্টটা সেভ করে রাখো {ARROW}</span><span class="url">sportzy.live</span>
+</div>""")
+
+# ---------------------------------------------------------------- DES-02 "7 stages of booking a turf" carousel, 7 slides
+def bub(text, out=False, t=""):
+    side = "justify-self:end;background:var(--green);color:var(--ink);border-bottom-right-radius:8px" if out else "justify-self:start;background:#16301F;color:var(--text);border-bottom-left-radius:8px"
+    ts = f'<div class="mono" style="font-size:22px;opacity:.6;margin-top:8px;text-align:right">{t}</div>' if t else ""
+    return f'<div style="max-width:82%;padding:24px 32px;border-radius:34px;{side}"><div class="bn-body" style="font-size:44px;line-height:1.35">{text}</div>{ts}</div>'
+
+
+def note(text):
+    return f'<div class="bn-body m" style="justify-self:center;font-size:30px;padding:10px 22px;border-radius:99px;background:rgba(255,255,255,.06)">{text}</div>'
+
+
+STAGES = [
+    ("স্লট খোঁজা", "টার্ফ ম্যানেজার", [bub("ভাই, আজ রাতে স্লট আছে?", True, "8:02 PM"), bub("দেখে জানাচ্ছি ভাই", False, "8:10 PM")]),
+    ("অপেক্ষা", "টার্ফ ম্যানেজার", [bub("ভাই?", True, "8:40 PM"), bub("৮টা বা ৯টা, যেকোনো একটা হলেই হবে", True, "9:05 PM"), note("Seen 9:06 PM")]),
+    ("আরেক টার্ফে ফোন", "আরেক টার্ফ", [note("মিসড কল ×৩"), bub("সন্ধ্যা সব বুকড ভাই। সাড়ে ১১টা খালি আছে।", False, "9:31 PM")]),
+    ("টিম জোগাড়", "ফুটবল গ্রুপ", [bub("আজ রাত সাড়ে ১১টা, কে কে আসবি?", True, "9:35 PM"), bub("আসছি", False), bub("আমিও আসছি", False), note("১৪ জন বলল 'আসছি'। কনফার্ম: ৬ জন")]),
+    ("অ্যাডভান্স", "আরেক টার্ফ", [bub("অ্যাডভান্স ৫০০ টাকা পাঠান, স্ক্রিনশট দিয়েন", False, "9:50 PM"), bub("পাঠালাম ভাই, স্ক্রিনশট দিলাম", True, "9:58 PM"), bub("পাইনি ভাই, আবার দেন", False, "10:20 PM")]),
+    ("টাকা তোলা", "ফুটবল গ্রুপ", [bub("সবাই ২০০ করে পাঠাও", True, "10:25 PM"), bub("কাল দিব", False), bub("নগদে নিবি?", False), bub("আমি তো আজ খেলবই না", False)]),
+]
+for i, (title, who, msgs) in enumerate(STAGES, 1):
+    page(f"DES-02_seven_stages_0{i}", 1080, 1350, atmosphere(floor=False) + f"""
+<div style="position:absolute;left:72px;top:80px">
+  <div class="en y" style="font-size:150px">STAGE {i}</div>
+  <div class="bn" style="font-size:72px;margin-top:6px">{title}</div>
+</div>
+<div class="card" style="position:absolute;left:72px;right:72px;top:420px;height:760px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.5)">
+  <div style="display:flex;align-items:center;gap:18px;padding:24px 30px;border-bottom:1.5px solid var(--line)">
+    <div style="width:64px;height:64px;border-radius:50%;background:#1E3829;display:grid;place-items:center" class="bn"><span style="font-size:30px">{who[0]}</span></div>
+    <div><div class="bn" style="font-size:34px;font-weight:700">{who}</div><div class="mono m" style="font-size:18px">online</div></div>
+  </div>
+  <div style="display:grid;gap:30px;padding:44px 34px">{''.join(msgs)}</div>
+</div>
+<div style="position:absolute;right:72px;bottom:86px" class="bn-body m"><span style="font-size:30px">তুমি কোন স্টেজে? কমেন্ট করো।</span></div>
+{SWIPE.format(n=i, t=7)}""")
+
+page("DES-02_seven_stages_07", 1080, 1350, atmosphere() + f"""
+<div style="position:absolute;left:72px;top:80px">
+  <div class="en y" style="font-size:150px">STAGE 7</div>
+  <div class="bn" style="font-size:66px;margin-top:6px;width:930px">রাত সাড়ে ১১টায় খেলা, কারণ শুধু ওটাই বাকি ছিল।</div>
+</div>
+<div class="card" style="position:absolute;left:72px;right:72px;top:560px;padding:44px 48px;border-color:rgba(47,214,123,.5);box-shadow:0 0 80px rgba(47,214,123,.18)">
+  {brand()}
+  <div class="bn" style="font-size:68px;margin-top:30px">এবার থেকে <span class="g">এক জায়গায়:</span></div>
+  <div style="display:grid;gap:20px;margin-top:30px">{''.join(f'<div style="display:flex;gap:18px;align-items:center">{CHECK.replace("<svg", "<svg width=42 height=42")}<span class="bn" style="font-size:46px;font-weight:700">{t}</span></div>' for t in ["খালি স্লট আর দাম দেখো", "বুক করো, bKash বা Nagad-এ পে করো", "টিমকে একটা লিংক পাঠাও"])}</div>
+</div>
+<div style="position:absolute;left:72px;right:72px;bottom:80px;display:flex;justify-content:space-between;align-items:center">
+  <span class="cta">আসছে {LAUNCH_DATE_BN} {ARROW}</span><span class="url">sportzy.live</span>
+</div>""")
+
+# ---------------------------------------------------------------- DES-03 launch countdown, 7 story frames 1080x1920 + feed 1080x1080
+COUNT = {7: "ঢাকার টার্ফ, খালি স্লট এক জায়গায়", 6: "দাম আগে দেখো, তারপর বুক করো", 5: "bKash, Nagad বা QR Pay BD", 4: "পে করার সময় স্লট তোমার জন্য হোল্ড",
+         3: "একটা লিংকে পুরো টিম", 2: "টুর্নামেন্ট রেজিস্ট্রেশনও এখানেই", 1: LAUNCH_DAY_BN}
+BN_DIGIT = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
+for n, line in COUNT.items():
+    days = "কাল লঞ্চ" if n == 1 else f"{str(n).translate(BN_DIGIT)} দিন বাকি"
+    page(f"DES-03_countdown_story_{n}", 1080, 1920, atmosphere() + f"""
+<div style="position:absolute;left:72px;top:270px">{brand()}</div>
+<div style="position:absolute;right:72px;top:276px"><span class="tag">{LAUNCH_DATE_BN}</span></div>
+<div style="position:absolute;left:0;right:0;top:430px;text-align:center">
+  <div class="en g glow" style="font-size:680px;line-height:.9">{n}</div>
+  <div class="bn" style="font-size:96px;margin-top:10px">{days}</div>
+  <div class="bn-body" style="font-size:44px;color:var(--muted2);margin:30px auto 0;width:860px">{line}</div>
+</div>
+<div style="position:absolute;left:0;right:0;top:1440px;display:grid;justify-items:center;gap:22px">
+  <span class="cta">নোটিফিকেশন অন করো {ARROW}</span><span class="url">sportzy.live</span>
+</div>""")
+
+page("DES-03_countdown_feed", 1080, 1080, atmosphere() + head(f'<span class="tag">{LAUNCH_DATE_BN}</span>') + f"""
+<div style="position:absolute;left:72px;top:200px">
+  <div class="mono y" style="font-size:26px;letter-spacing:5px">LAUNCHING IN DHAKA</div>
+  <div class="en" style="font-size:210px;margin-top:16px">{LAUNCH_DATE_EN.upper()}</div>
+  <div class="bn g glow" style="font-size:84px;margin-top:4px">{LAUNCH_DAY_BN}</div>
+  <p class="bn-body" style="font-size:36px;color:var(--muted2);margin-top:22px">টার্ফ বুকিং, টুর্নামেন্ট আর লাইভ ম্যাচ, এক জায়গায়।</p>
+</div>
+{cta_block("নোটিফিকেশন অন করো")}""")
+
+# ---------------------------------------------------------------- DES-16 corporate league: LinkedIn 1200x627 + feed 1080x1350
+CORP = ["Fixtures and booked turf slots", "Online team registration", "Live-streamed final with your branding", "Standings, MVP and certificates", "Photo and highlight pack"]
+corp_list = lambda fs: "".join(f'<div style="display:flex;gap:16px;align-items:center">{CHECK.replace("<svg", f"<svg width={fs} height={fs}")}<span style="font:700 {fs}px Manrope">{t}</span></div>' for t in CORP)
+page("DES-16_corporate_league_linkedin", 1200, 627, atmosphere() + f"""
+<div style="position:absolute;left:60px;top:48px">{brand(44, 32)}</div>
+<div style="position:absolute;right:60px;top:52px"><span class="tag" style="font-size:16px">For HR and sports clubs</span></div>
+<div style="position:absolute;left:60px;top:130px;width:620px">
+  <div class="en" style="font-size:78px">A LEAGUE YOUR TEAM</div>
+  <div class="en g glow" style="font-size:78px">WILL TURN UP FOR</div>
+  <div class="mono y" style="font-size:20px;margin-top:22px;letter-spacing:1px">6–12 TEAMS · 4–8 WEEKS · FUTSAL / 5-A-SIDE / BOX CRICKET</div>
+</div>
+<div class="card" style="position:absolute;right:60px;top:130px;width:450px;padding:28px 30px;display:grid;gap:14px">{corp_list(22)}</div>
+<div style="position:absolute;left:60px;bottom:48px;display:flex;align-items:center;gap:24px"><span class="cta" style="font-family:Manrope;font-size:24px;padding:16px 26px">Ask for a one-page plan {ARROW}</span><span class="url" style="font-size:22px">sportzy.live</span></div>
+""")
+
+page("DES-16_corporate_league_feed", 1080, 1350, atmosphere() + head('<span class="tag">For HR and sports clubs</span>') + f"""
+<div style="position:absolute;left:72px;top:190px">
+  <div class="mono y" style="font-size:24px;letter-spacing:4px">INTER-DEPARTMENT LEAGUES · DHAKA</div>
+  <div class="en" style="font-size:118px;margin-top:20px">A LEAGUE</div>
+  <div class="en" style="font-size:118px">YOUR TEAM</div>
+  <div class="en g glow" style="font-size:118px">WILL TURN UP FOR</div>
+</div>
+<div class="card" style="position:absolute;left:72px;right:72px;top:640px;padding:36px 40px;display:grid;gap:20px">{corp_list(32)}</div>
+<div style="position:absolute;left:72px;top:1060px" class="mono m"><span style="font-size:24px">6–12 teams · 4–8 weeks · weeknight evenings at partner turfs</span></div>
+<div style="position:absolute;left:72px;bottom:64px;display:grid;gap:20px;justify-items:start"><span class="cta" style="font-family:Manrope;font-size:30px">Ask for a one-page plan {ARROW}</span><span class="url" style="padding-left:8px">sportzy.live</span></div>
+""")
+
+
+def build_template(name, data, out_name):
+    fn, _ = TEMPLATES[name]
+    w, h, body, scale = fn(data)
+    page(out_name, w, h, body, scale=scale)
+
+
+SAMPLES = {"live_thumbnail": "live_thumbnail", "turf_spotlight": "turf_spotlight", "tournament": "tournament", "fixtures": "fixtures",
+           "standings": "fixtures", "open_slots": "open_slots", "captain": "captain", "ramadan": "ramadan"}
+
 if __name__ == "__main__":
-    print("built", len(list(HERE.glob("*.html"))), "designs")
+    if len(sys.argv) >= 4 and sys.argv[1] == "fill":
+        name, path = sys.argv[2], sys.argv[3]
+        if name not in TEMPLATES:
+            sys.exit("unknown template; choose one of: " + ", ".join(TEMPLATES))
+        data = json.loads(open(path, encoding="utf-8").read())
+        stamp = re.sub(r"[^A-Za-z0-9_-]", "", data.get("_label", "")) or datetime.date.today().isoformat()
+        out = f"out__{TEMPLATES[name][1]}_{stamp}"
+        build_template(name, data, out)
+        subprocess.run(["node", str(HERE / "render.js"), out], check=True)
+        sys.exit(0)
+    for name, file in SAMPLES.items():
+        d = json.loads((DATA / f"{file}.json").read_text(encoding="utf-8"))
+        build_template(name, d, TEMPLATES[name][1] + "_sample")
+    d = json.loads((DATA / "ramadan.json").read_text(encoding="utf-8")); d["format"] = "a3"
+    build_template("ramadan", d, "DES-15_ramadan_nights_poster_sample")
+    print("built", len([p for p in HERE.glob("*.html") if not p.name.startswith("out__")]), "designs")

@@ -1,0 +1,14 @@
+{
+  "_note": "SAMPLE. Only for a real captain who opted in, with written consent to use name, team and photo. photo = path to a square image, relative to designs/src/ (leave empty to show initials). Perks must match the approved Founding Captain offer.",
+  "number": "#07",
+  "name": "Captain name",
+  "initials": "CN",
+  "team_bn": "টিমের নাম",
+  "area_bn": "মিরপুর",
+  "since_bn": "ডিসেম্বর ২০২৬ থেকে",
+  "photo": "",
+  "perks_bn": [
+    "টুর্নামেন্টে আগে সুযোগ",
+    "ফাউন্ডার গ্রুপ"
+  ]
+}

@@ -12,3 +12,5 @@
 | **CTA** | (per angle) |
 | **Brand notes** | Logo bottom-right. Colours, fonts and logo rules are in `../brand_guidelines.md`. Bangla text uses Hind Siliguri. |
 | **Text overlay rule** | Text is added in Canva, never baked into generated images |
+
+**Built file(s):** `designs/DES-17_ad_tonight.png` (see `../designs/README.md`)

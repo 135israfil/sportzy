@@ -1,0 +1,17 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>.canvas{width:1080px;height:1350px}</style></head>
+<script>function fitText(){document.querySelectorAll("[data-fit]").forEach(e=>{e.style.whiteSpace="nowrap";e.style.width="max-content";let fs=parseFloat(getComputedStyle(e).fontSize);while(e.scrollWidth>+e.dataset.fit&&fs>16){fs-=2;e.style.fontSize=fs+"px"}})}</script>
+<body data-size="1080x1350" data-scale="1"><div class="canvas"><div class="sky"></div><div class="beam l"></div><div class="beam r"></div><div class="vignette"></div>
+<div style="position:absolute;left:72px;top:80px">
+  <div class="en y" style="font-size:150px">STAGE 6</div>
+  <div class="bn" style="font-size:72px;margin-top:6px">টাকা তোলা</div>
+</div>
+<div class="card" style="position:absolute;left:72px;right:72px;top:420px;height:760px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.5)">
+  <div style="display:flex;align-items:center;gap:18px;padding:24px 30px;border-bottom:1.5px solid var(--line)">
+    <div style="width:64px;height:64px;border-radius:50%;background:#1E3829;display:grid;place-items:center" class="bn"><span style="font-size:30px">ফ</span></div>
+    <div><div class="bn" style="font-size:34px;font-weight:700">ফুটবল গ্রুপ</div><div class="mono m" style="font-size:18px">online</div></div>
+  </div>
+  <div style="display:grid;gap:30px;padding:44px 34px"><div style="max-width:82%;padding:24px 32px;border-radius:34px;justify-self:end;background:var(--green);color:var(--ink);border-bottom-right-radius:8px"><div class="bn-body" style="font-size:44px;line-height:1.35">সবাই ২০০ করে পাঠাও</div><div class="mono" style="font-size:22px;opacity:.6;margin-top:8px;text-align:right">10:25 PM</div></div><div style="max-width:82%;padding:24px 32px;border-radius:34px;justify-self:start;background:#16301F;color:var(--text);border-bottom-left-radius:8px"><div class="bn-body" style="font-size:44px;line-height:1.35">কাল দিব</div></div><div style="max-width:82%;padding:24px 32px;border-radius:34px;justify-self:start;background:#16301F;color:var(--text);border-bottom-left-radius:8px"><div class="bn-body" style="font-size:44px;line-height:1.35">নগদে নিবি?</div></div><div style="max-width:82%;padding:24px 32px;border-radius:34px;justify-self:start;background:#16301F;color:var(--text);border-bottom-left-radius:8px"><div class="bn-body" style="font-size:44px;line-height:1.35">আমি তো আজ খেলবই না</div></div></div>
+</div>
+<div style="position:absolute;right:72px;bottom:86px" class="bn-body m"><span style="font-size:30px">তুমি কোন স্টেজে? কমেন্ট করো।</span></div>
+<div style="position:absolute;left:72px;bottom:72px;display:flex;align-items:center;gap:14px" class="mono m"><span style="font-size:24px">6/7</span><span style="width:64px;height:64px;border-radius:50%;border:2px solid var(--green);display:grid;place-items:center;color:var(--green)"><svg width=28 height=28 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div><div class="grain"></div></div></body></html>

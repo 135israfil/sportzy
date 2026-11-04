@@ -12,3 +12,5 @@
 | **CTA** | Register your team |
 | **Brand notes** | Organiser logo top-left, Sportzy bottom-right. Colours, fonts and logo rules are in `../brand_guidelines.md`. Bangla text uses Hind Siliguri. |
 | **Text overlay rule** | Text is added in Canva, never baked into generated images |
+
+**Built file(s):** `designs/DES-09_tournament_announcement_sample.png` (see `../designs/README.md`)

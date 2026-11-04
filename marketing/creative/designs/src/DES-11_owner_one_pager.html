@@ -1,5 +1,6 @@
 <!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
 <style>.canvas{width:1240px;height:1754px}</style></head>
+<script>function fitText(){document.querySelectorAll("[data-fit]").forEach(e=>{e.style.whiteSpace="nowrap";e.style.width="max-content";let fs=parseFloat(getComputedStyle(e).fontSize);while(e.scrollWidth>+e.dataset.fit&&fs>16){fs-=2;e.style.fontSize=fs+"px"}})}</script>
 <body data-size="1240x1754" data-scale="2"><div class="canvas"><div class="sky"></div><div class="beam l"></div><div class="beam r"></div><div class="vignette"></div>
 <div style="position:absolute;left:90px;top:80px"><div class="brand"><img src="../../brand/sportzy-mark-pitchdeck.png" style="width:60px;height:60px"><b style="font-size:44px">SPORTZY</b></div></div>
 <div style="position:absolute;right:90px;top:90px"><span class="tag" style="font-size:22px">টার্ফ মালিকদের জন্য</span></div>
