@@ -35,7 +35,7 @@ The scripts in `../scripts/` say what each one needs.
 ## Before posting
 
 1. **Add music** in CapCut, or from the Meta Sound Collection / TikTok commercial library. Only use tracks licensed for business use. Keep it under the on-screen beats: hooks land at 0–3 s.
-2. **Optional voice-over:** record the lines in `../voiceovers/VID-xx_vo.md`.
+2. **Voice-over:** generate it with ElevenLabs (`../voiceover/README.md`), or record the lines in `../voiceovers/VID-xx_vo.md`.
 3. **Captions:** keep or upload the `.srt` files. The key text is already burned into the picture.
 4. **Data:** files marked SAMPLE contain made-up teams, venues, slots and prices. Re-render them from real data first.
 5. **Gates and claims:** respect the launch gate, and don't post anything that shows a feature before it's live.

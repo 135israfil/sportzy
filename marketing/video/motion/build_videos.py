@@ -156,7 +156,7 @@ def vid12(d, name="VID-12_tonight_in_dhaka_9x16_sample"):
 {scene(3, 12.2, at(72, 270, brand()) + center(420, '<div class="bn" style="font-size:104px">' + d.get("title_line1_bn", "আজ রাতে") + ' <span class="g">' + d.get("title_line2_bn", "খালি স্লট") + '</span></div>', anim(3, None, "down", .4)) + at(72, 640, rows, w=936))}
 {end_card(12.2, W, H, "এখনই", "বুক করো", "স্লট দেখো", "TONIGHT IN DHAKA")}"""
     caps = [(0, 3, "আজ রাতে ঢাকায়।", "Tonight in Dhaka.")] + \
-           [(3.2 + i * 1.5, 3.2 + (i + 1) * 1.5, f'{s["area_bn"]}, রাত {s["time"]}', f'{s["venue"]}, {s["time"]}') for i, s in enumerate(slots)] + \
+           [(3.2 + i * 1.5, 3.2 + (i + 1) * 1.5, f'{s["area_bn"]}, {s["time"]}', f'{s["venue"]}, {s["time"]}') for i, s in enumerate(slots)] + \
            [(12.2, 15, "এখনই বুক করো।", "Book now.")]
     vpage(name, W, H, dur, body, caps, poster=9.5)
 
