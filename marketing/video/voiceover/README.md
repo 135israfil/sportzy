@@ -34,6 +34,6 @@ Use the filled video's own lines if the data changed the captions.
 ## Quality checks before posting
 
 - **Listen to every line.** Check that Bangla words and English brand words are pronounced correctly: Sportzy, bKash, Nagad, QR Pay BD, venue names. If a word is wrong, respell it in the caption text, for example "স্পোর্টজি", and re-run.
-- **Fit:** a line is sped up by at most 1.2× to fit its slot. If the script warns about overlap, shorten that caption line.
+- **Fit:** a line is sped up by at most 1.3× to fit its slot. If the script warns about overlap, shorten that caption line.
 - **Music:** add it underneath at about -24 LUFS so the voice stays clear.
 - **Label it as AI:** where a platform requires it (Meta and TikTok do for realistic AI audio), mark the voice as AI-generated.

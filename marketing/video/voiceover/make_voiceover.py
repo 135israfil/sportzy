@@ -24,7 +24,34 @@ RENDERS = HERE.parent / "renders"
 OUT = RENDERS / "voiced"
 CACHE = HERE / "cache"
 API = "https://api.elevenlabs.io/v1/text-to-speech/{voice}?output_format=mp3_44100_128"
-MAX_SPEEDUP = 1.2
+MAX_SPEEDUP = 1.3
+
+
+BN_HOURS = ["বারোটা", "একটা", "দুইটা", "তিনটা", "চারটা", "পাঁচটা", "ছয়টা", "সাতটা", "আটটা", "নয়টা", "দশটা", "এগারোটা", "বারোটা"]
+
+
+def bn_time(h, m, ap):
+    """'9:30 PM' -> 'রাত সাড়ে নয়টা' (how a Dhaka speaker says it)."""
+    h24 = h % 12 + (12 if ap == "PM" else 0)
+    part = ("ভোর" if h24 < 6 else "সকাল" if h24 < 12 else "দুপুর" if h24 < 15 else "বিকেল" if h24 < 17
+            else "সন্ধ্যা" if h24 < 20 else "রাত")
+    if m == 0:
+        return f"{part} {BN_HOURS[h % 12]}"
+    if m == 30:
+        return f"{part} সাড়ে {BN_HOURS[h % 12]}"
+    if m == 15:
+        return f"{part} সোয়া {BN_HOURS[h % 12]}"
+    if m == 45:
+        return f"{part} পৌনে {BN_HOURS[(h % 12) + 1]}"
+    return f"{part} {BN_HOURS[h % 12]} {m} মিনিট"
+
+
+def spoken(text, lang):
+    """Rewrite a caption line for speech only (captions on screen stay as they are)."""
+    if lang != "bn":
+        return text
+    text = re.sub(r"(?:রাত|সন্ধ্যা)?\s*(\d{1,2}):(\d{2})\s*(AM|PM)", lambda m: " " + bn_time(int(m[1]), int(m[2]), m[3]), text)
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def parse_srt(path):
@@ -64,8 +91,11 @@ def tts(text, voice, model, key):
     body = json.dumps({"text": text, "model_id": model, "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}}).encode()
     req = urllib.request.Request(API.format(voice=voice), data=body, method="POST",
                                  headers=headers(key, {"Content-Type": "application/json", "Accept": "audio/mpeg"}))
-    with urllib.request.urlopen(req, timeout=120) as r:
-        f.write_bytes(r.read())
+    try:
+        with urllib.request.urlopen(req, timeout=120) as r:
+            f.write_bytes(r.read())
+    except urllib.error.HTTPError as e:
+        sys.exit(f"ElevenLabs refused the line ({e.code}): {e.read().decode(errors='replace')[:300]}")
     return f
 
 
@@ -73,13 +103,16 @@ def mix(video, clips, out):
     """clips: [(start_s, slot_s, mp3)] -> video with the voice track (loudness-normalised to -16 LUFS)."""
     vdur = duration(video)
     inputs, filters, labels = ["-i", str(video)], [], []
+    prev_end = 0.0
     for i, (t0, slot, mp3) in enumerate(clips, 1):
         inputs += ["-i", str(mp3)]
         d = duration(mp3)
         speed = min(MAX_SPEEDUP, max(1.0, d / max(slot, .3)))
-        if d / speed > slot + .05:
-            print(f"   ! line at {t0:.1f}s is {d:.1f}s for a {slot:.1f}s slot even at {MAX_SPEEDUP}x; it will overlap the next line. Shorten the text.")
-        filters.append(f"[{i}:a]atempo={speed:.3f},adelay={int(t0 * 1000)}:all=1[a{i}]")
+        start = max(t0, prev_end + .06)          # never overlap: a long line pushes the next one back a little
+        if start - t0 > .5:
+            print(f"   ! line cued at {t0:.1f}s starts {start - t0:.1f}s late because earlier lines ran long. Shorten the text.")
+        prev_end = start + d / speed
+        filters.append(f"[{i}:a]atempo={speed:.3f},adelay={int(start * 1000)}:all=1[a{i}]")
         labels.append(f"[a{i}]")
     filters.append(f"{''.join(labels)}amix=inputs={len(labels)}:normalize=0,apad,atrim=0:{vdur:.3f},loudnorm=I=-16:TP=-1.5:LRA=11[vo]")
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -100,8 +133,9 @@ def main():
     ap.add_argument("--lang", default="bn", choices=["bn", "en"])
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--video"); ap.add_argument("--srt")
+    ap.add_argument("--voice", help="voice id for this run (overrides ELEVENLABS_VOICE_ID)")
     args = ap.parse_args()
-    key, voice = os.environ.get("ELEVENLABS_API_KEY"), os.environ.get("ELEVENLABS_VOICE_ID")
+    key, voice = os.environ.get("ELEVENLABS_API_KEY"), args.voice or os.environ.get("ELEVENLABS_VOICE_ID")
     model = os.environ.get("ELEVENLABS_MODEL", "eleven_v3")
     total = 0
     work = []
@@ -111,7 +145,7 @@ def main():
         lines = parse_srt(srt)
         if not lines:
             print(f"skip {video.name}: no {args.lang} lines (e.g. a music-only bumper)"); continue
-        chars = sum(len(t) for _, _, t in lines); total += chars
+        chars = sum(len(spoken(t, args.lang)) for _, _, t in lines); total += chars
         work.append((video, lines))
         print(f"{video.name}: {len(lines)} lines, {chars} characters")
     print(f"TOTAL {total} characters ({args.lang}, model {model}). Cached lines are not billed again.")
@@ -144,7 +178,7 @@ def main():
         clips = []
         for i, (t0, t1, text) in enumerate(lines):
             nxt = lines[i + 1][0] if i + 1 < len(lines) else duration(video)
-            clips.append((t0 + .15, min(t1, nxt) - t0 - .25, tts(text, voice, model, key)))
+            clips.append((t0 + .05, min(t1, nxt) - t0 - .1, tts(spoken(text, args.lang), voice, model, key)))
         out = (OUT if not args.video else video.parent) / f"{video.stem}_vo{'' if args.lang == 'bn' else '_en'}.mp4"
         mix(video, clips, out)
         print(f"   wrote {out.relative_to(HERE.parents[1]) if HERE.parents[1] in out.parents else out}")
